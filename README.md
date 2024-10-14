@@ -1,29 +1,40 @@
-# Create T3 App
+# Produkta
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Welcome to the Produkta app, a DTI MSME Directory App built using Next.js
 
-## What's next? How do I make an app with this?
+## Getting Started
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+To get started with Produkta, follow these steps to set up your development environment:
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+1. **Clone the Repository**  
+   Clone this repository to your local machine.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+2. **Install Dependencies**  
+   Navigate to the project directory and install the required dependencies:
 
-## Learn More
+   ```bash
+   cd produkta
+   npm install
+   ```
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+3. **Set Up Environment Variables**  
+   Create a `.env` file in the root of the project and add your environment variables.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+4. **Run the Development Server**  
+   Start the development server with:
+   ```bash
+   npm run dev
+   ```
+   Your application will be available at `http://localhost:3000`.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Available Scripts
 
-## How do I deploy this?
+In the project directory, you can run the following scripts:
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- **`npm run build`**: Builds the application for production.
+- **`npm run db:generate`**: Generates the Prisma client.
+- **`npm run db:migrate`**: Applies database migrations.
+- **`npm run db:push`**: Pushes the Prisma schema to the database.
+- **`npm run db:studio`**: Opens Prisma Studio for database management.
+- **`npm run lint`**: Runs the linter to check for code quality issues.
+- **`npm run start`**: Starts the application in production mode.
