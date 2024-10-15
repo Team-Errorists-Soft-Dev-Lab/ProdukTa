@@ -1,12 +1,24 @@
 import { type Config } from "tailwindcss";
-import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
   content: ["./src/**/*.tsx"],
   theme: {
     extend: {
+      colors: {
+        brown: {
+          light: "#B9B87A",
+          DEFAULT: "#996439",
+          dark: "#523C22",
+        },
+        beige: "#BEA867",
+        olive: "#A2A14A",
+        darkOlive: "#655C38",
+        white: "#F9F8F4",
+        black: "#51493D",
+      },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", ...fontFamily.sans],
+        header: ["Montserrat", "sans-serif"],
+        body: ["Karla", "sans-serif"],
       },
     },
   },
