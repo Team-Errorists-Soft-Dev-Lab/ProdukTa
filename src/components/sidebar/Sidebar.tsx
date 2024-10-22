@@ -1,13 +1,45 @@
 "use client";
+
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Home, LogOut, Users, Briefcase } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Home, LogOut, Users, Briefcase, ChevronRight } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const sidebarNavItems = [
+  {
+    title: "Dashboard",
+    href: "/superadmin",
+    icon: Home,
+  },
+  {
+    title: "Sectors",
+    href: "/superadmin/sectors",
+    icon: Briefcase,
+  },
+  {
+    title: "Admins",
+    href: "/superadmin/admins",
+    icon: Users,
+  },
+  {
+    title: "MSMEs",
+    href: "/superadmin/msme",
+    icon: Users,
+  },
+];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   const handleLogout = () => {
     console.log("Logging out...");
@@ -15,78 +47,93 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="flex h-full w-64 flex-col bg-[#A2A14A] font-body text-white">
-      <div className="flex-grow p-4">
-        <img
-          src="/produkta-logo.png"
-          alt="ProdukTa Logo"
-          className="mb-6 w-full"
-        />
-        <nav className="space-y-2 font-header">
-          <Link href="/superadmin">
-            <Button
-              variant={pathname === "/superadmin" ? "secondary" : "ghost"}
-              className={`w-full justify-start text-white hover:bg-white hover:text-[#A2A14A] ${
-                pathname === "/superadmin" ? "bg-white text-[#A2A14A]" : ""
-              }`}
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-          </Link>
-          <Link href="/superadmin/sectors">
-            <Button
-              variant={
-                pathname === "/superadmin/sectors" ? "secondary" : "ghost"
-              }
-              className={`w-full justify-start text-white hover:bg-white hover:text-[#A2A14A] ${
-                pathname === "/superadmin/sectors"
-                  ? "bg-white text-[#A2A14A]"
-                  : ""
-              }`}
-            >
-              <Briefcase className="mr-2 h-4 w-4" />
-              Manage Sectors
-            </Button>
-          </Link>
-          <Link href="/superadmin/admins">
-            <Button
-              variant={
-                pathname === "/superadmin/admins" ? "secondary" : "ghost"
-              }
-              className={`w-full justify-start text-white hover:bg-white hover:text-[#A2A14A] ${
-                pathname === "/superadmin/admins"
-                  ? "bg-white text-[#A2A14A]"
-                  : ""
-              }`}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              Manage Admins
-            </Button>
-          </Link>
-          <Link href="/superadmin/msme">
-            <Button
-              variant={pathname === "/superadmin/msme" ? "secondary" : "ghost"}
-              className={`w-full justify-start text-white hover:bg-white hover:text-[#A2A14A] ${
-                pathname === "/superadmin/msme" ? "bg-white text-[#A2A14A]" : ""
-              }`}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              Manage MSMEs
-            </Button>
-          </Link>
-        </nav>
-      </div>
-      <div className="p-4">
+    <div
+      className={cn(
+        "flex h-full flex-col bg-[#A2A14A] font-body text-white shadow-lg transition-all duration-300",
+        isCollapsed ? "w-20" : "w-64",
+      )}
+    >
+      <div className="flex h-20 items-center justify-between border-b border-white/20 px-4">
+        {!isCollapsed && (
+          <img
+            src="/produkta-logo.png"
+            alt="ProdukTa Logo"
+            className="h-12 w-auto"
+          />
+        )}
         <Button
-          variant="outline"
-          className="w-full border-white text-[#A2A14A]"
-          onClick={handleLogout}
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-white/10"
+          onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
+          <ChevronRight
+            className={cn(
+              "h-6 w-6 transition-transform",
+              isCollapsed && "rotate-180",
+            )}
+          />
         </Button>
       </div>
-    </aside>
+      <ScrollArea className="flex-1 px-2 py-4">
+        <nav className="flex flex-col space-y-2 font-header">
+          {sidebarNavItems.map((item) => (
+            <TooltipProvider key={item.href}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href={item.href}>
+                    <Button
+                      variant={pathname === item.href ? "secondary" : "ghost"}
+                      className={cn(
+                        "w-full justify-start text-white transition-colors hover:bg-white/10",
+                        pathname === item.href && "bg-white text-[#A2A14A]",
+                        isCollapsed && "justify-center",
+                      )}
+                    >
+                      <item.icon
+                        className={cn("h-5 w-5", !isCollapsed && "mr-3")}
+                      />
+                      {!isCollapsed && <span>{item.title}</span>}
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                {isCollapsed && (
+                  <TooltipContent
+                    side="right"
+                    className="bg-white text-[#A2A14A]"
+                  >
+                    {item.title}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+        </nav>
+      </ScrollArea>
+      <div className="p-4">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start border-white text-[#A2A14A]",
+                  isCollapsed && "justify-center",
+                )}
+                onClick={handleLogout}
+              >
+                <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
+                {!isCollapsed && <span>Logout</span>}
+              </Button>
+            </TooltipTrigger>
+            {isCollapsed && (
+              <TooltipContent side="right" className="bg-white text-[#A2A14A]">
+                Logout
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
   );
 }
