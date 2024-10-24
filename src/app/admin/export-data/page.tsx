@@ -1,7 +1,7 @@
 // implement export data page here
 "use client";
 import { useState, useEffect } from "react";
-import { Search, ChevronDown, Calendar, Filter } from "lucide-react";
+import { Search, Calendar, Filter } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Navbar from "@/components/AdminNavbar";
@@ -141,10 +141,10 @@ export default function ExportData() {
   ]);
 
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [startDate, setStartDate] = useState<Date | null>(
-    new Date("2023-01-01"),
+  const [startDate, setStartDate] = useState<Date>(new Date("2023-01-01"));
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    new Date("2023-12-31"),
   );
-  const [endDate, setEndDate] = useState<Date | null>(new Date("2023-12-31"));
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [timeRange, setTimeRange] = useState("custom");
   const [searchTerm, setSearchTerm] = useState("");
@@ -270,7 +270,9 @@ export default function ExportData() {
                   <div className="relative">
                     <DatePicker
                       selected={startDate}
-                      onChange={(date: Date | null) => setStartDate(date)}
+                      onChange={(date: Date | null) =>
+                        setEndDate(date ?? undefined)
+                      }
                       selectsStart
                       startDate={startDate}
                       endDate={endDate}
@@ -292,7 +294,9 @@ export default function ExportData() {
                   <div className="relative">
                     <DatePicker
                       selected={endDate}
-                      onChange={(date: Date | null) => setEndDate(date)}
+                      onChange={(date: Date | null) =>
+                        setEndDate(date ?? undefined)
+                      }
                       selectsEnd
                       startDate={startDate}
                       endDate={endDate}

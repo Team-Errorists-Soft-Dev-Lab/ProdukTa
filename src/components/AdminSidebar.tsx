@@ -23,21 +23,21 @@ export default function Sidebar() {
           Home
         </Link>
         <Link
-          href="/manage"
+          href="/admin/msme"
           className="hover:text-brown-800 flex items-center px-4 py-2 text-gray-700 hover:bg-amber-200"
         >
           <Users className="mr-3" size={18} />
           Manage MSMEs
         </Link>
         <Link
-          href="/export"
+          href="/admin/export-data"
           className="hover:text-brown-800 flex items-center px-4 py-2 text-gray-700 hover:bg-amber-200"
         >
           <FileText className="mr-3" size={18} />
           Export Data
         </Link>
         <Link
-          href="/guest"
+          href="/admin/guest"
           className="hover:text-brown-800 flex items-center px-4 py-2 text-gray-700 hover:bg-amber-200"
         >
           <User className="mr-3" size={18} />
