@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "@/contexts/AuthContext";
 
 const sidebarNavItems = [
   {
@@ -38,12 +40,12 @@ const sidebarNavItems = [
 ];
 
 export default function Sidebar() {
+  const { logout } = useAuth();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   const handleLogout = () => {
-    console.log("Logging out...");
-    // Implement actual logout logic here
+    logout();
   };
 
   return (
@@ -55,10 +57,12 @@ export default function Sidebar() {
     >
       <div className="flex h-20 items-center justify-between border-b border-white/20 px-4">
         {!isCollapsed && (
-          <img
-            src="/produkta-logo.png"
+          <Image
+            src="/ProdukTa_Logo.png"
             alt="ProdukTa Logo"
-            className="h-12 w-auto"
+            className="h-16 w-auto"
+            width={500}
+            height={500}
           />
         )}
         <Button
