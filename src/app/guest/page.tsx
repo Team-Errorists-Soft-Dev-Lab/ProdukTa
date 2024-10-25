@@ -105,7 +105,7 @@ export default function GuestPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <main className="bg-[#CD853F] p-8">
+      <main className="bg-[#8B4513] p-8">
         <h1 className="mb-6 text-center text-4xl font-bold text-white">
           Discover Local MSMEs
         </h1>
@@ -141,9 +141,9 @@ export default function GuestPage() {
             variant={selectedSector === category ? "default" : "outline"}
             className={`${
               selectedSector === category
-                ? "bg-[#CD853F] text-white"
+                ? "bg-[#8B4513] text-white"
                 : "bg-[#DEB887] text-[#8B4513]"
-            } hover:bg-[#CD853F] hover:text-white`}
+            } hover:bg-[#8B4513] hover:text-white`}
             onClick={() => handleSectorChange(category)}
           >
             {category}
