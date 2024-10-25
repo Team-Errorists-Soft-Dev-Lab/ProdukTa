@@ -1,6 +1,7 @@
 "use client";
 
-import { products, Product, sectors } from "mock_data/dummyData";
+import { products, sectors } from "mock_data/dummyData";
+import { Product } from "@/types/products";
 import React, { useState } from "react";
 import ProductModal from "@/components/modals/ProductModal";
 import MunicipalitiesModal from "@/components/modals/MunicipalitiesModal";
@@ -43,8 +44,8 @@ export default function GuestPage() {
   const searchProduct = (query: string) => {
     setSearchResult(
       products.filter((product) =>
-        product.name.toLowerCase().includes(query.toLowerCase())
-      )
+        product.name.toLowerCase().includes(query.toLowerCase()),
+      ),
     );
   };
 
@@ -65,12 +66,13 @@ export default function GuestPage() {
     ? products.filter((product) => product.category === selectedSector)
     : products;
 
-  const displayedProducts = searchResult.length > 0
-    ? searchResult
-    : sortProducts(filteredProducts, sort).slice(
-        (currentPage - 1) * productsPerPage,
-        currentPage * productsPerPage
-      );
+  const displayedProducts =
+    searchResult.length > 0
+      ? searchResult
+      : sortProducts(filteredProducts, sort).slice(
+          (currentPage - 1) * productsPerPage,
+          currentPage * productsPerPage,
+        );
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
