@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Home, LogOut, Users, Briefcase, ChevronRight } from "lucide-react";
+import { Home, LogOut, Users, Briefcase, ChevronLeft } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -71,7 +71,7 @@ export default function Sidebar() {
           className="text-white hover:bg-white/10"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          <ChevronRight
+          <ChevronLeft
             className={cn(
               "h-6 w-6 transition-transform",
               isCollapsed && "rotate-180",
