@@ -16,7 +16,7 @@ export default function Sidebar() {
       </div>
       <nav className="mt-8 flex-grow">
         <Link
-          href="/"
+          href="/admin/dashboard"
           className="hover:text-brown-800 flex items-center px-4 py-2 text-gray-700 hover:bg-amber-200"
         >
           <Home className="mr-3" size={18} />
