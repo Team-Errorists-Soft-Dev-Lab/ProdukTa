@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import Dashboard from "./dashboard/page";
 
-export default function Home() {
-  redirect("/auth");
+export default function SuperAdminPage() {
+  return <Dashboard />;
 }

@@ -28,6 +28,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push("/superadmin");
       return true;
     }
+
+    if (email === "manaf@gmail.com" && password === "hotdog") {
+      setIsAuthenticated(true);
+      localStorage.setItem("isAuthenticated", "true");
+      router.push("/admin");
+      return true;
+    }
     return false;
   };
 

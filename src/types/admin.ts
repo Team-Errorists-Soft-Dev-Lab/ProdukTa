@@ -16,6 +16,4 @@ export interface Admin {
   email: string;
   sector: string;
   msmes: MSME[];
-  isAuthenticated: boolean;
-  searchQuery?: string;
 }
