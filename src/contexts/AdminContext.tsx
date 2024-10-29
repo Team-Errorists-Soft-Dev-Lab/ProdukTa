@@ -1,7 +1,10 @@
 // contexts/AdminContext.tsx
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { MSME, Admin } from "@/types/admin";
+
+import React, { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
+
+import type { MSME } from "@/types/admin";
 
 // Define the shape of the AdminContext
 interface AdminContextType {
