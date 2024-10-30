@@ -54,7 +54,7 @@ export default function Dashboard() {
                 </h3>
                 <p className="text-brown-600 text-3xl font-bold">1498</p>
               </div>
-              <button className="text-brown-800 rounded bg-amber-200 px-4 py-2 transition duration-150 ease-in-out hover:bg-amber-300">
+              <button className="rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]">
                 Export Data
               </button>
             </div>
@@ -70,14 +70,14 @@ export default function Dashboard() {
                   <input
                     type="text"
                     placeholder="Search"
-                    className="rounded-md border py-2 pl-8 pr-4 focus:outline-none focus:ring-2 focus:ring-amber-300"
+                    className="rounded-md border py-2 pl-8 pr-4 focus:outline-none focus:ring-2 focus:ring-[#996439]"
                   />
                   <Search
                     className="absolute left-2 top-2.5 text-gray-400"
                     size={18}
                   />
                 </div>
-                <button className="ml-2 flex items-center rounded bg-gray-200 px-4 py-2 transition duration-150 ease-in-out hover:bg-gray-300">
+                <button className="ml-2 flex items-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]">
                   Sort by <ChevronDown className="ml-1" size={18} />
                 </button>
               </div>

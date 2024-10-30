@@ -42,14 +42,14 @@ export default function ManageMSMEs() {
                 <input
                   type="text"
                   placeholder="Search"
-                  className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-[#996439]"
                 />
                 <Search
                   className="absolute left-3 top-2.5 text-gray-400"
                   size={18}
                 />
               </div>
-              <button className="text-brown-800 flex items-center rounded-md bg-amber-200 px-4 py-2 transition duration-150 ease-in-out hover:bg-amber-300">
+              <button className="flex items-center rounded-md bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]">
                 <Plus size={18} className="mr-2" />
                 Add MSME
               </button>
