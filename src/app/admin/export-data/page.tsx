@@ -198,7 +198,7 @@ export default function ExportData() {
                   placeholder="Search"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-md border py-2 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  className="w-full rounded-md border py-2 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-[#996439]"
                 />
                 <Search
                   className="absolute left-3 top-2.5 text-gray-400"
@@ -211,7 +211,7 @@ export default function ExportData() {
                   <Filter size={18} className="text-gray-400" />
                 </button>
               </div>
-              <button className="text-brown-800 rounded-md bg-amber-200 px-4 py-2 transition duration-150 ease-in-out hover:bg-amber-300">
+              <button className="rounded-md bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]">
                 Export Data
               </button>
             </div>
@@ -246,7 +246,7 @@ export default function ExportData() {
                 <div>
                   <label
                     htmlFor="timeRange"
-                    className="block text-sm font-medium text-gray-700"
+                    className="border-color: [#996439] block text-sm font-medium text-gray-700"
                   >
                     Time Range
                   </label>
@@ -366,6 +366,7 @@ export default function ExportData() {
                       >
                         <td className="py-3">
                           <input
+                            title="search"
                             type="checkbox"
                             checked={selectedEnterprises.includes(
                               enterprise.id,
