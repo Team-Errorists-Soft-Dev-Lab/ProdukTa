@@ -40,6 +40,8 @@ export default function GuestPage() {
   const [sort, setSort] = useState<string>("name");
   const [searchResult, setSearchResult] = useState<Product[]>([]);
   const productsPerPage = 9;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const emptySearch = ["No results found"];
 
   const searchProduct = (query: string) => {
     setSearchResult(
@@ -66,18 +68,20 @@ export default function GuestPage() {
     ? products.filter((product) => product.category === selectedSector)
     : products;
 
-  const displayedProducts =
-    searchResult.length > 0
+  const displayedProducts = searchQuery
+    ? searchResult.length > 0
       ? searchResult
-      : sortProducts(filteredProducts, sort).slice(
-          (currentPage - 1) * productsPerPage,
-          currentPage * productsPerPage,
-        );
+      : []
+    : sortProducts(filteredProducts, sort).slice(
+        (currentPage - 1) * productsPerPage,
+        currentPage * productsPerPage,
+      );
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
+    setSearchQuery(query);
     if (query) {
       searchProduct(query);
     } else {
@@ -167,40 +171,44 @@ export default function GuestPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 p-12 md:grid-cols-2 lg:grid-cols-3">
-        {displayedProducts.map((product) => (
-          <Dialog key={product.id}>
-            <DialogTrigger asChild>
-              <Card className="cursor-pointer border-[#DEB887] transition-shadow hover:shadow-lg">
-                <CardHeader className="p-0">
-                  <Image
-                    src={`${product.productGallery[0]}`}
-                    alt={product.name}
-                    width={300}
-                    height={200}
-                    className="w-full"
-                  />
-                </CardHeader>
-                <CardContent className="p-4">
-                  <span className="text-sm uppercase text-gray-500">
-                    {product.category}
-                  </span>
-                  <CardTitle className="mt-2 text-xl font-semibold text-[#8B4513]">
-                    {product.name}
-                  </CardTitle>
-                  <p className="mt-2 text-gray-600">
-                    {product.description.substring(0, 100)}...
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full bg-[#CD853F] text-white hover:bg-[#8B4513]">
-                    View Details
-                  </Button>
-                </CardFooter>
-              </Card>
-            </DialogTrigger>
-            <ProductModal product={product} />
-          </Dialog>
-        ))}
+        {displayedProducts.length > 0 ? (
+          displayedProducts.map((product) => (
+            <Dialog key={product.id}>
+              <DialogTrigger asChild>
+                <Card className="cursor-pointer border-[#DEB887] transition-shadow hover:shadow-lg">
+                  <CardHeader className="p-0">
+                    <Image
+                      src={`${product.productGallery[0]}`}
+                      alt={product.name}
+                      width={300}
+                      height={200}
+                      className="w-full"
+                    />
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <span className="text-sm uppercase text-gray-500">
+                      {product.category}
+                    </span>
+                    <CardTitle className="mt-2 text-xl font-semibold text-[#8B4513]">
+                      {product.name}
+                    </CardTitle>
+                    <p className="mt-2 text-gray-600">
+                      {product.description.substring(0, 100)}...
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button className="w-full bg-[#CD853F] text-white hover:bg-[#8B4513]">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </DialogTrigger>
+              <ProductModal product={product} />
+            </Dialog>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No results found</p>
+        )}
       </div>
 
       <Pagination>
