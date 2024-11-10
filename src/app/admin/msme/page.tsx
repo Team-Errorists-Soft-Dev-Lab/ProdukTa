@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useMemo } from "react";
 import {
   Search,
@@ -11,44 +12,34 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/AdminNavbar";
 import Sidebar from "@/components/AdminSidebar";
+import {
+  bambooMSMEs,
+  coconutMSMEs,
+  coffeeMSMEs,
+  weavingMSMEs,
+  foodMSMEs,
+} from "@/lib/mock-data";
 
 interface MSME {
   id: number;
   name: string;
-  description: string;
-  contactPerson: string;
+  email: string;
+  contactNumber: number;
   address: string;
-  contactNumber: string;
+  contactPerson?: string;
+  description?: string;
+  image?: string;
 }
 
 const ITEMS_PER_PAGE = 9;
 
 export default function ManageMSMEs() {
   const [msmes, setMsmes] = useState<MSME[]>([
-    {
-      id: 1,
-      name: "Product name",
-      description: "Lorem ipsum dolor sit amet",
-      contactPerson: "John Doe",
-      address: "123 Main St",
-      contactNumber: "123-456-7890",
-    },
-    {
-      id: 2,
-      name: "Product name",
-      description: "Nisi reprehenderit",
-      contactPerson: "Jane Smith",
-      address: "456 Elm St",
-      contactNumber: "098-765-4321",
-    },
-    {
-      id: 3,
-      name: "Product name",
-      description: "Laborum mollit ex",
-      contactPerson: "Bob Johnson",
-      address: "789 Oak St",
-      contactNumber: "111-222-3333",
-    },
+    ...bambooMSMEs,
+    ...coconutMSMEs,
+    ...coffeeMSMEs,
+    ...weavingMSMEs,
+    ...foodMSMEs,
   ]);
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -56,10 +47,12 @@ export default function ManageMSMEs() {
   const [editingMSME, setEditingMSME] = useState<MSME | null>(null);
   const [newMSME, setNewMSME] = useState<Omit<MSME, "id">>({
     name: "",
-    description: "",
-    contactPerson: "",
+    email: "",
+    contactNumber: 0,
     address: "",
-    contactNumber: "",
+    contactPerson: "",
+    description: "",
+    image: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -78,7 +71,7 @@ export default function ManageMSMEs() {
   const paginatedMSMEs = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredMSMEs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredMSMEs, currentPage]);
+  }, [filteredMSMEs, currentPage, ITEMS_PER_PAGE]);
 
   const handleAddMSME = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,10 +81,12 @@ export default function ManageMSMEs() {
     setShowAddForm(false);
     setNewMSME({
       name: "",
-      description: "",
-      contactPerson: "",
+      email: "",
+      contactNumber: 0,
       address: "",
-      contactNumber: "",
+      contactPerson: "",
+      description: "",
+      image: "",
     });
   };
 
@@ -99,7 +94,19 @@ export default function ManageMSMEs() {
     e.preventDefault();
     if (editingMSME) {
       setMsmes(
-        msmes.map((msme) => (msme.id === editingMSME.id ? editingMSME : msme)),
+        msmes.map((msme) => {
+          if (msme.id === editingMSME.id) {
+            return {
+              ...msme,
+              ...Object.fromEntries(
+                Object.entries(editingMSME).filter(
+                  ([_, value]) => value !== "",
+                ),
+              ),
+            };
+          }
+          return msme;
+        }),
       );
       setShowEditForm(false);
       setEditingMSME(null);
@@ -116,9 +123,15 @@ export default function ManageMSMEs() {
   ) => {
     const { name, value } = e.target;
     if (isEditing && editingMSME) {
-      setEditingMSME({ ...editingMSME, [name]: value });
+      setEditingMSME({
+        ...editingMSME,
+        [name]: name === "contactNumber" ? parseInt(value) || 0 : value,
+      });
     } else {
-      setNewMSME({ ...newMSME, [name]: value });
+      setNewMSME({
+        ...newMSME,
+        [name]: name === "contactNumber" ? parseInt(value) || 0 : value,
+      });
     }
   };
 
@@ -131,7 +144,7 @@ export default function ManageMSMEs() {
       <Sidebar />
       <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-100">
         <Navbar />
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           <div className="rounded-lg border border-[#996439] bg-white p-6 shadow-md">
             <div className="mb-6 flex items-center justify-between">
               <div>
@@ -170,7 +183,7 @@ export default function ManageMSMEs() {
                 />
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 p-4 md:grid-cols-2 lg:grid-cols-3">
               {paginatedMSMEs.map((msme) => (
                 <div
                   key={msme.id}
@@ -196,11 +209,8 @@ export default function ManageMSMEs() {
                       </button>
                     </div>
                   </div>
-                  <p className="mb-2 text-sm text-gray-500">
-                    {msme.description}
-                  </p>
                   <p className="text-sm">
-                    <strong>Contact:</strong> {msme.contactPerson}
+                    <strong>Email:</strong> {msme.email}
                   </p>
                   <p className="text-sm">
                     <strong>Address:</strong> {msme.address}
@@ -288,32 +298,16 @@ export default function ManageMSMEs() {
               </div>
               <div className="mb-4">
                 <label
-                  htmlFor="description"
+                  htmlFor="email"
                   className="mb-2 block text-sm font-medium text-gray-700"
                 >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={newMSME.description}
-                  onChange={handleInputChange}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="contactPerson"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Contact Person
+                  Email
                 </label>
                 <input
-                  type="text"
-                  id="contactPerson"
-                  name="contactPerson"
-                  value={newMSME.contactPerson}
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={newMSME.email}
                   onChange={handleInputChange}
                   className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
                   required
@@ -344,7 +338,7 @@ export default function ManageMSMEs() {
                   Contact Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="contactNumber"
                   name="contactNumber"
                   value={newMSME.contactNumber}
@@ -395,40 +389,22 @@ export default function ManageMSMEs() {
                   value={editingMSME.name}
                   onChange={(e) => handleInputChange(e, true)}
                   className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
                 />
               </div>
               <div className="mb-4">
                 <label
-                  htmlFor="edit-description"
+                  htmlFor="edit-email"
                   className="mb-2 block text-sm font-medium text-gray-700"
                 >
-                  Description
-                </label>
-                <textarea
-                  id="edit-description"
-                  name="description"
-                  value={editingMSME.description}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-contactPerson"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Contact Person
+                  Email
                 </label>
                 <input
-                  type="text"
-                  id="edit-contactPerson"
-                  name="contactPerson"
-                  value={editingMSME.contactPerson}
+                  type="email"
+                  id="edit-email"
+                  name="email"
+                  value={editingMSME.email}
                   onChange={(e) => handleInputChange(e, true)}
                   className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -445,7 +421,6 @@ export default function ManageMSMEs() {
                   value={editingMSME.address}
                   onChange={(e) => handleInputChange(e, true)}
                   className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -456,13 +431,59 @@ export default function ManageMSMEs() {
                   Contact Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="edit-contactNumber"
                   name="contactNumber"
                   value={editingMSME.contactNumber}
                   onChange={(e) => handleInputChange(e, true)}
                   className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="edit-contactPerson"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
+                  Contact Person
+                </label>
+                <input
+                  type="text"
+                  id="edit-contactPerson"
+                  name="contactPerson"
+                  value={editingMSME.contactPerson ?? ""}
+                  onChange={(e) => handleInputChange(e, true)}
+                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="edit-description"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="edit-description"
+                  name="description"
+                  value={editingMSME.description ?? ""}
+                  onChange={(e) => handleInputChange(e, true)}
+                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="edit-image"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  id="edit-image"
+                  name="image"
+                  value={editingMSME.image ?? ""}
+                  onChange={(e) => handleInputChange(e, true)}
+                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
                 />
               </div>
               <div className="flex justify-end">

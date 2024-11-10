@@ -22,42 +22,107 @@ interface Enterprise {
   date: Date;
 }
 
-export default function BambooSector() {
-  const [enterprises, setEnterprises] = useState<Enterprise[]>([
-    {
-      id: 1,
-      name: "Tita's Bamboo Handicrafts Manufacturing",
-      location: "San Rafael, Tigubaun, Iloilo",
-      contactPerson: "Tita T. Anotilla",
-      phone: "09678638427",
-      date: new Date("2023-01-15"),
-    },
-    {
-      id: 2,
-      name: "Trogani Bamboo Products Manufacturing",
-      location: "Catablan, Tigubaun, Iloilo",
-      contactPerson: "Marilyn T. Trogani",
-      phone: "09197704975",
-      date: new Date("2023-02-20"),
-    },
-    {
-      id: 3,
-      name: "Candelaria Cresta Bamboo Products Mftg.",
-      location: "Bgy. Norte, Leon, Iloilo",
-      contactPerson: "Candelaria C. Cresta",
-      phone: "09303994788",
-      date: new Date("2023-03-10"),
-    },
-    {
-      id: 12,
-      name: "Panay Bamboo Innovators",
-      location: "Pavia, Iloilo",
-      contactPerson: "Bambi Bamboo",
-      phone: "09321098765",
-      date: new Date("2023-12-19"),
-    },
-  ]);
+const mockData: Enterprise[] = [
+  {
+    id: 1,
+    name: "Tita's Bamboo Handicrafts Manufacturing",
+    location: "San Rafael, Tigubaun, Iloilo",
+    contactPerson: "Tita T. Anotilla",
+    phone: "09678638427",
+    date: new Date("2023-01-15"),
+  },
+  {
+    id: 2,
+    name: "Trogani Bamboo Products Manufacturing",
+    location: "Catablan, Tigubaun, Iloilo",
+    contactPerson: "Marilyn T. Trogani",
+    phone: "09197704975",
+    date: new Date("2023-02-20"),
+  },
+  {
+    id: 3,
+    name: "Candelaria Cresta Bamboo Products Mftg.",
+    location: "Bgy. Norte, Leon, Iloilo",
+    contactPerson: "Candelaria C. Cresta",
+    phone: "09303994788",
+    date: new Date("2023-03-10"),
+  },
+  {
+    id: 4,
+    name: "Association of Differently-abled Persons in Iloilo MPC",
+    location: "Lapayon, Leganes, Iloilo",
+    contactPerson: "John Doe",
+    phone: "09123456789",
+    date: new Date("2023-04-05"),
+  },
+  {
+    id: 5,
+    name: "L and J Native Products",
+    location: "Malunang, Zarraga, Iloilo",
+    contactPerson: "Jane Smith",
+    phone: "09987654321",
+    date: new Date("2023-05-12"),
+  },
+  {
+    id: 6,
+    name: "Alimodian Bamboo Producers Association",
+    location: "Lapayon, Leganes, Iloilo",
+    contactPerson: "Mark Johnson",
+    phone: "09876543210",
+    date: new Date("2023-06-18"),
+  },
+  {
+    id: 7,
+    name: "Maasin Kawayan MPC",
+    location: "Poblacion, Maasin, Iloilo",
+    contactPerson: "Emily Brown",
+    phone: "09765432109",
+    date: new Date("2023-07-22"),
+  },
+  {
+    id: 8,
+    name: "Efren's Bamboo Crafts Manufacturing",
+    location: "Jibolo, Janiuay, Iloilo",
+    contactPerson: "Efren Garcia",
+    phone: "09654321098",
+    date: new Date("2023-08-30"),
+  },
+  {
+    id: 9,
+    name: "JVM Bamboo Furniture Manufacturing",
+    location: "Bantayan, San Enrique, Iloilo",
+    contactPerson: "Victor Martinez",
+    phone: "09543210987",
+    date: new Date("2023-09-14"),
+  },
+  {
+    id: 10,
+    name: "Mr. Hobby Pottery and Bamboo Shop",
+    location: "Haguimitan, Passi City, Iloilo",
+    contactPerson: "Robert Lee",
+    phone: "09432109876",
+    date: new Date("2023-10-25"),
+  },
+  {
+    id: 11,
+    name: "Alegria Bamboo Craft Association",
+    location: "Alegria, Dingle, Iloilo",
+    contactPerson: "Maria Santos",
+    phone: "09321098765",
+    date: new Date("2023-11-08"),
+  },
+  {
+    id: 12,
+    name: "Panay Bamboo Innovators",
+    location: "Pavia, Iloilo",
+    contactPerson: "Bambi Bamboo",
+    phone: "09321098765",
+    date: new Date("2023-12-19"),
+  },
+];
 
+export default function BambooSector() {
+  const [enterprises, setEnterprises] = useState<Enterprise[]>(mockData);
   const [startDate, setStartDate] = useState<Date>(new Date("2023-01-01"));
   const [endDate, setEndDate] = useState<Date | undefined>(
     new Date("2023-12-31"),
@@ -68,7 +133,7 @@ export default function BambooSector() {
   const [selectedEnterprises, setSelectedEnterprises] = useState<number[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 6;
 
   useEffect(() => {
     if (timeRange === "month-to-date") {
@@ -240,6 +305,10 @@ export default function BambooSector() {
                         endDate={endDate}
                         minDate={startDate}
                         className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-10 pr-10 text-base focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm"
+                      />
+                      <Calendar
+                        className="absolute left-3 top-[60%] -translate-y-1/2 transform text-gray-400"
+                        size={18}
                       />
                     </div>
                   </div>

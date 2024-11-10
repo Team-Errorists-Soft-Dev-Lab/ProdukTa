@@ -4,95 +4,41 @@ import { useState, useMemo } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/AdminNavbar";
 import Sidebar from "@/components/AdminSidebar";
+import {
+  bambooMSMEs,
+  coconutMSMEs,
+  coffeeMSMEs,
+  weavingMSMEs,
+  foodMSMEs,
+} from "@/lib/mock-data";
 
-interface Enterprise {
-  id: number;
-  name: string;
-  location: string;
-  contactPerson: string;
-  phone: string;
-  date: Date;
-}
+const ITEMS_PER_PAGE = 4;
 
-const municipalities = [
-  "Ajuy",
-  "Alimodian",
-  "Anilao",
-  "Badiangan",
-  "Balasan",
-  "Banate",
-  "Barotac Nuevo",
-  "Barotac Viejo",
-  "Batad",
-  "Bingawan",
-  "Cabatuan",
-  "Calinog",
-  "Carles",
-  "Concepcion",
-  "Dingle",
-  "Duenas",
-  "Dumangas",
-  "Estancia",
-  "Guimbal",
-  "Igbaras",
-];
-
-const ITEMS_PER_PAGE = 2;
-
-export default function BambooSector() {
-  const [enterprises] = useState<Enterprise[]>([
-    {
-      id: 1,
-      name: "Tita's Bamboo Handicrafts Manufacturing",
-      location: "Ajuy",
-      contactPerson: "Tita T. Anotilla",
-      phone: "09678638427",
-      date: new Date("2023-01-15"),
-    },
-    {
-      id: 2,
-      name: "Trogani Bamboo Products Manufacturing",
-      location: "Alimodian",
-      contactPerson: "Marilyn T. Trogani",
-      phone: "09197704975",
-      date: new Date("2023-02-20"),
-    },
-    {
-      id: 3,
-      name: "Candelaria Cresta Bamboo Products Mftg.",
-      location: "Anilao",
-      contactPerson: "Candelaria C. Cresta",
-      phone: "09303994788",
-      date: new Date("2023-03-10"),
-    },
-    {
-      id: 12,
-      name: "Panay Bamboo Innovators",
-      location: "Badiangan",
-      contactPerson: "Bambi Bamboo",
-      phone: "09321098765",
-      date: new Date("2023-12-19"),
-    },
-  ]);
-
+export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredEnterprises = useMemo(() => {
-    return enterprises.filter(
-      (enterprise) =>
-        (selectedLocation === "All" ||
-          enterprise.location === selectedLocation) &&
-        enterprise.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [enterprises, selectedLocation, searchTerm]);
+  const allMSMEs = [
+    ...bambooMSMEs,
+    ...coconutMSMEs,
+    ...coffeeMSMEs,
+    ...weavingMSMEs,
+    ...foodMSMEs,
+  ];
 
-  const totalPages = Math.ceil(filteredEnterprises.length / ITEMS_PER_PAGE);
-  const paginatedEnterprises = useMemo(() => {
+  const filteredMSMEs = useMemo(() => {
+    return allMSMEs.filter(
+      (msme) =>
+        msme.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        msme.address.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(filteredMSMEs.length / ITEMS_PER_PAGE);
+  const paginatedMSMEs = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredEnterprises.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredEnterprises, currentPage]);
+    return filteredMSMEs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredMSMEs, currentPage]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -106,13 +52,13 @@ export default function BambooSector() {
         <div className="p-4 md:p-6">
           <div className="rounded-lg border border-[#996439] bg-white p-4 shadow-lg md:p-6">
             <h1 className="mb-4 text-2xl font-bold text-gray-800">
-              Bamboo Sector
+              MSME Dashboard
             </h1>
             <div className="flex w-full flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
               <div className="relative w-full md:w-64">
                 <input
                   type="text"
-                  placeholder="Search by name"
+                  placeholder="Search by name or location"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -125,46 +71,24 @@ export default function BambooSector() {
                   size={18}
                 />
               </div>
-              <select
-                value={selectedLocation}
-                onChange={(e) => {
-                  setSelectedLocation(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="rounded-md border-gray-300 py-2 pl-3 pr-10 focus:outline-none focus:ring-amber-500"
-              >
-                <option value="All">All Locations</option>
-                {municipalities.map((municipality) => (
-                  <option key={municipality} value={municipality}>
-                    {municipality}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div className="mt-6 space-y-4">
-              {paginatedEnterprises.map((enterprise) => (
+              {paginatedMSMEs.map((msme) => (
                 <div
-                  key={enterprise.id}
+                  key={msme.id}
                   className="rounded-lg border border-[#996439] bg-white p-4 shadow-md"
                 >
-                  <h3 className="mb-2 text-lg font-semibold">
-                    {enterprise.name}
-                  </h3>
+                  <h3 className="mb-2 text-lg font-semibold">{msme.name}</h3>
                   <div className="flex flex-wrap gap-4">
                     <p className="text-sm text-gray-600">
-                      <strong>Location:</strong> {enterprise.location}
+                      <strong>Location:</strong> {msme.address}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <strong>Contact Person:</strong>{" "}
-                      {enterprise.contactPerson}
+                      <strong>Email:</strong> {msme.email}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <strong>Phone:</strong> {enterprise.phone}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong>Date:</strong>{" "}
-                      {enterprise.date.toLocaleDateString()}
+                      <strong>Phone:</strong> {msme.contactNumber}
                     </p>
                   </div>
                 </div>
@@ -175,11 +99,8 @@ export default function BambooSector() {
               <div className="mt-6 flex items-center justify-between">
                 <div className="text-sm text-gray-700">
                   Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
-                  {Math.min(
-                    currentPage * ITEMS_PER_PAGE,
-                    filteredEnterprises.length,
-                  )}{" "}
-                  of {filteredEnterprises.length} entries
+                  {Math.min(currentPage * ITEMS_PER_PAGE, filteredMSMEs.length)}{" "}
+                  of {filteredMSMEs.length} entries
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
