@@ -1,115 +1,221 @@
-// implement admin homepage/dashboard
 "use client";
-import { useState } from "react";
-import { Search, ChevronDown } from "lucide-react";
+
+import { useState, useMemo } from "react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/AdminNavbar";
 import Sidebar from "@/components/AdminSidebar";
 
 interface Enterprise {
+  id: number;
   name: string;
   location: string;
-  email: string;
+  contactPerson: string;
   phone: string;
+  date: Date;
 }
 
-export default function Dashboard() {
-  const [enterprises, setEnterprises] = useState<Enterprise[]>([
+const municipalities = [
+  "Ajuy",
+  "Alimodian",
+  "Anilao",
+  "Badiangan",
+  "Balasan",
+  "Banate",
+  "Barotac Nuevo",
+  "Barotac Viejo",
+  "Batad",
+  "Bingawan",
+  "Cabatuan",
+  "Calinog",
+  "Carles",
+  "Concepcion",
+  "Dingle",
+  "Duenas",
+  "Dumangas",
+  "Estancia",
+  "Guimbal",
+  "Igbaras",
+];
+
+const ITEMS_PER_PAGE = 2;
+
+export default function BambooSector() {
+  const [enterprises] = useState<Enterprise[]>([
     {
-      name: "kulit lois aswang management",
-      location: "antique flyers",
-      email: "N/A",
+      id: 1,
+      name: "Tita's Bamboo Handicrafts Manufacturing",
+      location: "Ajuy",
+      contactPerson: "Tita T. Anotilla",
       phone: "09678638427",
+      date: new Date("2023-01-15"),
     },
     {
-      name: "chito diwata pares overload",
-      location: "edi tipaklong",
-      email: "N/A",
+      id: 2,
+      name: "Trogani Bamboo Products Manufacturing",
+      location: "Alimodian",
+      contactPerson: "Marilyn T. Trogani",
       phone: "09197704975",
+      date: new Date("2023-02-20"),
     },
     {
-      name: "peyt peyt kumukulit kana",
-      location: "kilid dorm ni lois",
-      email: "N/A",
+      id: 3,
+      name: "Candelaria Cresta Bamboo Products Mftg.",
+      location: "Anilao",
+      contactPerson: "Candelaria C. Cresta",
       phone: "09303994788",
+      date: new Date("2023-03-10"),
     },
     {
-      name: "buntis si laluma",
-      location: "sakay shane ehh",
-      email: "N/A",
-      phone: "09772426876",
+      id: 12,
+      name: "Panay Bamboo Innovators",
+      location: "Badiangan",
+      contactPerson: "Bambi Bamboo",
+      phone: "09321098765",
+      date: new Date("2023-12-19"),
     },
   ]);
 
-  return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-100">
-        <Navbar />
-        <div className="p-6">
-          <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-700">
-                  Total Registered MSMEs
-                </h3>
-                <p className="text-brown-600 text-3xl font-bold">1498</p>
-              </div>
-              <button className="rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]">
-                Export Data
-              </button>
-            </div>
-          </div>
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
 
-          <div className="rounded-lg bg-white p-6 shadow-md">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-700">
-                List of Enterprises
-              </h3>
-              <div className="flex items-center">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="rounded-md border py-2 pl-8 pr-4 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  />
-                  <Search
-                    className="absolute left-2 top-2.5 text-gray-400"
-                    size={18}
-                  />
-                </div>
-                <button className="ml-2 flex items-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]">
-                  Sort by <ChevronDown className="ml-1" size={18} />
-                </button>
+  const filteredEnterprises = useMemo(() => {
+    return enterprises.filter(
+      (enterprise) =>
+        (selectedLocation === "All" ||
+          enterprise.location === selectedLocation) &&
+        enterprise.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [enterprises, selectedLocation, searchTerm]);
+
+  const totalPages = Math.ceil(filteredEnterprises.length / ITEMS_PER_PAGE);
+  const paginatedEnterprises = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredEnterprises.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredEnterprises, currentPage]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
+      <Sidebar />
+      <main className="flex-1 overflow-x-hidden bg-gray-100">
+        <Navbar />
+        <div className="p-4 md:p-6">
+          <div className="rounded-lg border border-[#996439] bg-white p-4 shadow-lg md:p-6">
+            <h1 className="mb-4 text-2xl font-bold text-gray-800">
+              Bamboo Sector
+            </h1>
+            <div className="flex w-full flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+              <div className="relative w-full md:w-64">
+                <input
+                  type="text"
+                  placeholder="Search by name"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-[#996439]"
+                />
+                <Search
+                  className="absolute left-3 top-2.5 text-gray-400"
+                  size={18}
+                />
               </div>
+              <select
+                value={selectedLocation}
+                onChange={(e) => {
+                  setSelectedLocation(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="rounded-md border-gray-300 py-2 pl-3 pr-10 focus:outline-none focus:ring-amber-500"
+              >
+                <option value="All">All Locations</option>
+                {municipalities.map((municipality) => (
+                  <option key={municipality} value={municipality}>
+                    {municipality}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b text-left text-gray-600">
-                    <th className="pb-2">Name</th>
-                    <th className="pb-2">Location</th>
-                    <th className="pb-2">Email</th>
-                    <th className="pb-2">Phone</th>
-                    <th className="pb-2"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {enterprises.map((enterprise, index) => (
-                    <tr key={index} className="border-b last:border-b-0">
-                      <td className="py-2">{enterprise.name}</td>
-                      <td className="py-2">{enterprise.location}</td>
-                      <td className="py-2">{enterprise.email}</td>
-                      <td className="py-2">{enterprise.phone}</td>
-                      <td className="py-2">
-                        <button className="text-blue-500 hover:underline">
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+            <div className="mt-6 space-y-4">
+              {paginatedEnterprises.map((enterprise) => (
+                <div
+                  key={enterprise.id}
+                  className="rounded-lg border border-[#996439] bg-white p-4 shadow-md"
+                >
+                  <h3 className="mb-2 text-lg font-semibold">
+                    {enterprise.name}
+                  </h3>
+                  <div className="flex flex-wrap gap-4">
+                    <p className="text-sm text-gray-600">
+                      <strong>Location:</strong> {enterprise.location}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <strong>Contact Person:</strong>{" "}
+                      {enterprise.contactPerson}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <strong>Phone:</strong> {enterprise.phone}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <strong>Date:</strong>{" "}
+                      {enterprise.date.toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-between">
+                <div className="text-sm text-gray-700">
+                  Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                  {Math.min(
+                    currentPage * ITEMS_PER_PAGE,
+                    filteredEnterprises.length,
+                  )}{" "}
+                  of {filteredEnterprises.length} entries
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="rounded-md bg-gray-200 p-2 text-gray-600 hover:bg-gray-300 disabled:opacity-50"
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`rounded-md px-3 py-1 ${
+                          currentPage === page
+                            ? "text-brown-800 bg-amber-200"
+                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="rounded-md bg-gray-200 p-2 text-gray-600 hover:bg-gray-300 disabled:opacity-50"
+                    aria-label="Next page"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
