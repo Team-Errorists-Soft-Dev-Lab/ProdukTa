@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return true;
     }
 
-    if (email === "manaf@gmail.com" && password === "hotdog") {
+    if (email === "admins@gmail.com" && password === "admin") {
       setIsAuthenticated(true);
       localStorage.setItem("isAuthenticated", "true");
       router.push("/admin");
