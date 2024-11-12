@@ -4,9 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const logIn = () => {
+    router.push("/auth");
+  };
 
   return (
     <header className="bg-white p-4">
@@ -38,6 +44,13 @@ export default function Header() {
             className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
           >
             Export
+          </Button>
+          <Button
+            variant="ghost"
+            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
+            onClick={logIn}
+          >
+            Login
           </Button>
           <Image src="/DTI_logo.png" alt="DTI Logo" width={40} height={40} />
         </div>

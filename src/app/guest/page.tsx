@@ -1,9 +1,9 @@
 "use client";
 
-import { products, sectors } from "mock_data/dummyData";
-import { Product } from "@/types/products";
+import { msmeLines, sectors } from "mock_data/dummyData";
+import { MSME } from "@/types/MSME";
 import React, { useState } from "react";
-import ProductModal from "@/components/modals/ProductModal";
+import MSMEModal from "@/components/modals/MSMEModal";
 import MunicipalitiesModal from "@/components/modals/MunicipalitiesModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -38,52 +38,51 @@ export default function GuestPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [sort, setSort] = useState<string>("name");
-  const [searchResult, setSearchResult] = useState<Product[]>([]);
-  const productsPerPage = 9;
+  const [searchResult, setSearchResult] = useState<MSME[]>([]);
+  const msmsePerPage = 9;
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const emptySearch = ["No results found"];
 
-  const searchProduct = (query: string) => {
+  const searchMSME = (query: string) => {
     setSearchResult(
-      products.filter((product) =>
-        product.name.toLowerCase().includes(query.toLowerCase()),
+      msmeLines.filter((msme) =>
+        msme.name.toLowerCase().includes(query.toLowerCase()),
       ),
     );
   };
 
-  const sortProducts = (products: Product[], sort: string) => {
+  const sortMSMEs = (MSMEs: MSME[], sort: string) => {
     switch (sort) {
       case "name":
-        return products.sort((a, b) => a.name.localeCompare(b.name));
+        return MSMEs.sort((a, b) => a.name.localeCompare(b.name));
       case "sector":
-        return products.sort((a, b) => a.category.localeCompare(b.category));
+        return MSMEs.sort((a, b) => a.category.localeCompare(b.category));
       case "municipality":
-        return products.sort((a, b) => a.address.localeCompare(b.address));
+        return MSMEs.sort((a, b) => a.address.localeCompare(b.address));
       default:
-        return products;
+        return MSMEs;
     }
   };
 
-  const filteredProducts = selectedSector
-    ? products.filter((product) => product.category === selectedSector)
-    : products;
+  const filteredMSME = selectedSector
+    ? msmeLines.filter((msme) => msme.category === selectedSector)
+    : msmeLines;
 
-  const displayedProducts = searchQuery
+  const displayedMSME = searchQuery
     ? searchResult.length > 0
       ? searchResult
       : []
-    : sortProducts(filteredProducts, sort).slice(
-        (currentPage - 1) * productsPerPage,
-        currentPage * productsPerPage,
+    : sortMSMEs(filteredMSME, sort).slice(
+        (currentPage - 1) * msmsePerPage,
+        currentPage * msmsePerPage,
       );
 
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const totalPages = Math.ceil(filteredMSME.length / msmsePerPage);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchQuery(query);
     if (query) {
-      searchProduct(query);
+      searchMSME(query);
     } else {
       setSearchResult([]);
     }
@@ -171,15 +170,19 @@ export default function GuestPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 p-12 md:grid-cols-2 lg:grid-cols-3">
-        {displayedProducts.length > 0 ? (
-          displayedProducts.map((product) => (
-            <Dialog key={product.id}>
+        {displayedMSME.length > 0 ? (
+          displayedMSME.map((msme) => (
+            <Dialog key={msme.id}>
               <DialogTrigger asChild>
                 <Card className="cursor-pointer border-[#DEB887] transition-shadow hover:shadow-lg">
                   <CardHeader className="p-0">
                     <Image
-                      src={`${product.productGallery[0]}`}
-                      alt={product.name}
+                      src={
+                        msme.productGallery.length === 0
+                          ? "/placeholder.png"
+                          : `${msme.productGallery[0]}`
+                      }
+                      alt={msme.name}
                       width={300}
                       height={200}
                       className="w-full"
@@ -187,13 +190,13 @@ export default function GuestPage() {
                   </CardHeader>
                   <CardContent className="p-4">
                     <span className="text-sm uppercase text-gray-500">
-                      {product.category}
+                      {msme.category}
                     </span>
                     <CardTitle className="mt-2 text-xl font-semibold text-[#8B4513]">
-                      {product.name}
+                      {msme.name}
                     </CardTitle>
                     <p className="mt-2 text-gray-600">
-                      {product.description.substring(0, 100)}...
+                      {msme.description.substring(0, 100)}...
                     </p>
                   </CardContent>
                   <CardFooter>
@@ -203,7 +206,7 @@ export default function GuestPage() {
                   </CardFooter>
                 </Card>
               </DialogTrigger>
-              <ProductModal product={product} />
+              <MSMEModal MSME={msme} />
             </Dialog>
           ))
         ) : (
