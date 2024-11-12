@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => boolean;
+  signup: (email: string, fullName: string, password: string) => boolean;
   logout: () => void;
 }
 
@@ -21,34 +22,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (email: string, password: string) => {
-    //mock account
-    if (email === "admin@gmail.com" && password === "admin") {
+    // Mock accounts
+    const accounts = [
+      {
+        email: "superadmin@gmail.com",
+        password: "superadmin",
+        role: "superadmin",
+      },
+      { email: "admin@gmail.com", password: "admin", role: "admin" },
+    ];
+
+    const account = accounts.find(
+      (acc) => acc.email === email && acc.password === password,
+    );
+
+    if (account) {
       setIsAuthenticated(true);
       localStorage.setItem("isAuthenticated", "true");
-      router.push("/superadmin");
+      localStorage.setItem("userRole", account.role);
+      router.push(`/${account.role}`);
       return true;
     }
 
-    if (email === "admins@gmail.com" && password === "admin") {
-      setIsAuthenticated(true);
-      localStorage.setItem("isAuthenticated", "true");
-      router.push("/admin");
-      return true;
-    }
     return false;
+  };
+
+  const signup = (email: string, fullName: string, password: string) => {
+    console.log("Signup attempt:", { email, fullName, password });
+
+    setIsAuthenticated(true);
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("adminRole", "admin");
+    router.push("/auth");
+    return true;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     localStorage.setItem("isAuthenticated", "false");
-    // Use a timeout to ensure state updates before navigation
+    localStorage.removeItem("userRole");
     setTimeout(() => {
       router.push("/auth");
     }, 100);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
