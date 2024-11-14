@@ -45,6 +45,8 @@ export default function ManageMSMEs() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingMSME, setEditingMSME] = useState<MSME | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMSME, setSelectedMSME] = useState<number | null>(null);
   const [newMSME, setNewMSME] = useState<Omit<MSME, "id">>({
     name: "",
     email: "",
@@ -114,7 +116,19 @@ export default function ManageMSMEs() {
   };
 
   const handleDeleteMSME = (id: number) => {
-    setMsmes((prevMsmes) => prevMsmes.filter((msme) => msme.id !== id));
+    setSelectedMSME(id);
+    setShowModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedMSME !== null) {
+      setMsmes(msmes.filter((msme) => msme.id !== selectedMSME));
+    }
+    setShowModal(false);
+  };
+
+  const cancelDelete = () => {
+    setShowModal(false);
   };
 
   const handleInputChange = (
@@ -178,8 +192,8 @@ export default function ManageMSMEs() {
                   className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-[#996439]"
                 />
                 <Search
-                  className="absolute left-3 top-2.5 text-gray-400"
-                  size={18}
+                  className="ext-gray-400 absolute left-3 top-2.5"
+                  size={20}
                 />
               </div>
             </div>
@@ -193,7 +207,7 @@ export default function ManageMSMEs() {
                     <h3 className="text-lg font-semibold">{msme.name}</h3>
                     <div>
                       <button
-                        className="mr-2 text-blue-500 hover:text-blue-700"
+                        className="mr-2 text-[#996439] hover:text-[#bb987a]"
                         onClick={() => {
                           setEditingMSME(msme);
                           setShowEditForm(true);
@@ -202,7 +216,7 @@ export default function ManageMSMEs() {
                         <Edit size={18} />
                       </button>
                       <button
-                        className="text-red-500 hover:text-red-700"
+                        className="text-[#996439] hover:text-[#bb987a]"
                         onClick={() => handleDeleteMSME(msme.id)}
                       >
                         <Trash2 size={18} />
@@ -244,8 +258,8 @@ export default function ManageMSMEs() {
                         onClick={() => handlePageChange(page)}
                         className={`rounded-md px-3 py-1 ${
                           currentPage === page
-                            ? "text-brown-800 bg-amber-200"
-                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                            ? "bg-[#a17544] text-[#ffffff]"
+                            : "bg-[#ffffff] text-[#9095a1] hover:bg-[#bb987a] hover:text-[#ffffff]"
                         }`}
                       >
                         {page}
@@ -495,6 +509,45 @@ export default function ManageMSMEs() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-[400px] rounded-lg bg-white shadow-lg">
+            <div className="mb-4 flex items-center justify-between rounded-t-lg bg-[#996439] px-4 py-3">
+              <h3 className="text-xl font-semibold text-[#fcfbfa]">
+                Delete MSME
+              </h3>
+              <button
+                onClick={cancelDelete}
+                className="text-[#fcfbfa] hover:text-[#bb987a]"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="px-6 py-4">
+              <p className="text-center text-gray-700">
+                Are you sure you want to delete this MSME?
+              </p>
+            </div>
+
+            <div className="flex justify-center gap-4 px-6 py-4">
+              <button
+                onClick={confirmDelete}
+                className="rounded-md bg-[#996439] px-6 py-2 font-medium text-white hover:bg-[#bb987a]"
+              >
+                YES
+              </button>
+              <button
+                onClick={cancelDelete}
+                className="rounded-md border border-[#996439] border-[#bb987a] bg-[#FFFFFF] px-4 py-2 text-[#51493d] text-gray-700 hover:border hover:bg-[#bb987a] hover:text-white"
+              >
+                NO
+              </button>
+            </div>
           </div>
         </div>
       )}
