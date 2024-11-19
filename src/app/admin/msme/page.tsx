@@ -19,6 +19,28 @@ import {
   weavingMSMEs,
   foodMSMEs,
 } from "@/lib/mock-data";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface MSME {
   id: number;
@@ -33,6 +55,24 @@ interface MSME {
 
 const ITEMS_PER_PAGE = 9;
 
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  contactNumber: z.number().min(1000000000, {
+    message: "Please enter a valid contact number.",
+  }),
+  address: z.string().min(5, {
+    message: "Address must be at least 5 characters.",
+  }),
+  contactPerson: z.string().optional(),
+  description: z.string().optional(),
+  image: z.string().url().optional(),
+});
+
 export default function ManageMSMEs() {
   const [msmes, setMsmes] = useState<MSME[]>([
     ...bambooMSMEs,
@@ -45,19 +85,23 @@ export default function ManageMSMEs() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingMSME, setEditingMSME] = useState<MSME | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedMSME, setSelectedMSME] = useState<number | null>(null);
-  const [newMSME, setNewMSME] = useState<Omit<MSME, "id">>({
-    name: "",
-    email: "",
-    contactNumber: 0,
-    address: "",
-    contactPerson: "",
-    description: "",
-    image: "",
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      contactNumber: 0,
+      address: "",
+      contactPerson: "",
+      description: "",
+      image: "",
+    },
+  });
 
   const filteredMSMEs = useMemo(() => {
     return msmes.filter((msme) =>
@@ -73,39 +117,22 @@ export default function ManageMSMEs() {
   const paginatedMSMEs = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredMSMEs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredMSMEs, currentPage, ITEMS_PER_PAGE]);
+  }, [filteredMSMEs, currentPage]);
 
-  const handleAddMSME = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddMSME = (values: z.infer<typeof formSchema>) => {
     const id =
       msmes.length > 0 ? Math.max(...msmes.map((msme) => msme.id)) + 1 : 1;
-    setMsmes([...msmes, { id, ...newMSME }]);
+    setMsmes([...msmes, { id, ...values }]);
     setShowAddForm(false);
-    setNewMSME({
-      name: "",
-      email: "",
-      contactNumber: 0,
-      address: "",
-      contactPerson: "",
-      description: "",
-      image: "",
-    });
+    form.reset();
   };
 
-  const handleEditMSME = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEditMSME = (values: z.infer<typeof formSchema>) => {
     if (editingMSME) {
       setMsmes(
         msmes.map((msme) => {
           if (msme.id === editingMSME.id) {
-            return {
-              ...msme,
-              ...Object.fromEntries(
-                Object.entries(editingMSME).filter(
-                  ([_, value]) => value !== "",
-                ),
-              ),
-            };
+            return { ...msme, ...values };
           }
           return msme;
         }),
@@ -117,36 +144,14 @@ export default function ManageMSMEs() {
 
   const handleDeleteMSME = (id: number) => {
     setSelectedMSME(id);
-    setShowModal(true);
+    setShowDeleteDialog(true);
   };
 
   const confirmDelete = () => {
     if (selectedMSME !== null) {
       setMsmes(msmes.filter((msme) => msme.id !== selectedMSME));
     }
-    setShowModal(false);
-  };
-
-  const cancelDelete = () => {
-    setShowModal(false);
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    isEditing = false,
-  ) => {
-    const { name, value } = e.target;
-    if (isEditing && editingMSME) {
-      setEditingMSME({
-        ...editingMSME,
-        [name]: name === "contactNumber" ? parseInt(value) || 0 : value,
-      });
-    } else {
-      setNewMSME({
-        ...newMSME,
-        [name]: name === "contactNumber" ? parseInt(value) || 0 : value,
-      });
-    }
+    setShowDeleteDialog(false);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -154,403 +159,295 @@ export default function ManageMSMEs() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-100">
+      <main className="flex-1 overflow-hidden bg-gray-100">
         <Navbar />
         <div className="p-4 md:p-6">
-          <div className="rounded-lg border border-[#996439] bg-white p-6 shadow-md">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <div className="rounded-lg border-2 border-[#996439] p-4">
-                  <h2 className="text-3xl font-bold text-gray-800">
-                    Registered MSMEs
-                  </h2>
-                  <p className="mt-1 text-lg font-bold text-gray-600">
-                    Total: {msmes.length} MSMEs
-                  </p>
-                </div>
-              </div>
-              <button
+          <Card className="border-[#996439]">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-2xl font-bold">
+                Registered MSMEs
+              </CardTitle>
+              <Button
+                className="bg-[#996439]"
                 onClick={() => setShowAddForm(true)}
-                className="flex items-center rounded-md bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]"
               >
-                <Plus size={18} className="mr-2" />
-                Add MSME
-              </button>
-            </div>
-            <div className="mb-6">
-              <div className="relative w-64">
-                <input
+                <Plus className="mr-2 h-4 w-4" /> Add MSME
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4 flex items-center space-x-2">
+                <Search className="text-gray-400" size={20} />
+                <Input
                   type="text"
-                  placeholder="Search"
+                  placeholder="Search MSMEs"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-                <Search
-                  className="ext-gray-400 absolute left-3 top-2.5"
-                  size={20}
+                  className="flex-1"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 gap-6 p-4 md:grid-cols-2 lg:grid-cols-3">
-              {paginatedMSMEs.map((msme) => (
-                <div
-                  key={msme.id}
-                  className="rounded-lg border border-[#996439] bg-white p-4 shadow-md"
-                >
-                  <div className="mb-2 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">{msme.name}</h3>
-                    <div>
-                      <button
-                        className="mr-2 text-[#996439] hover:text-[#bb987a]"
-                        onClick={() => {
-                          setEditingMSME(msme);
-                          setShowEditForm(true);
-                        }}
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        className="text-[#996439] hover:text-[#bb987a]"
-                        onClick={() => handleDeleteMSME(msme.id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {paginatedMSMEs.map((msme) => (
+                  <Card key={msme.id} className="border-[#996439]">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        {msme.name}
+                      </CardTitle>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-blue-600 hover:text-blue-800"
+                          onClick={() => {
+                            setEditingMSME(msme);
+                            setShowEditForm(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-600 hover:text-red-800"
+                          onClick={() => handleDeleteMSME(msme.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-xs text-muted-foreground">
+                        <strong>Email:</strong> {msme.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <strong>Address:</strong> {msme.address}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <strong>Phone:</strong> {msme.contactNumber}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                    {Math.min(
+                      currentPage * ITEMS_PER_PAGE,
+                      filteredMSMEs.length,
+                    )}{" "}
+                    of {filteredMSMEs.length} entries
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="bg-[#996439] text-white hover:bg-[#bb987a]"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          onClick={() => handlePageChange(page)}
+                          className={
+                            currentPage === page
+                              ? "bg-[#996439] text-white"
+                              : "border-[#996439] text-[#996439] hover:bg-[#bb987a] hover:text-white"
+                          }
+                        >
+                          {page}
+                        </Button>
+                      ),
+                    )}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="bg-[#996439] text-white hover:bg-[#bb987a]"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <p className="text-sm">
-                    <strong>Email:</strong> {msme.email}
-                  </p>
-                  <p className="text-sm">
-                    <strong>Address:</strong> {msme.address}
-                  </p>
-                  <p className="text-sm">
-                    <strong>Phone:</strong> {msme.contactNumber}
-                  </p>
                 </div>
-              ))}
-            </div>
-            {totalPages > 1 && (
-              <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm text-gray-500">
-                  Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
-                  {Math.min(currentPage * ITEMS_PER_PAGE, filteredMSMEs.length)}{" "}
-                  of {filteredMSMEs.length} entries
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="rounded-md bg-gray-200 p-2 text-gray-600 hover:bg-gray-300 disabled:opacity-50"
-                    aria-label="Previous page"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`rounded-md px-3 py-1 ${
-                          currentPage === page
-                            ? "bg-[#a17544] text-[#ffffff]"
-                            : "bg-[#ffffff] text-[#9095a1] hover:bg-[#bb987a] hover:text-[#ffffff]"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ),
-                  )}
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="rounded-md bg-gray-200 p-2 text-gray-600 hover:bg-gray-300 disabled:opacity-50"
-                    aria-label="Next page"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </main>
-      {showAddForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Add New MSME</h3>
-              <button
-                onClick={() => setShowAddForm(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <form onSubmit={handleAddMSME}>
-              <div className="mb-4">
-                <label
-                  htmlFor="name"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={newMSME.name}
-                  onChange={handleInputChange}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={newMSME.email}
-                  onChange={handleInputChange}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="address"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={newMSME.address}
-                  onChange={handleInputChange}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="contactNumber"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Contact Number
-                </label>
-                <input
-                  type="number"
-                  id="contactNumber"
-                  name="contactNumber"
-                  value={newMSME.contactNumber}
-                  onChange={handleInputChange}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                  required
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="rounded-md bg-[#996439] px-4 py-2 text-white hover:bg-[#bb987a]"
-                >
-                  Add MSME
-                </button>
-              </div>
+
+      <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New MSME</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleAddMSME)}
+              className="space-y-8"
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contactNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Number</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Add MSME</Button>
             </form>
-          </div>
-        </div>
-      )}
-      {showEditForm && editingMSME && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Edit MSME</h3>
-              <button
-                onClick={() => {
-                  setShowEditForm(false);
-                  setEditingMSME(null);
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <form onSubmit={handleEditMSME}>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-name"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="edit-name"
-                  name="name"
-                  value={editingMSME.name}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-email"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="edit-email"
-                  name="email"
-                  value={editingMSME.email}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-address"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="edit-address"
-                  name="address"
-                  value={editingMSME.address}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-contactNumber"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Contact Number
-                </label>
-                <input
-                  type="number"
-                  id="edit-contactNumber"
-                  name="contactNumber"
-                  value={editingMSME.contactNumber}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-contactPerson"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Contact Person
-                </label>
-                <input
-                  type="text"
-                  id="edit-contactPerson"
-                  name="contactPerson"
-                  value={editingMSME.contactPerson ?? ""}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-description"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="edit-description"
-                  name="description"
-                  value={editingMSME.description ?? ""}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="edit-image"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Image URL
-                </label>
-                <input
-                  type="text"
-                  id="edit-image"
-                  name="image"
-                  value={editingMSME.image ?? ""}
-                  onChange={(e) => handleInputChange(e, true)}
-                  className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#996439]"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="rounded-md bg-[#996439] px-4 py-2 text-white hover:bg-[#bb987a]"
-                >
-                  Save Changes
-                </button>
-              </div>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEditForm} onOpenChange={setShowEditForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit MSME</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleEditMSME)}
+              className="space-y-8"
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} defaultValue={editingMSME?.name} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} defaultValue={editingMSME?.email} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contactNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        defaultValue={editingMSME?.contactNumber}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input {...field} defaultValue={editingMSME?.address} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Save Changes</Button>
             </form>
-          </div>
-        </div>
-      )}
+          </Form>
+        </DialogContent>
+      </Dialog>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-[400px] rounded-lg bg-white shadow-lg">
-            <div className="mb-4 flex items-center justify-between rounded-t-lg bg-[#996439] px-4 py-3">
-              <h3 className="text-xl font-semibold text-[#fcfbfa]">
-                Delete MSME
-              </h3>
-              <button
-                onClick={cancelDelete}
-                className="text-[#fcfbfa] hover:text-[#bb987a]"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="px-6 py-4">
-              <p className="text-center text-gray-700">
-                Are you sure you want to delete this MSME?
-              </p>
-            </div>
-
-            <div className="flex justify-center gap-4 px-6 py-4">
-              <button
-                onClick={confirmDelete}
-                className="rounded-md bg-[#996439] px-6 py-2 font-medium text-white hover:bg-[#bb987a]"
-              >
-                YES
-              </button>
-              <button
-                onClick={cancelDelete}
-                className="rounded-md border border-[#996439] border-[#bb987a] bg-[#FFFFFF] px-4 py-2 text-[#51493d] text-gray-700 hover:border hover:bg-[#bb987a] hover:text-white"
-              >
-                NO
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete MSME</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this MSME? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
