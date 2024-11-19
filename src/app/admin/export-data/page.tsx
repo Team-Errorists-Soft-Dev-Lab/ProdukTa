@@ -11,7 +11,6 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Navbar from "@/components/AdminNavbar";
-import Sidebar from "@/components/AdminSidebar";
 
 interface Enterprise {
   id: number;
@@ -205,14 +204,13 @@ export default function BambooSector() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
-      <Sidebar />
       <main className="flex-1 overflow-x-hidden bg-gray-100">
         <Navbar />
         <div className="p-4 md:p-6">
           <div className="rounded-lg border border-[#996439] bg-white p-4 shadow-lg md:p-6">
             <div className="mb-6 flex flex-col items-start justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
               <h1 className="text-2xl font-bold text-gray-800">
-                Bamboo Sector
+                Bamboo for now
               </h1>
               <div className="flex w-full flex-col space-y-4 md:w-auto md:flex-row md:space-x-4 md:space-y-0">
                 <div className="relative w-full md:w-64">
