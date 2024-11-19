@@ -2,12 +2,13 @@ export interface MSME {
   id: number;
   name: string;
   email: string;
-  contactNumber: number;
+  contactNumber: string;
   address: string;
   businessType: string;
-  registrationDate: string;
-  logo: string | null;
   sector: string;
+  contactPerson: string;
+  registrationDate: string;
+  status: string;
 }
 
 export interface Sector {
@@ -22,4 +23,5 @@ export interface Admin {
   name: string;
   email: string;
   sector: string;
+  dateAdded: string;
 }
