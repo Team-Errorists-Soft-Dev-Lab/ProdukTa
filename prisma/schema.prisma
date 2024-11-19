@@ -8,6 +8,7 @@ generator client {
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
 }
 
 model Post {
@@ -17,4 +18,52 @@ model Post {
     updatedAt DateTime @updatedAt
 
     @@index([name])
+}
+
+model Admin {
+    id              Int      @id @default(autoincrement())
+    name            String
+    email           String   @unique
+    password        String
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    isSuperadmin    Boolean  @default(false)
+    sectors         AdminSectors[]
+}
+
+model Sector {
+    id        Int      @id @default(autoincrement())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    admins    AdminSectors[]
+    MSMEs     MSME[]
+}
+
+model AdminSectors {
+    admin       Admin @relation(fields: [adminId], references: [id])
+    adminId     Int
+    sector      Sector @relation(fields: [sectorId], references: [id])
+    sectorId    Int
+
+    @@id([adminId, sectorId])
+}
+
+model MSME {
+    id                      Int      @id @default(autoincrement())
+    companyName             String
+    companyDescription      String
+    companyLogo             String
+    contactPerson           String
+    contactNumber           String
+    email                   String
+    provinceAddress         String
+    cityMunicipalityAddress String
+    barangayAddress         String
+    yearEstablished         Int
+    dti_number              Int
+    createdAt               DateTime @default(now())
+    updatedAt               DateTime @updatedAt
+    sectors                 Sector @relation(fields: [sectorId], references: [id])
+    sectorId                Int
 }
