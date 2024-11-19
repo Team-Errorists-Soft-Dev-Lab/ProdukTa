@@ -2,7 +2,13 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -11,7 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Edit,
+  Trash,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+} from "lucide-react";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import AddMSMEModal from "@/components/modals/AddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
@@ -42,63 +55,81 @@ export default function ManageMSME() {
   const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Manage MSMEs</CardTitle>
+    <div className="p-4 md:p-6">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div>
+          <CardTitle className="text-3xl font-bold text-gray-800">
+            Manage MSMEs
+          </CardTitle>
+          <CardDescription className="mt-1 text-lg font-bold text-gray-600">
+            Total: {msmes.length} MSMEs
+          </CardDescription>
+        </div>
+        <Button
+          onClick={() => setIsAddMSMEModalOpen(true)}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add MSME
+        </Button>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 flex justify-between">
-          <Input
-            type="text"
-            placeholder="Search MSMEs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
-          <Button onClick={() => setIsAddMSMEModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add MSME
-          </Button>
+        <div className="mb-4">
+          <div className="relative w-64">
+            <Input
+              type="text"
+              placeholder="Search MSMEs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 focus:ring-emerald-600"
+            />
+            <Search
+              className="absolute left-3 top-2.5 text-gray-400"
+              size={20}
+            />
+          </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Sector</TableHead>
-              <TableHead>Business Type</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedMSMEs.map((msme) => (
-              <TableRow key={msme.id}>
-                <TableCell>{msme.name}</TableCell>
-                <TableCell>{msme.sector}</TableCell>
-                <TableCell>{msme.businessType}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mr-2"
-                    onClick={() => {
-                      setCurrentMSME(msme);
-                      setIsEditMSMEModalOpen(true);
-                    }}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteMSME(msme.id)}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </TableCell>
+        <div className="rounded-lg border border-emerald-600 bg-white p-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Sector</TableHead>
+                <TableHead>Business Type</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paginatedMSMEs.map((msme) => (
+                <TableRow key={msme.id}>
+                  <TableCell>{msme.name}</TableCell>
+                  <TableCell>{msme.sector}</TableCell>
+                  <TableCell>{msme.businessType}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mr-2"
+                      onClick={() => {
+                        setCurrentMSME(msme);
+                        setIsEditMSMEModalOpen(true);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteMSME(msme.id)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
         <div className="flex items-center justify-end space-x-2 py-4">
           <Button
             variant="outline"
@@ -129,6 +160,6 @@ export default function ManageMSME() {
         onClose={() => setIsEditMSMEModalOpen(false)}
         msme={currentMSME}
       />
-    </Card>
+    </div>
   );
 }

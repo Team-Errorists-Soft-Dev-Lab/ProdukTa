@@ -1,133 +1,159 @@
 "use client";
+
 import React, { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
+import { superAdminMockData } from "../../mock_data/dummyData";
 import type { MSME, Admin, Sector } from "@/types/superadmin";
 
+interface AdminSignup {
+  id: number;
+  name: string;
+  email: string;
+  sector: string;
+  dateApplied: string;
+  status: "pending" | "approved" | "rejected";
+}
+
 interface SuperAdminContextType {
-  msmes: MSME[];
   sectors: Sector[];
   admins: Admin[];
-  handleAddMSME: (newMSME: Omit<MSME, "id">) => void;
-  handleEditMSME: (editedMSME: MSME) => void;
+  msmes: MSME[];
+  adminSignups: AdminSignup[];
   handleDeleteMSME: (id: number) => void;
-  handleAddSector: (newSector: Omit<Sector, "id">) => void;
-  handleAddAdmin: (newAdmin: Omit<Admin, "id">) => void;
+  handleDeleteAdmin: (id: number) => void;
+  handleDeleteSector: (id: number) => void;
+  handleAddMSME: (msme: Omit<MSME, "id">) => void;
+  handleAddAdmin: (admin: Omit<Admin, "id">) => void;
+  handleAddSector: (sector: Omit<Sector, "id">) => void;
+  handleUpdateMSME: (msme: MSME) => void;
+  handleUpdateAdmin: (admin: Admin) => void;
+  handleUpdateSector: (sector: Sector) => void;
+  handleAcceptAdmin: (signupId: number) => void;
+  handleRejectAdmin: (signupId: number) => void;
 }
 
 const SuperAdminContext = createContext<SuperAdminContextType | undefined>(
   undefined,
 );
 
-export function SuperAdminProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // Mock Data
-  const [msmes, setMSMEs] = useState<MSME[]>([
-    {
-      id: 1,
-      name: "Tita's Bamboo Handicrafts Manufacturing",
-      email: "tita@example.com",
-      contactNumber: 9123456789,
-      address: "San Rafael, Tigbauan, Iloilo",
-      businessType: "Handicrafts",
-      registrationDate: "2023-01-15",
-      logo: "/placeholder.svg?height=100&width=100",
-      sector: "Bamboo",
-    },
-    {
-      id: 2,
-      name: "Tropani Bamboo Products Manufacturing",
-      email: "tropani@example.com",
-      contactNumber: 9234567890,
-      address: "Camangahan, Tigbauan, Iloilo",
-      businessType: "Manufacturing",
-      registrationDate: "2023-02-20",
-      logo: "/placeholder.svg?height=100&width=100",
-      sector: "Bamboo",
-    },
-    {
-      id: 3,
-      name: "Candelaria Canata Bamboo Products Mftg.",
-      email: "candelaria@example.com",
-      contactNumber: 9345678901,
-      address: "Barangay Bita, Leon, Iloilo",
-      businessType: "Manufacturing",
-      registrationDate: "2023-03-10",
-      logo: "/placeholder.svg?height=100&width=100",
-      sector: "Bamboo",
-    },
-  ]);
-  const [sectors, setSectors] = useState<Sector[]>([
-    { id: 1, name: "Bamboo", adminCount: 2, msmeCount: 3 },
-    { id: 2, name: "Handicrafts", adminCount: 1, msmeCount: 5 },
-    { id: 3, name: "Food Processing", adminCount: 3, msmeCount: 8 },
-  ]);
-  const [admins, setAdmins] = useState<Admin[]>([
-    { id: 1, name: "John Doe", email: "john@example.com", sector: "Bamboo" },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      sector: "Handicrafts",
-    },
-    {
-      id: 3,
-      name: "Bob Johnson",
-      email: "bob@example.com",
-      sector: "Food Processing",
-    },
-  ]);
-
-  const handleAddMSME = (newMSME: Omit<MSME, "id">) => {
-    const newId = Math.max(...msmes.map((m) => m.id), 0) + 1;
-    setMSMEs([...msmes, { ...newMSME, id: newId }]);
-  };
-
-  const handleEditMSME = (editedMSME: MSME) => {
-    setMSMEs(
-      msmes.map((msme) => (msme.id === editedMSME.id ? editedMSME : msme)),
-    );
-  };
+export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
+  const [sectors, setSectors] = useState<Sector[]>(
+    () => superAdminMockData.sectors,
+  );
+  const [admins, setAdmins] = useState<Admin[]>(
+    () => superAdminMockData.admins,
+  );
+  const [msmes, setMsmes] = useState<MSME[]>(() => superAdminMockData.msmes);
+  const [adminSignups, setAdminSignups] = useState<AdminSignup[]>(
+    () => superAdminMockData.adminSignups,
+  );
 
   const handleDeleteMSME = (id: number) => {
-    setMSMEs(msmes.filter((msme) => msme.id !== id));
+    setMsmes((prev) => prev.filter((msme) => msme.id !== id));
   };
 
-  const handleAddSector = (newSector: Omit<Sector, "id">) => {
-    const newId = Math.max(...sectors.map((s) => s.id), 0) + 1;
-    setSectors([...sectors, { ...newSector, id: newId }]);
+  const handleDeleteAdmin = (id: number) => {
+    setAdmins((prev) => prev.filter((admin) => admin.id !== id));
+  };
+
+  const handleDeleteSector = (id: number) => {
+    setSectors((prev) => prev.filter((sector) => sector.id !== id));
+  };
+
+  const handleAddMSME = (newMSME: Omit<MSME, "id">) => {
+    const id = Math.max(...msmes.map((m) => m.id), 0) + 1;
+    setMsmes((prev) => [...prev, { ...newMSME, id }]);
   };
 
   const handleAddAdmin = (newAdmin: Omit<Admin, "id">) => {
-    const newId = Math.max(...admins.map((a) => a.id), 0) + 1;
-    setAdmins([...admins, { ...newAdmin, id: newId }]);
+    const id = Math.max(...admins.map((a) => a.id), 0) + 1;
+    setAdmins((prev) => [...prev, { ...newAdmin, id }]);
+  };
+
+  const handleAddSector = (newSector: Omit<Sector, "id">) => {
+    const id = Math.max(...sectors.map((s) => s.id), 0) + 1;
+    setSectors((prev) => [...prev, { ...newSector, id }]);
+  };
+
+  const handleUpdateMSME = (updatedMSME: MSME) => {
+    setMsmes((prev) =>
+      prev.map((msme) => (msme.id === updatedMSME.id ? updatedMSME : msme)),
+    );
+  };
+
+  const handleUpdateAdmin = (updatedAdmin: Admin) => {
+    setAdmins((prev) =>
+      prev.map((admin) =>
+        admin.id === updatedAdmin.id ? updatedAdmin : admin,
+      ),
+    );
+  };
+
+  const handleUpdateSector = (updatedSector: Sector) => {
+    setSectors((prev) =>
+      prev.map((sector) =>
+        sector.id === updatedSector.id ? updatedSector : sector,
+      ),
+    );
+  };
+
+  const handleAcceptAdmin = (signupId: number) => {
+    const signup = adminSignups.find((s) => s.id === signupId);
+    if (!signup) return;
+
+    // Add to admins
+    const newAdmin: Admin = {
+      id: Math.max(...admins.map((a) => a.id), 0) + 1,
+      name: signup.name,
+      email: signup.email,
+      sector: signup.sector,
+      dateAdded: new Date().toISOString().split("T")[0],
+    };
+    setAdmins((prev) => [...prev, newAdmin]);
+
+    // Update signup status
+    setAdminSignups((prev) =>
+      prev.map((s) => (s.id === signupId ? { ...s, status: "approved" } : s)),
+    );
+  };
+
+  const handleRejectAdmin = (signupId: number) => {
+    setAdminSignups((prev) =>
+      prev.map((s) => (s.id === signupId ? { ...s, status: "rejected" } : s)),
+    );
   };
 
   return (
     <SuperAdminContext.Provider
       value={{
-        msmes,
         sectors,
         admins,
-        handleAddMSME,
-        handleEditMSME,
+        msmes,
+        adminSignups,
         handleDeleteMSME,
-        handleAddSector,
+        handleDeleteAdmin,
+        handleDeleteSector,
+        handleAddMSME,
         handleAddAdmin,
+        handleAddSector,
+        handleUpdateMSME,
+        handleUpdateAdmin,
+        handleUpdateSector,
+        handleAcceptAdmin,
+        handleRejectAdmin,
       }}
     >
       {children}
     </SuperAdminContext.Provider>
   );
-}
+};
 
-export function useSuperAdminContext() {
+export const useSuperAdminContext = (): SuperAdminContextType => {
   const context = useContext(SuperAdminContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error(
       "useSuperAdminContext must be used within a SuperAdminProvider",
     );
   }
   return context;
-}
+};
