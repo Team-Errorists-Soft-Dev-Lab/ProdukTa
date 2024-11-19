@@ -37,7 +37,7 @@ To get started with Produkta, follow these steps to set up your development envi
    ```
 
 3. **Set Up Environment Variables**  
-   Create a `.env` file in the root of the project and add your environment variables. 
+   Create a `.env` file in the root of the project and add your environment variables.
 
 ## Usage
 
