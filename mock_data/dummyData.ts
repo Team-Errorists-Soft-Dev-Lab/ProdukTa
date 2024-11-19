@@ -357,3 +357,123 @@ export const msmeLines = [
     majorProductLines: [],
   },
 ];
+
+// Add new mock data for superadmin
+export const superAdminMockData = {
+  sectors: [
+    {
+      id: 1,
+      name: "Bamboo",
+      adminCount: 2,
+      msmeCount: 8,
+    },
+    {
+      id: 2,
+      name: "Coffee & Cacao",
+      adminCount: 1,
+      msmeCount: 5,
+    },
+    {
+      id: 3,
+      name: "Coconut",
+      adminCount: 2,
+      msmeCount: 8,
+    },
+    {
+      id: 4,
+      name: "Processed Foods",
+      adminCount: 1,
+      msmeCount: 6,
+    },
+    {
+      id: 5,
+      name: "Weaving",
+      adminCount: 1,
+      msmeCount: 4,
+    },
+    {
+      id: 6,
+      name: "IT - BPM",
+      adminCount: 1,
+      msmeCount: 3,
+    },
+  ],
+
+  adminSignups: [
+    {
+      id: 101,
+      name: "Robert Chen",
+      email: "robert.chen@example.com",
+      sector: "Bamboo",
+      dateApplied: "2024-03-15",
+      status: "pending",
+    },
+    {
+      id: 102,
+      name: "Maria Garcia",
+      email: "maria.garcia@example.com",
+      sector: "Coconut",
+      dateApplied: "2024-03-16",
+      status: "pending",
+    },
+    {
+      id: 103,
+      name: "David Kim",
+      email: "david.kim@example.com",
+      sector: "IT - BPM",
+      dateApplied: "2024-03-17",
+      status: "pending",
+    },
+  ],
+
+  admins: [
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john.doe@example.com",
+      sector: "Bamboo",
+      dateAdded: "2024-01-15",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      email: "jane.smith@example.com",
+      sector: "Coffee & Cacao",
+      dateAdded: "2024-01-20",
+    },
+    {
+      id: 3,
+      name: "Mike Johnson",
+      email: "mike.j@example.com",
+      sector: "Coconut",
+      dateAdded: "2024-02-01",
+    },
+    {
+      id: 4,
+      name: "Sarah Wilson",
+      email: "sarah.w@example.com",
+      sector: "Processed Foods",
+      dateAdded: "2024-02-15",
+    },
+  ],
+
+  // Convert msmeLines to the format needed for superadmin
+  msmes: msmeLines.map((msme) => ({
+    id: msme.id,
+    name: msme.name,
+    email: `contact@${msme.name.toLowerCase().replace(/\s+/g, "")}.com`,
+    businessType: "Manufacturing",
+    sector: msme.category,
+    address: msme.address,
+    contactNumber: msme.contactNumber,
+    contactPerson: msme.contactPerson,
+    registrationDate: new Date(
+      2023,
+      Math.floor(Math.random() * 12),
+      Math.floor(Math.random() * 28) + 1,
+    )
+      .toISOString()
+      .split("T")[0],
+    status: "Active",
+  })),
+};
