@@ -26,7 +26,6 @@ export default function Sidebar() {
       className={cn(
         "flex h-screen flex-col bg-[#f9f8f4] shadow-md transition-all duration-300",
         isCollapsed ? "w-20" : "w-64",
-        "fixed left-0 top-0 z-40 lg:relative",
       )}
     >
       <div className="flex items-center justify-between p-4">
