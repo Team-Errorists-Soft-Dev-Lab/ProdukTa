@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/AdminNavbar";
-import Sidebar from "@/components/AdminSidebar";
 import Link from "next/link";
 import {
   bambooMSMEs,
@@ -22,13 +21,16 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const allMSMEs = [
-    ...bambooMSMEs,
-    ...coconutMSMEs,
-    ...coffeeMSMEs,
-    ...weavingMSMEs,
-    ...foodMSMEs,
-  ];
+  const allMSMEs = useMemo(
+    () => [
+      ...bambooMSMEs,
+      ...coconutMSMEs,
+      ...coffeeMSMEs,
+      ...weavingMSMEs,
+      ...foodMSMEs,
+    ],
+    [],
+  );
 
   const filteredMSMEs = useMemo(() => {
     return allMSMEs.filter(
@@ -36,7 +38,7 @@ export default function Dashboard() {
         msme.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         msme.address.toLowerCase().includes(searchTerm.toLowerCase()),
     );
-  }, [searchTerm]);
+  }, [searchTerm, allMSMEs]);
 
   const totalPages = Math.ceil(filteredMSMEs.length / ITEMS_PER_PAGE);
   const paginatedMSMEs = useMemo(() => {
