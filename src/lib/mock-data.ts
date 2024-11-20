@@ -4,6 +4,7 @@ export interface MSME {
   email: string;
   contactNumber: number;
   address: string;
+  date: Date;
 }
 
 export interface Admin {
@@ -22,6 +23,7 @@ export const bambooMSMEs: MSME[] = [
     email: "titas.bamboo@example.com",
     contactNumber: 9078088407,
     address: "San Rafael, Tigbauan, Iloilo",
+    date: new Date("2023-01-15"),
   },
   {
     id: 2,
@@ -29,6 +31,7 @@ export const bambooMSMEs: MSME[] = [
     email: "trogani.bamboo@example.com",
     contactNumber: 9187014975,
     address: "Canabuan, Tigbauan, Iloilo",
+    date: new Date("2023-02-20"),
   },
   {
     id: 3,
@@ -36,6 +39,7 @@ export const bambooMSMEs: MSME[] = [
     email: "candelaria.bamboo@example.com",
     contactNumber: 9103994785,
     address: "Islan Norte, Leon, Iloilo",
+    date: new Date("2023-03-10"),
   },
   {
     id: 4,
@@ -43,6 +47,7 @@ export const bambooMSMEs: MSME[] = [
     email: "adpi.mpc@example.com",
     contactNumber: 9085149216,
     address: "Lapayon, Leganes, Iloilo",
+    date: new Date("2023-04-05"),
   },
   {
     id: 5,
@@ -50,6 +55,7 @@ export const bambooMSMEs: MSME[] = [
     email: "landjnative@example.com",
     contactNumber: 9127045676,
     address: "Malunang, Zarraga, Iloilo",
+    date: new Date("2023-05-12"),
   },
   {
     id: 6,
@@ -57,6 +63,7 @@ export const bambooMSMEs: MSME[] = [
     email: "alimodian.bamboo@example.com",
     contactNumber: 9398248011,
     address: "Lapayon, Leganes, Iloilo",
+    date: new Date("2023-06-18"),
   },
   {
     id: 7,
@@ -64,6 +71,7 @@ export const bambooMSMEs: MSME[] = [
     email: "maasin.kawayan@example.com",
     contactNumber: 9108041709,
     address: "Poblacion, Maasin, Iloilo",
+    date: new Date("2023-07-22"),
   },
   {
     id: 8,
@@ -71,6 +79,7 @@ export const bambooMSMEs: MSME[] = [
     email: "efrens.bamboo@example.com",
     contactNumber: 9486961815,
     address: "Jibolo, Janiuay, Iloilo",
+    date: new Date("2023-08-30"),
   },
   {
     id: 9,
@@ -78,6 +87,7 @@ export const bambooMSMEs: MSME[] = [
     email: "jvm.bamboo@example.com",
     contactNumber: 9309687456,
     address: "Bantayan, San Enrique, Iloilo",
+    date: new Date("2023-09-14"),
   },
   {
     id: 10,
@@ -85,6 +95,7 @@ export const bambooMSMEs: MSME[] = [
     email: "mr.hobby@example.com",
     contactNumber: 9384238695,
     address: "Haguimitan, Passi City, Iloilo",
+    date: new Date("2023-10-01"),
   },
   {
     id: 11,
@@ -92,6 +103,7 @@ export const bambooMSMEs: MSME[] = [
     email: "alegria.bamboo@example.com",
     contactNumber: 9468665296,
     address: "Alegria, Dingle, Iloilo",
+    date: new Date("2023-11-11"),
   },
   {
     id: 12,
@@ -99,6 +111,7 @@ export const bambooMSMEs: MSME[] = [
     email: "cm.bamboo@example.com",
     contactNumber: 9499627174,
     address: "La Paz, Iloilo City",
+    date: new Date("2023-12-05"),
   },
   {
     id: 13,
@@ -106,6 +119,7 @@ export const bambooMSMEs: MSME[] = [
     email: "upv.bamboo@example.com",
     contactNumber: 9550773719,
     address: "UPV Miagao Campus, Miagao, Iloilo",
+    date: new Date("2023-01-25"),
   },
   {
     id: 14,
@@ -113,6 +127,7 @@ export const bambooMSMEs: MSME[] = [
     email: "skye.furniture@example.com",
     contactNumber: 9757102268,
     address: "Nanga, Guimbal, Iloilo",
+    date: new Date("2023-02-14"),
   },
   {
     id: 15,
@@ -120,6 +135,7 @@ export const bambooMSMEs: MSME[] = [
     email: "segundos.bamboo@example.com",
     contactNumber: 9263827208,
     address: "Dakong, Guimbal, Iloilo",
+    date: new Date("2023-03-05"),
   },
 ];
 
@@ -131,6 +147,7 @@ export const coconutMSMEs: MSME[] = [
     email: "mfac@example.com",
     contactNumber: 9564799139,
     address: "Kirayan Tacas, Miagao",
+    date: new Date("2023-01-10"),
   },
   {
     id: 2,
@@ -138,6 +155,7 @@ export const coconutMSMEs: MSME[] = [
     email: "nets.vco@example.com",
     contactNumber: 9108502913,
     address: "Poblacion, Lemery",
+    date: new Date("2023-02-15"),
   },
   {
     id: 3,
@@ -145,6 +163,7 @@ export const coconutMSMEs: MSME[] = [
     email: "terays.vco@example.com",
     contactNumber: 9487454371,
     address: "Nagba, Tigbauan",
+    date: new Date("2023-03-20"),
   },
   {
     id: 4,
@@ -152,6 +171,7 @@ export const coconutMSMEs: MSME[] = [
     email: "sandihgeea@example.com",
     contactNumber: 9306501148,
     address: "Bondulan, San Dionisio, Iloilo",
+    date: new Date("2023-04-25"),
   },
   {
     id: 5,
@@ -159,6 +179,7 @@ export const coconutMSMEs: MSME[] = [
     email: "sdmsia@example.com",
     contactNumber: 9307883043,
     address: "Pase, San Dionisio",
+    date: new Date("2023-05-30"),
   },
 ];
 
@@ -170,6 +191,7 @@ export const coffeeMSMEs: MSME[] = [
     email: "3rdgen.glory@example.com",
     contactNumber: 9176209188,
     address: "Quezon St., Brgy. Quezon Arevalo, Iloilo City",
+    date: new Date("2023-01-05"),
   },
   {
     id: 2,
@@ -177,6 +199,7 @@ export const coffeeMSMEs: MSME[] = [
     email: "mountain.brew@example.com",
     contactNumber: 9176247077,
     address: "Lopez Jaena Norte, La Paz Iloilo City",
+    date: new Date("2023-02-10"),
   },
   {
     id: 3,
@@ -184,6 +207,7 @@ export const coffeeMSMEs: MSME[] = [
     email: "mountain.joe@example.com",
     contactNumber: 9955251676,
     address: "Brgy. Burak, Maasin, Iloilo",
+    date: new Date("2023-03-15"),
   },
   {
     id: 4,
@@ -191,6 +215,7 @@ export const coffeeMSMEs: MSME[] = [
     email: "kape.irong@example.com",
     contactNumber: 9207433240,
     address: "Brgy. Rizal, Barotac Viejo, Iloilo",
+    date: new Date("2023-04-20"),
   },
   {
     id: 5,
@@ -198,6 +223,7 @@ export const coffeeMSMEs: MSME[] = [
     email: "laroasteria@example.com",
     contactNumber: 9887879880,
     address: "Corner Compania - Avancena St., Fundidor Molo, Iloilo City",
+    date: new Date("2023-05-25"),
   },
 ];
 
@@ -209,6 +235,7 @@ export const weavingMSMEs: MSME[] = [
     email: "arevalohandwovenproducts@yahoo.com",
     contactNumber: 9203178871,
     address: "No. 58 Sta. Cruz, Arevalo, Iloilo City",
+    date: new Date("2023-01-12"),
   },
   {
     id: 2,
@@ -216,6 +243,7 @@ export const weavingMSMEs: MSME[] = [
     email: "baraclayanweaversassn@gmail.com",
     contactNumber: 9278925142,
     address: "Baraclayan, Miagao, Iloilo",
+    date: new Date("2023-02-18"),
   },
   {
     id: 3,
@@ -223,6 +251,7 @@ export const weavingMSMEs: MSME[] = [
     email: "bugtongan.weavers@example.com",
     contactNumber: 9505175563,
     address: "Bugtongan, Dueñas, Iloilo",
+    date: new Date("2023-03-22"),
   },
   {
     id: 4,
@@ -230,6 +259,7 @@ export const weavingMSMEs: MSME[] = [
     email: "cwlwa@example.com",
     contactNumber: 9395499803,
     address: "Cabayogan, Badiangan, Iloilo",
+    date: new Date("2023-04-28"),
   },
   {
     id: 5,
@@ -237,6 +267,7 @@ export const weavingMSMEs: MSME[] = [
     email: "ind.ipmpc@gmail.com",
     contactNumber: 9094369139,
     address: "Indag-an, Miagao, Iloilo",
+    date: new Date("2023-05-30"),
   },
 ];
 
@@ -248,6 +279,7 @@ export const foodMSMEs: MSME[] = [
     email: "abbys.chicharon@example.com",
     contactNumber: 9288273266,
     address: "Calumpang,Molo,Iloilo City",
+    date: new Date("2023-01-08"),
   },
   {
     id: 2,
@@ -255,6 +287,7 @@ export const foodMSMEs: MSME[] = [
     email: "aldi.foods@example.com",
     contactNumber: 9171490663,
     address: "Magsaysay Rd., Magsaysay Vill., Lapaz, Iloilo City",
+    date: new Date("2023-02-14"),
   },
   {
     id: 3,
@@ -262,6 +295,7 @@ export const foodMSMEs: MSME[] = [
     email: "lloyds.foods@example.com",
     contactNumber: 9100046060,
     address: "Brgy. Guihaman, Leganes,Iloilo",
+    date: new Date("2023-03-18"),
   },
   {
     id: 4,
@@ -269,6 +303,7 @@ export const foodMSMEs: MSME[] = [
     email: "midways.passi@example.com",
     contactNumber: 9778559779,
     address: "Calumpang,Molo,Iloilo City",
+    date: new Date("2023-04-22"),
   },
   {
     id: 5,
@@ -276,6 +311,7 @@ export const foodMSMEs: MSME[] = [
     email: "rgies.rjgm@example.com",
     contactNumber: 9209295368,
     address: "Alta Tierra Village, Jaro,Iloilo City",
+    date: new Date("2023-05-26"),
   },
 ];
 

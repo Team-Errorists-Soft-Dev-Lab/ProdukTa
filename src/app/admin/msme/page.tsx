@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import Navbar from "@/components/AdminNavbar";
 import {
   bambooMSMEs,
   coconutMSMEs,
@@ -159,7 +158,6 @@ export default function ManageMSMEs() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
       <main className="flex-1 overflow-hidden bg-gray-100">
-        <Navbar />
         <div className="p-4 md:p-6">
           <Card className="border-[#996439]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
