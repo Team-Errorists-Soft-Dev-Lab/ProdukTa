@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
-import Navbar from "@/components/AdminNavbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,17 +29,25 @@ export default function AllMSMEs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const itemsPerPage = 6;
 
   const filteredMSMEs = useMemo(() => {
-    return allMSMEs.filter((msme) =>
-      Object.values(msme).some(
+    return allMSMEs.filter((msme) => {
+      const matchesSearch = Object.values(msme).some(
         (value) =>
           typeof value === "string" &&
           value.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    );
-  }, [searchTerm]);
+      );
+
+      const matchesDateRange =
+        (!startDate || msme.date >= new Date(startDate)) &&
+        (!endDate || msme.date <= new Date(endDate));
+
+      return matchesSearch && matchesDateRange;
+    });
+  }, [searchTerm, startDate, endDate]);
 
   const paginatedMSMEs = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -80,7 +87,6 @@ export default function AllMSMEs() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
       <main className="flex-1 overflow-x-hidden bg-gray-100">
-        <Navbar />
         <div className="p-4 md:p-6">
           <Card className="border-[#996439]">
             <div className="p-6">
@@ -96,11 +102,6 @@ export default function AllMSMEs() {
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-8 pr-8"
                     />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1.5"
-                    ></Button>
                   </div>
                   <Button
                     onClick={handleExportData}
@@ -108,6 +109,27 @@ export default function AllMSMEs() {
                   >
                     Export Data ({selectedMSMEs.length})
                   </Button>
+                </div>
+              </div>
+
+              <div className="mb-4 flex space-x-4">
+                <div>
+                  <label className="block text-sm font-medium">
+                    Start Date
+                  </label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium">End Date</label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
                 </div>
               </div>
 

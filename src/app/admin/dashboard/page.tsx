@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import Navbar from "@/components/AdminNavbar";
 import Link from "next/link";
 import {
   bambooMSMEs,
@@ -53,7 +52,6 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
       <main className="flex-1 overflow-x-hidden bg-gray-100">
-        <Navbar />
         <div className="p-4 md:p-6">
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Card className="border-[#996439]">
