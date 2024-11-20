@@ -31,7 +31,7 @@ export default function AllMSMEs() {
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const itemsPerPage = 6;
+  const [itemsPerPage, setItemsPerPage] = useState(6); // State for items per page
 
   const filteredMSMEs = useMemo(() => {
     return allMSMEs.filter((msme) => {
@@ -52,7 +52,7 @@ export default function AllMSMEs() {
   const paginatedMSMEs = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredMSMEs.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredMSMEs, currentPage]);
+  }, [filteredMSMEs, currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
 
@@ -110,6 +110,24 @@ export default function AllMSMEs() {
                     Export Data ({selectedMSMEs.length})
                   </Button>
                 </div>
+              </div>
+              <div className="mb-4 justify-items-end">
+                <label className="block text-sm font-medium">
+                  Items Per Page
+                </label>
+                <input
+                  type="number"
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    const value = Math.min(
+                      30,
+                      Math.max(1, Number(e.target.value)),
+                    );
+                    setItemsPerPage(value);
+                  }}
+                  className="rounded border p-2"
+                  min="1"
+                />
               </div>
 
               <div className="mb-4 flex space-x-4">
