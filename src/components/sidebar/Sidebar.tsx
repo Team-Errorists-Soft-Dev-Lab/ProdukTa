@@ -50,9 +50,17 @@ export default function Sidebar() {
   const { logout } = useAuth();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      setIsLoading(true);
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -131,14 +139,17 @@ export default function Sidebar() {
                   isCollapsed && "justify-center",
                 )}
                 onClick={handleLogout}
+                disabled={isLoading}
               >
                 <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
-                {!isCollapsed && <span>Logout</span>}
+                {!isCollapsed && (
+                  <span>{isLoading ? "Logging out..." : "Logout"}</span>
+                )}
               </Button>
             </TooltipTrigger>
             {isCollapsed && (
               <TooltipContent side="right" className="bg-white text-[#A2A14A]">
-                Logout
+                {isLoading ? "Logging out..." : "Logout"}
               </TooltipContent>
             )}
           </Tooltip>
