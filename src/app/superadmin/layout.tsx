@@ -12,7 +12,7 @@ export default function SuperAdminLayout({
 }) {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) {
-    redirect("/auth");
+    redirect("/login");
   }
 
   return (
