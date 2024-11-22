@@ -14,7 +14,7 @@ export default function AdminLayout({
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    redirect("/auth");
+    redirect("/login");
   }
 
   return (
