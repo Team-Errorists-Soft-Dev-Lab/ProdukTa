@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,16 @@ import {
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 
+interface Sector {
+  id: number;
+  name: string;
+}
+
+interface ApiResponse {
+  sectors: Sector[];
+  error?: string;
+}
+
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -24,7 +34,33 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [sectors, setSectors] = useState<Sector[]>([]);
+  const [isLoadingSectors, setIsLoadingSectors] = useState(true);
   const { signup } = useAuth();
+
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const response = await fetch("/api/sectors");
+        if (!response.ok) throw new Error("Failed to fetch sectors");
+
+        const data = (await response.json()) as ApiResponse;
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        setSectors(data.sectors);
+      } catch (error) {
+        console.error("Error fetching sectors:", error);
+        toast.error("Failed to load sectors");
+      } finally {
+        setIsLoadingSectors(false);
+      }
+    };
+
+    void fetchSectors();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,20 +164,24 @@ export default function Signup() {
               )}
             </button>
           </div>
-          <Select value={sector} onValueChange={setSector}>
+          <Select
+            value={sector}
+            onValueChange={setSector}
+            disabled={isLoadingSectors}
+          >
             <SelectTrigger className="w-full border-gray-200">
-              <SelectValue placeholder="Select MSME Sector" />
+              <SelectValue
+                placeholder={
+                  isLoadingSectors ? "Loading sectors..." : "Select MSME Sector"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="bamboo">Bamboo</SelectItem>
-              <SelectItem value="coffee">Coffee</SelectItem>
-              <SelectItem value="cacao">Cacao</SelectItem>
-              <SelectItem value="coconut">Coconut</SelectItem>
-              <SelectItem value="processed-foods">Processed Foods</SelectItem>
-              <SelectItem value="it-bpm">IT-BPM</SelectItem>
-              <SelectItem value="wearables-homestyles">
-                Wearables and Homestyles
-              </SelectItem>
+              {sectors.map((sector) => (
+                <SelectItem key={sector.id} value={sector.id.toString()}>
+                  {sector.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {error && <p className="text-sm text-red-600">{error}</p>}
