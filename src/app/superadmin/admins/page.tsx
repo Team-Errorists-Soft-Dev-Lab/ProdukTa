@@ -9,15 +9,13 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { Edit, Trash, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ManageAdmins() {
-  const { admins, adminSignups, handleAcceptAdmin, handleRejectAdmin } =
+  const { activeAdmins, pendingAdmins, handleAcceptAdmin, handleRejectAdmin } =
     useSuperAdminContext();
-
-  const pendingSignups = adminSignups.filter((s) => s.status === "pending");
 
   return (
     <div className="p-4 md:p-6">
@@ -26,30 +24,30 @@ export default function ManageAdmins() {
           Manage Admins
         </CardTitle>
         <CardDescription className="text-gray-600">
-          Total: {admins.length} Admins | Pending: {pendingSignups.length}{" "}
+          Active: {activeAdmins.length} Admins | Pending: {pendingAdmins.length}{" "}
           Applications
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="admins" className="w-full">
+        <Tabs defaultValue="active" className="w-full">
           <TabsList className="mb-4 outline-black">
             <TabsTrigger
-              value="admins"
+              value="active"
               className="rounded border-green-500 bg-white p-4 text-lg text-black transition-colors duration-200 hover:bg-green-600 hover:text-white"
             >
-              Active Admins
+              Active Admins ({activeAdmins.length})
             </TabsTrigger>
             <TabsTrigger
               value="pending"
               className="rounded border-green-500 bg-white p-4 text-lg text-black transition-colors duration-200 hover:bg-green-600 hover:text-white"
             >
-              Pending Applications ({pendingSignups.length})
+              Pending Applications ({pendingAdmins.length})
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="admins">
+          <TabsContent value="active">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {admins.map((admin) => (
+              {activeAdmins.map((admin) => (
                 <Card
                   key={admin.id}
                   className="transform rounded-lg border border-emerald-600 bg-white shadow-md"
@@ -65,21 +63,15 @@ export default function ManageAdmins() {
                   <CardContent>
                     <p className="text-sm text-gray-600">
                       Sector:{" "}
-                      <span className="font-medium">{admin.sector}</span>
+                      <span className="font-medium">
+                        {admin.sectors[0]?.sector.name || "Unknown"}
+                      </span>
                     </p>
                     <p className="text-sm text-gray-600">
                       Status:{" "}
                       <span className="font-medium text-green-600">Active</span>
                     </p>
                   </CardContent>
-                  <CardFooter className="flex justify-end">
-                    <Button variant="ghost" size="sm" className="mr-2">
-                      <Edit className="h-4 w-4 text-gray-600" />
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <Trash className="h-4 w-4 text-gray-600" />
-                    </Button>
-                  </CardFooter>
                 </Card>
               ))}
             </div>
@@ -87,26 +79,26 @@ export default function ManageAdmins() {
 
           <TabsContent value="pending">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {pendingSignups.map((signup) => (
+              {pendingAdmins.map((admin) => (
                 <Card
-                  key={signup.id}
+                  key={admin.id}
                   className="transform rounded-lg border border-yellow-400 bg-white shadow-md"
                 >
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold text-gray-800">
-                      {signup.name}
+                      {admin.name}
                     </CardTitle>
                     <CardDescription className="text-gray-500">
-                      {signup.email}
+                      {admin.email}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-gray-600">
                       Sector:{" "}
-                      <span className="font-medium">{signup.sector}</span>
+                      <span className="font-medium">{admin.sector}</span>
                     </p>
                     <p className="text-sm text-gray-600">
-                      Applied: {signup.dateApplied}
+                      Applied: {admin.dateApplied}
                     </p>
                     <p className="text-sm text-gray-600">
                       Status:{" "}
@@ -117,7 +109,7 @@ export default function ManageAdmins() {
                   </CardContent>
                   <CardFooter className="flex justify-end space-x-2">
                     <Button
-                      onClick={() => handleAcceptAdmin(signup.id)}
+                      onClick={() => handleAcceptAdmin(admin.id)}
                       variant="outline"
                       size="sm"
                       className="border-green-500 text-green-600 transition-colors duration-200 hover:bg-green-200 hover:text-black"
@@ -126,7 +118,7 @@ export default function ManageAdmins() {
                       Accept
                     </Button>
                     <Button
-                      onClick={() => handleRejectAdmin(signup.id)}
+                      onClick={() => handleRejectAdmin(admin.id)}
                       variant="outline"
                       size="sm"
                       className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-200 hover:text-black"
