@@ -358,7 +358,7 @@ export const msmeLines = [
   },
 ];
 
-// Add new mock data for superadmin
+// TODO: Remove this mock data once proper CRUD operations are implemented
 export const superAdminMockData = {
   sectors: [
     {

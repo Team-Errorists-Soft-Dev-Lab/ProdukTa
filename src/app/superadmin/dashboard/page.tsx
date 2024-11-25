@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMSMEMock } from "@/contexts/MSMEMockContext"; // TODO: remove once proper CRUD operations are implemented
+
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import {
   Chart as ChartJS,
@@ -27,7 +29,8 @@ ChartJS.register(
 const ITEMS_PER_PAGE = 4;
 
 export default function Dashboard() {
-  const { sectors, admins, msmes } = useSuperAdminContext();
+  const { sectors, msmes } = useMSMEMock();
+  const { activeAdmins } = useSuperAdminContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -130,21 +133,21 @@ export default function Dashboard() {
         </Card>
         <Card className="border-emerald-600">
           <CardHeader>
-            <CardTitle className="text-center">Total Admins</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-3xl font-bold text-emerald-600">
-              {admins.length}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-emerald-600">
-          <CardHeader>
             <CardTitle className="text-center">Total MSMEs</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-center text-3xl font-bold text-emerald-600">
               {msmes.length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-emerald-600">
+          <CardHeader>
+            <CardTitle className="text-center">Active Admins</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center text-3xl font-bold text-emerald-600">
+              {activeAdmins.length}
             </p>
           </CardContent>
         </Card>

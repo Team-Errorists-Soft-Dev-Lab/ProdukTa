@@ -25,13 +25,13 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
-import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
+import { useMSMEMock } from "@/contexts/MSMEMockContext"; // TODO: remove once proper CRUD operations are implemented
 import AddMSMEModal from "@/components/modals/AddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
 import type { MSME } from "@/types/superadmin";
 
 export default function ManageMSME() {
-  const { msmes, handleDeleteMSME } = useSuperAdminContext();
+  const { msmes, handleDeleteMSME } = useMSMEMock(); // TODO: remove once proper CRUD operations are implemented
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
