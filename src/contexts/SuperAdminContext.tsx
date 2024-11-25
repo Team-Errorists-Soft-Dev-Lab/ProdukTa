@@ -1,35 +1,23 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { superAdminMockData } from "../../mock_data/dummyData";
-import type { MSME, Admin, Sector } from "@/types/superadmin";
+import type { PendingAdmin, Admin } from "@/types/superadmin";
+import { toast } from "sonner";
 
-interface AdminSignup {
+interface Sector {
   id: number;
   name: string;
-  email: string;
-  sector: string;
-  dateApplied: string;
-  status: "pending" | "approved" | "rejected";
+  adminCount: number;
+  msmeCount: number;
 }
 
 interface SuperAdminContextType {
+  activeAdmins: Admin[];
+  pendingAdmins: PendingAdmin[];
   sectors: Sector[];
-  admins: Admin[];
-  msmes: MSME[];
-  adminSignups: AdminSignup[];
-  handleDeleteMSME: (id: number) => void;
-  handleDeleteAdmin: (id: number) => void;
-  handleDeleteSector: (id: number) => void;
-  handleAddMSME: (msme: Omit<MSME, "id">) => void;
-  handleAddAdmin: (admin: Omit<Admin, "id">) => void;
-  handleAddSector: (sector: Omit<Sector, "id">) => void;
-  handleUpdateMSME: (msme: MSME) => void;
-  handleUpdateAdmin: (admin: Admin) => void;
-  handleUpdateSector: (sector: Sector) => void;
-  handleAcceptAdmin: (signupId: number) => void;
-  handleRejectAdmin: (signupId: number) => void;
+  handleAcceptAdmin: (adminId: number) => Promise<void>;
+  handleRejectAdmin: (adminId: number) => Promise<void>;
 }
 
 const SuperAdminContext = createContext<SuperAdminContextType | undefined>(
@@ -37,108 +25,117 @@ const SuperAdminContext = createContext<SuperAdminContextType | undefined>(
 );
 
 export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
-  const [sectors, setSectors] = useState<Sector[]>(
-    () => superAdminMockData.sectors,
-  );
-  const [admins, setAdmins] = useState<Admin[]>(
-    () => superAdminMockData.admins,
-  );
-  const [msmes, setMsmes] = useState<MSME[]>(() => superAdminMockData.msmes);
-  const [adminSignups, setAdminSignups] = useState<AdminSignup[]>(
-    () => superAdminMockData.adminSignups,
-  );
+  const [activeAdmins, setActiveAdmins] = useState<Admin[]>([]);
+  const [pendingAdmins, setPendingAdmins] = useState<PendingAdmin[]>([]);
+  const [sectors, setSectors] = useState<Sector[]>([]);
 
-  const handleDeleteMSME = (id: number) => {
-    setMsmes((prev) => prev.filter((msme) => msme.id !== id));
+  const fetchAdmins = async () => {
+    try {
+      const [activeResponse, pendingResponse] = await Promise.all([
+        fetch("/api/admin/active"),
+        fetch("/api/admin/pending"),
+      ]);
+
+      if (!activeResponse.ok) throw new Error("Failed to fetch active admins");
+      if (!pendingResponse.ok)
+        throw new Error("Failed to fetch pending admins");
+
+      const [activeData, pendingData] = await Promise.all([
+        activeResponse.json(),
+        pendingResponse.json(),
+      ]);
+
+      setActiveAdmins(activeData.admins);
+      setPendingAdmins(pendingData.pendingAdmins);
+    } catch (error) {
+      console.error("Error fetching admins:", error);
+      toast.error("Failed to fetch admins");
+    }
   };
 
-  const handleDeleteAdmin = (id: number) => {
-    setAdmins((prev) => prev.filter((admin) => admin.id !== id));
+  const fetchSectors = async () => {
+    try {
+      const response = await fetch("/api/sectors");
+      if (!response.ok) throw new Error("Failed to fetch sectors");
+      const data = await response.json();
+      setSectors(data.sectors);
+    } catch (error) {
+      console.error("Error fetching sectors:", error);
+      toast.error("Failed to fetch sectors");
+    }
   };
 
-  const handleDeleteSector = (id: number) => {
-    setSectors((prev) => prev.filter((sector) => sector.id !== id));
+  useEffect(() => {
+    void fetchAdmins();
+    void fetchSectors();
+  }, []);
+
+  const handleAcceptAdmin = async (adminId: number) => {
+    try {
+      // Optimistically update UI
+      setPendingAdmins((prev) => prev.filter((admin) => admin.id !== adminId));
+
+      const response = await fetch(`/api/admin/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to approve admin");
+      }
+
+      // Refresh active admins list
+      const activeResponse = await fetch("/api/admin/active");
+      if (!activeResponse.ok) throw new Error("Failed to fetch active admins");
+      const activeData = await activeResponse.json();
+      setActiveAdmins(activeData.admins);
+
+      toast.success("Admin approved successfully");
+    } catch (error) {
+      console.error("Error approving admin:", error);
+      // Revert optimistic update on error
+      void fetchAdmins();
+      toast.error(
+        error instanceof Error ? error.message : "Failed to approve admin",
+      );
+    }
   };
 
-  const handleAddMSME = (newMSME: Omit<MSME, "id">) => {
-    const id = Math.max(...msmes.map((m) => m.id), 0) + 1;
-    setMsmes((prev) => [...prev, { ...newMSME, id }]);
-  };
+  const handleRejectAdmin = async (adminId: number) => {
+    try {
+      // Optimistically update UI
+      setPendingAdmins((prev) => prev.filter((admin) => admin.id !== adminId));
 
-  const handleAddAdmin = (newAdmin: Omit<Admin, "id">) => {
-    const id = Math.max(...admins.map((a) => a.id), 0) + 1;
-    setAdmins((prev) => [...prev, { ...newAdmin, id }]);
-  };
+      const response = await fetch(`/api/admin/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminId }),
+      });
 
-  const handleAddSector = (newSector: Omit<Sector, "id">) => {
-    const id = Math.max(...sectors.map((s) => s.id), 0) + 1;
-    setSectors((prev) => [...prev, { ...newSector, id }]);
-  };
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to reject admin");
+      }
 
-  const handleUpdateMSME = (updatedMSME: MSME) => {
-    setMsmes((prev) =>
-      prev.map((msme) => (msme.id === updatedMSME.id ? updatedMSME : msme)),
-    );
-  };
-
-  const handleUpdateAdmin = (updatedAdmin: Admin) => {
-    setAdmins((prev) =>
-      prev.map((admin) =>
-        admin.id === updatedAdmin.id ? updatedAdmin : admin,
-      ),
-    );
-  };
-
-  const handleUpdateSector = (updatedSector: Sector) => {
-    setSectors((prev) =>
-      prev.map((sector) =>
-        sector.id === updatedSector.id ? updatedSector : sector,
-      ),
-    );
-  };
-
-  const handleAcceptAdmin = (signupId: number) => {
-    const signup = adminSignups.find((s) => s.id === signupId);
-    if (!signup) return;
-
-    // Add to admins
-    const newAdmin: Admin = {
-      id: Math.max(...admins.map((a) => a.id), 0) + 1,
-      name: signup.name,
-      email: signup.email,
-      sector: signup.sector,
-      dateAdded: new Date().toISOString().split("T")[0],
-    };
-    setAdmins((prev) => [...prev, newAdmin]);
-
-    // Update signup status
-    setAdminSignups((prev) =>
-      prev.map((s) => (s.id === signupId ? { ...s, status: "approved" } : s)),
-    );
-  };
-
-  const handleRejectAdmin = (signupId: number) => {
-    setAdminSignups((prev) =>
-      prev.map((s) => (s.id === signupId ? { ...s, status: "rejected" } : s)),
-    );
+      toast.success("Admin rejected successfully");
+    } catch (error) {
+      console.error("Error rejecting admin:", error);
+      // Revert optimistic update on error
+      void fetchAdmins();
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reject admin",
+      );
+    }
   };
 
   return (
     <SuperAdminContext.Provider
       value={{
+        activeAdmins,
+        pendingAdmins,
         sectors,
-        admins,
-        msmes,
-        adminSignups,
-        handleDeleteMSME,
-        handleDeleteAdmin,
-        handleDeleteSector,
-        handleAddMSME,
-        handleAddAdmin,
-        handleAddSector,
-        handleUpdateMSME,
-        handleUpdateAdmin,
-        handleUpdateSector,
         handleAcceptAdmin,
         handleRejectAdmin,
       }}
@@ -148,11 +145,11 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useSuperAdminContext = (): SuperAdminContextType => {
+export const useSuperAdminContext = () => {
   const context = useContext(SuperAdminContext);
   if (!context) {
     throw new Error(
-      "useSuperAdminContext must be used within a SuperAdminProvider",
+      "useSuperAdminContext must be used within SuperAdminProvider",
     );
   }
   return context;
