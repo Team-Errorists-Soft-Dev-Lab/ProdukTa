@@ -20,6 +20,7 @@ model Admin {
     updatedAt       DateTime @updatedAt
     isSuperadmin    Boolean  @default(false)
     sectors         AdminSectors[]
+    isPending       Boolean  @default(true)
 }
 
 model Sector {
