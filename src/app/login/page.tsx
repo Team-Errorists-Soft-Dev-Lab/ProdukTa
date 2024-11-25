@@ -23,8 +23,14 @@ export default function LoginPage() {
     try {
       const result = await login(email, password);
       if (result?.error) {
-        setError("Invalid email or password");
-        toast.error("Invalid email or password");
+        setError(result.error);
+        if (result.error.includes("pending approval")) {
+          toast.error("Account pending approval", {
+            description: "Please wait for admin verification.",
+          });
+        } else {
+          toast.error(result.error);
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
@@ -93,7 +99,15 @@ export default function LoginPage() {
                 </div>
               </div>
               {error && (
-                <p className="text-sm font-medium text-red-600">{error}</p>
+                <p
+                  className={`text-sm ${
+                    error.includes("pending approval")
+                      ? "text-yellow-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {error}
+                </p>
               )}
               <div>
                 <button
