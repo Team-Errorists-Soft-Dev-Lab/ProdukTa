@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { prisma } from "@/utils/prisma/client";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -29,9 +30,16 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  // Get authenticated user instead of session
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    console.error("Auth error:", userError);
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   // Define paths
   const publicPaths = ["/login", "/signup", "/guest"];
@@ -46,33 +54,43 @@ export async function updateSession(request: NextRequest) {
     currentPath.startsWith(path),
   );
 
-  // No session - handle public access
-  if (!session) {
-    // Allow access to public paths
-    if (isPublicPath) return supabaseResponse;
+  // Check if user exists and get their status from database
+  if (user) {
+    const dbUser = await prisma.admin.findUnique({
+      where: { email: user.email },
+    });
 
-    // Redirect to login for protected paths
-    return NextResponse.redirect(new URL("/login", request.url));
+    if (dbUser?.isPending) {
+      // Redirect pending admins to a waiting page
+      if (!currentPath.startsWith("/pending")) {
+        return NextResponse.redirect(new URL("/pending", request.url));
+      }
+    }
+
+    const isSuperadmin = dbUser?.isSuperadmin ?? false;
+
+    // Prevent authenticated users from accessing login/signup
+    if (isPublicPath) {
+      return NextResponse.redirect(
+        new URL(isSuperadmin ? "/superadmin" : "/admin", request.url),
+      );
+    }
+
+    // Check role-based access
+    if (isSuperadminPath && !isSuperadmin) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    if (isAdminPath && isSuperadmin) {
+      return NextResponse.redirect(new URL("/superadmin", request.url));
+    }
+
+    return supabaseResponse;
   }
 
-  // Has session - handle role-based access
-  const isSuperadmin = session.user.user_metadata?.isSuperadmin as boolean;
+  // No authenticated user - handle public access
+  if (isPublicPath) return supabaseResponse;
 
-  // Prevent authenticated users from accessing login/signup
-  if (isPublicPath) {
-    return NextResponse.redirect(
-      new URL(isSuperadmin ? "/superadmin" : "/admin", request.url),
-    );
-  }
-
-  // Check role-based access
-  if (isSuperadminPath && !isSuperadmin) {
-    return NextResponse.redirect(new URL("/admin", request.url));
-  }
-
-  if (isAdminPath && isSuperadmin) {
-    return NextResponse.redirect(new URL("/superadmin", request.url));
-  }
-
-  return supabaseResponse;
+  // Redirect to login for protected paths
+  return NextResponse.redirect(new URL("/login", request.url));
 }
