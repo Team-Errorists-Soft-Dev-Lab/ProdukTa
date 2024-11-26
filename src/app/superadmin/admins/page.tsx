@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ import {
 import { Check, X, Trash2 } from "lucide-react";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 export default function ManageAdmins() {
   const {
@@ -34,8 +36,8 @@ export default function ManageAdmins() {
   } = useSuperAdminContext();
 
   return (
-    <div className="p-4 md:p-6">
-      <CardHeader>
+    <div className="container mx-auto p-4 md:p-6">
+      <CardHeader className="mb-6">
         <CardTitle className="text-3xl font-bold text-gray-800">
           Manage Admins
         </CardTitle>
@@ -46,27 +48,27 @@ export default function ManageAdmins() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="active" className="w-full">
-          <TabsList className="mb-4 outline-black">
+          <TabsList className="mb-6 grid w-full grid-cols-2 gap-4">
             <TabsTrigger
               value="active"
-              className="rounded border-green-500 bg-white p-4 text-lg text-black transition-colors duration-200 hover:bg-green-600 hover:text-white"
+              className="bg-white text-black hover:bg-[#b08968] hover:text-white data-[state=active]:bg-[#b08968] data-[state=active]:text-white"
             >
               Active Admins ({activeAdmins.length})
             </TabsTrigger>
             <TabsTrigger
               value="pending"
-              className="rounded border-green-500 bg-white p-4 text-lg text-black transition-colors duration-200 hover:bg-green-600 hover:text-white"
+              className="bg-white text-black hover:bg-[#b08968] hover:text-white data-[state=active]:bg-[#b08968] data-[state=active]:text-white"
             >
               Pending Applications ({pendingAdmins.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="active">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {activeAdmins.map((admin) => (
                 <Card
                   key={admin.id}
-                  className="transform rounded-lg border border-emerald-600 bg-white shadow-md"
+                  className="overflow-hidden rounded-lg border border-emerald-600 bg-white shadow-md transition-shadow duration-300 hover:shadow-lg"
                 >
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold text-gray-800">
@@ -77,15 +79,23 @@ export default function ManageAdmins() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-gray-600">
+                    <p className="mb-2 text-sm text-gray-600">
                       Sector:{" "}
-                      <span className="font-medium">
+                      <Badge
+                        variant="outline"
+                        className="ml-1 bg-emerald-50 text-emerald-700"
+                      >
                         {admin.sectors[0]?.sector.name ?? "Unknown"}
-                      </span>
+                      </Badge>
                     </p>
                     <p className="text-sm text-gray-600">
                       Status:{" "}
-                      <span className="font-medium text-green-600">Active</span>
+                      <Badge
+                        variant="default"
+                        className="bg-green-500 text-white"
+                      >
+                        Active
+                      </Badge>
                     </p>
                   </CardContent>
                   <CardFooter className="flex justify-end">
@@ -94,7 +104,7 @@ export default function ManageAdmins() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-200 hover:text-black"
+                          className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-50"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
@@ -128,11 +138,11 @@ export default function ManageAdmins() {
           </TabsContent>
 
           <TabsContent value="pending">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {pendingAdmins.map((admin) => (
                 <Card
                   key={admin.id}
-                  className="transform rounded-lg border border-yellow-400 bg-white shadow-md"
+                  className="overflow-hidden rounded-lg border border-yellow-400 bg-white shadow-md transition-shadow duration-300 hover:shadow-lg"
                 >
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold text-gray-800">
@@ -143,18 +153,26 @@ export default function ManageAdmins() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-gray-600">
+                    <p className="mb-2 text-sm text-gray-600">
                       Sector:{" "}
-                      <span className="font-medium">{admin.sector}</span>
+                      <Badge
+                        variant="outline"
+                        className="ml-1 bg-yellow-50 text-yellow-700"
+                      >
+                        {admin.sector}
+                      </Badge>
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="mb-2 text-sm text-gray-600">
                       Applied: {admin.dateApplied}
                     </p>
                     <p className="text-sm text-gray-600">
                       Status:{" "}
-                      <span className="font-medium text-yellow-600">
+                      <Badge
+                        variant="secondary"
+                        className="bg-yellow-200 text-yellow-800"
+                      >
                         Pending
-                      </span>
+                      </Badge>
                     </p>
                   </CardContent>
                   <CardFooter className="flex justify-end space-x-2">
@@ -162,7 +180,7 @@ export default function ManageAdmins() {
                       onClick={() => handleAcceptAdmin(admin.id)}
                       variant="outline"
                       size="sm"
-                      className="border-green-500 text-green-600 transition-colors duration-200 hover:bg-green-200 hover:text-black"
+                      className="border-green-500 text-green-600 transition-colors duration-200 hover:bg-green-50"
                     >
                       <Check className="mr-2 h-4 w-4" />
                       Accept
@@ -171,7 +189,7 @@ export default function ManageAdmins() {
                       onClick={() => handleRejectAdmin(admin.id)}
                       variant="outline"
                       size="sm"
-                      className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-200 hover:text-black"
+                      className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-50"
                     >
                       <X className="mr-2 h-4 w-4" />
                       Reject
