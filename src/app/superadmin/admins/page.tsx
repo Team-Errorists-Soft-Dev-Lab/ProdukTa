@@ -9,13 +9,29 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { Check, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Check, X, Trash2 } from "lucide-react";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ManageAdmins() {
-  const { activeAdmins, pendingAdmins, handleAcceptAdmin, handleRejectAdmin } =
-    useSuperAdminContext();
+  const {
+    activeAdmins,
+    pendingAdmins,
+    handleAcceptAdmin,
+    handleRejectAdmin,
+    handleDeleteAdmin,
+  } = useSuperAdminContext();
 
   return (
     <div className="p-4 md:p-6">
@@ -64,7 +80,7 @@ export default function ManageAdmins() {
                     <p className="text-sm text-gray-600">
                       Sector:{" "}
                       <span className="font-medium">
-                        {admin.sectors[0]?.sector.name || "Unknown"}
+                        {admin.sectors[0]?.sector.name ?? "Unknown"}
                       </span>
                     </p>
                     <p className="text-sm text-gray-600">
@@ -72,6 +88,40 @@ export default function ManageAdmins() {
                       <span className="font-medium text-green-600">Active</span>
                     </p>
                   </CardContent>
+                  <CardFooter className="flex justify-end">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-200 hover:text-black"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Delete Admin Account
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete {admin.name}&apos;s
+                            admin account? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteAdmin(admin.id)}
+                            className="bg-red-600 text-white hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardFooter>
                 </Card>
               ))}
             </div>
