@@ -6,9 +6,9 @@ const RequestSchema = z.object({
   adminId: z.number(),
 });
 
-export async function POST(request: Request) {
+export async function DELETE(request: Request) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as unknown;
     const { adminId } = RequestSchema.parse(body);
 
     // Get admin email before deletion
