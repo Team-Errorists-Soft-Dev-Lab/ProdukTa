@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface Sector {
   id: number;
@@ -62,22 +63,33 @@ export default function Signup() {
     void fetchSectors();
   }, []);
 
+  const validateForm = () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    if (!sector) {
+      setError("Please select an MSME Sector");
+      return false;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      if (password !== confirmPassword) {
-        setError("Passwords do not match");
-        setIsLoading(false);
-        return;
-      }
-      if (!sector) {
-        setError("Please select an MSME Sector");
-        setIsLoading(false);
-        return;
-      }
       const result = await signup(email, fullName, password, sector);
 
       if (result.error) {
@@ -99,24 +111,36 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f8f4f1]">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#f8f4f1] to-[#e8e0d8] p-4">
+      <motion.div
+        className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="mb-6 flex justify-center">
           <Image
             src="/ProdukTa_Logo.png"
             alt="ProdukTa Logo"
-            width={80}
-            height={80}
+            width={100}
+            height={100}
             className="h-auto w-auto"
           />
         </div>
-        <h1 className="mb-6 text-center text-2xl font-semibold text-[#b08968]">
+        <h1 className="mb-6 text-center text-3xl font-bold text-[#b08968]">
           Create your account
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
             <input
-              className="w-full appearance-none rounded-md border border-gray-200 px-4 py-3 placeholder-gray-400 focus:border-[#b08968] focus:outline-none"
+              id="email"
+              className="mt-1 w-full appearance-none rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 shadow-sm focus:border-[#b08968] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
               type="email"
               placeholder="Enter your email"
               value={email}
@@ -125,8 +149,15 @@ export default function Signup() {
             />
           </div>
           <div>
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Full Name
+            </label>
             <input
-              className="w-full appearance-none rounded-md border border-gray-200 px-4 py-3 placeholder-gray-400 focus:border-[#b08968] focus:outline-none"
+              id="fullName"
+              className="mt-1 w-full appearance-none rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 shadow-sm focus:border-[#b08968] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
               type="text"
               placeholder="Enter your full name"
               value={fullName}
@@ -134,87 +165,133 @@ export default function Signup() {
               required
             />
           </div>
-          <div className="relative">
-            <input
-              className="w-full appearance-none rounded-md border border-gray-200 px-4 py-3 placeholder-gray-400 focus:border-[#b08968] focus:outline-none"
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
             >
-              {showPassword ? (
-                <EyeOffIcon className="h-5 w-5" />
-              ) : (
-                <EyeIcon className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-          <div className="relative">
-            <input
-              className="w-full appearance-none rounded-md border border-gray-200 px-4 py-3 placeholder-gray-400 focus:border-[#b08968] focus:outline-none"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-            >
-              {showConfirmPassword ? (
-                <EyeOffIcon className="h-5 w-5" />
-              ) : (
-                <EyeIcon className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-          <Select
-            value={sector}
-            onValueChange={setSector}
-            disabled={isLoadingSectors}
-          >
-            <SelectTrigger className="w-full border-gray-200">
-              <SelectValue
-                placeholder={
-                  isLoadingSectors ? "Loading sectors..." : "Select MSME Sector"
-                }
+              Password
+            </label>
+            <div className="relative mt-1">
+              <input
+                id="password"
+                className="w-full appearance-none rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 shadow-sm focus:border-[#b08968] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-            </SelectTrigger>
-            <SelectContent>
-              {sectors.map((sector) => (
-                <SelectItem key={sector.id} value={sector.id.toString()}>
-                  {sector.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOffIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Confirm Password
+            </label>
+            <div className="relative mt-1">
+              <input
+                id="confirmPassword"
+                className="w-full appearance-none rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 shadow-sm focus:border-[#b08968] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
+              >
+                {showConfirmPassword ? (
+                  <EyeOffIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="sector"
+              className="block text-sm font-medium text-gray-700"
+            >
+              MSME Sector
+            </label>
+            <Select
+              value={sector}
+              onValueChange={setSector}
+              disabled={isLoadingSectors}
+            >
+              <SelectTrigger
+                id="sector"
+                className="mt-1 w-full border-gray-300"
+              >
+                <SelectValue
+                  placeholder={
+                    isLoadingSectors
+                      ? "Loading sectors..."
+                      : "Select MSME Sector"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {sectors.map((sector) => (
+                  <SelectItem key={sector.id} value={sector.id.toString()}>
+                    {sector.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {error && (
+            <p className="text-sm text-red-600" role="alert">
+              {error}
+            </p>
+          )}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-md bg-[#b08968] px-4 py-3 font-medium text-white hover:bg-[#9a7b5f] disabled:opacity-50"
+            className="w-full rounded-md bg-[#b08968] px-4 py-2 font-medium text-white transition duration-150 ease-in-out hover:bg-[#9a7b5f] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-offset-2 disabled:opacity-50"
           >
-            {isLoading ? "Loading..." : "Sign Up"}
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing Up...
+              </span>
+            ) : (
+              "Sign Up"
+            )}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="font-medium text-[#b08968] hover:underline"
+            className="font-medium text-[#b08968] transition duration-150 ease-in-out hover:text-[#9a7b5f] hover:underline focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
           >
             Log in
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
