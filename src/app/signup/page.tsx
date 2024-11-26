@@ -70,13 +70,25 @@ export default function Signup() {
     try {
       if (password !== confirmPassword) {
         setError("Passwords do not match");
+        setIsLoading(false);
         return;
       }
       if (!sector) {
         setError("Please select an MSME Sector");
+        setIsLoading(false);
         return;
       }
-      await signup(email, fullName, password, sector);
+      const result = await signup(email, fullName, password, sector);
+
+      if (result.error) {
+        if (result.error === "Email is already registered") {
+          setError(
+            "This email is already registered. Please use a different email or login to your existing account.",
+          );
+        } else {
+          setError(result.error);
+        }
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
       setError(message);
