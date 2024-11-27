@@ -97,6 +97,7 @@ export default function LoginPage() {
               )}
               <div>
                 <button
+                  id="login-button"
                   className="w-full rounded-md bg-[#b08968] px-5 py-3 font-semibold text-white transition duration-150 ease-in-out hover:bg-[#9a7b5f] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-offset-2 disabled:opacity-50"
                   type="submit"
                   disabled={isLoading}
