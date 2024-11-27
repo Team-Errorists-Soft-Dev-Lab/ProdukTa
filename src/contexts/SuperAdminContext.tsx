@@ -130,7 +130,7 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
       // Optimistically update UI
       setPendingAdmins((prev) => prev.filter((admin) => admin.id !== adminId));
 
-      const response = await fetch(`/api/admin/reject`, {
+      const response = await fetch(`/api/admin/delete`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ adminId }),
