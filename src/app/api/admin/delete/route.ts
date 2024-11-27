@@ -17,10 +17,7 @@ export async function DELETE(request: Request) {
     });
 
     if (!admin) {
-      return Response.json(
-        { success: false, message: "Admin not found" },
-        { status: 404 },
-      );
+      return Response.json({ error: "Admin not found" }, { status: 404 });
     }
 
     // Delete admin from database
@@ -30,27 +27,14 @@ export async function DELETE(request: Request) {
 
     // Delete user from Supabase
     const supabase = await createClient();
-    const { error: supabaseError } = await supabase.auth.admin.deleteUser(
-      admin.email,
-    );
-
-    if (supabaseError) {
-      console.error("Error deleting Supabase user:", supabaseError);
-      // Note: We don't return error here as the admin is already deleted from our database
-    }
+    await supabase.auth.admin.deleteUser(admin.email);
 
     return Response.json({ success: true });
   } catch (error) {
     console.error("Error deleting admin:", error);
     if (error instanceof z.ZodError) {
-      return Response.json(
-        { success: false, message: "Invalid request data" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Invalid request data" }, { status: 400 });
     }
-    return Response.json(
-      { success: false, message: "Failed to delete admin" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Failed to delete admin" }, { status: 500 });
   }
 }
