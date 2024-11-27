@@ -1,20 +1,16 @@
 import { type NextRequest } from "next/server";
 import { prisma } from "@/utils/prisma/client";
 
-interface RequestBody {
-  email: string;
-}
-
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const body = (await request.json()) as RequestBody;
+    const email = request.nextUrl.searchParams.get("email");
 
-    if (!body.email) {
+    if (!email) {
       return Response.json({ error: "Email is required" }, { status: 400 });
     }
 
     const user = await prisma.admin.findUnique({
-      where: { email: body.email },
+      where: { email },
       include: { sectors: true },
     });
 
