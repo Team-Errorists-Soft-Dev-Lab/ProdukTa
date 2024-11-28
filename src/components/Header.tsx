@@ -10,10 +10,6 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
-  const logIn = () => {
-    router.push("/login");
-  };
-
   return (
     <header className="bg-white p-4">
       <div className="flex items-center justify-between">
@@ -34,7 +30,7 @@ export default function Header() {
         </div>
         <div className="hidden items-center space-x-4 md:flex">
           <Button
-            variant="default"
+            variant="ghost"
             className="bg-[#996439] text-white hover:bg-[#8B4513]"
           >
             Home
@@ -43,14 +39,19 @@ export default function Header() {
             variant="ghost"
             className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
           >
-            Export
+            About Us
           </Button>
           <Button
             variant="ghost"
             className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
-            onClick={logIn}
           >
-            Login
+            Search <br /> MSME
+          </Button>
+          <Button
+            variant="ghost"
+            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
+          >
+            Export
           </Button>
           <Image src="/DTI_logo.png" alt="DTI Logo" width={40} height={40} />
         </div>
