@@ -2,30 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
-import { createClient } from "@/utils/supabase/server";
-import { prisma } from "@/utils/prisma/client";
-import { type Admin } from "@prisma/client";
-import bcrypt from "bcryptjs";
-
-// Schema for login data
-const LoginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-});
-
-// Schema for signup data
-const SignupSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  name: z.string().min(2, "Name must be at least 2 characters long"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-  sectorId: z.string().min(1, "Sector is required"),
-});
-
-interface AuthResponse {
-  user: Admin | null;
-  error: string | null;
-}
+import { type AuthResponse, LoginSchema, SignupSchema } from "@/types/auth";
+import {
+  findUserByEmail,
+  verifyPassword,
+  findSectorById,
+  createAdmin,
+  validateLoginAttempt,
+} from "@/services/auth-service";
+import {
+  signInWithSupabase,
+  updateSupabaseUser,
+  signUpWithSupabase,
+  signOutFromSupabase,
+} from "@/services/supabase-auth-service";
 
 export async function handleLogin(formData: FormData): Promise<AuthResponse> {
   try {
@@ -44,58 +34,42 @@ export async function handleLogin(formData: FormData): Promise<AuthResponse> {
     const { email, password } = parseResult.data;
 
     // Get user from database
-    const user = await prisma.admin.findUnique({
-      where: { email },
-      include: {
-        sectors: {
-          include: {
-            sector: true,
-          },
-        },
-      },
-    });
+    const user = await findUserByEmail(email);
 
-    if (!user) {
-      return { user: null, error: "Invalid email or password" };
+    // Validate login attempt (includes email verification check)
+    const validationError = await validateLoginAttempt(user);
+    if (validationError) {
+      return {
+        user: null,
+        error: validationError.message,
+        message:
+          validationError.code === "email_not_confirmed"
+            ? "Please check your email for the verification link."
+            : undefined,
+      };
     }
 
     // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await verifyPassword(password, user!.password);
     if (!isValidPassword) {
       return { user: null, error: "Invalid email or password" };
     }
 
-    // Check if account is pending (skip for superadmin)
-    if (!user.isSuperadmin && user.isPending) {
-      return {
-        user: null,
-        error:
-          "Your account is pending approval. Please wait for admin verification.",
-      };
-    }
-
     // Sign in with Supabase
-    const supabase = await createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { error: authError } = await signInWithSupabase(email, password);
     if (authError) {
       return { user: null, error: authError.message };
     }
 
     // Update user metadata
-    await supabase.auth.updateUser({
-      data: {
-        isSuperadmin: user.isSuperadmin,
-        name: user.name,
-        sectorId: user.sectors[0]?.sectorId,
-      },
+    await updateSupabaseUser({
+      isSuperadmin: user!.isSuperadmin,
+      name: user!.name,
+      sectorId: user!.sectors[0]?.sectorId ?? 0,
     });
 
     revalidatePath("/", "layout");
-    return { user, error: null };
+    return { user: user!, error: null };
   } catch (error) {
     console.error("Login error:", error);
     return {
@@ -130,66 +104,44 @@ export async function handleSignup(formData: FormData): Promise<AuthResponse> {
     }
 
     // Check if sector exists
-    const sector = await prisma.sector.findUnique({
-      where: { id: sectorIdNumber },
-    });
-
+    const sector = await findSectorById(sectorIdNumber);
     if (!sector) {
       return { user: null, error: "Selected sector does not exist" };
     }
 
     // Check if email is already registered
-    const existingUser = await prisma.admin.findUnique({
-      where: { email },
-    });
-
+    const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return { user: null, error: "Email is already registered" };
     }
 
-    // Create Supabase auth user
-    const supabase = await createClient();
-    const { error: authError } = await supabase.auth.signUp({
+    // Create Supabase auth user with email confirmation required
+    const { error: authError } = await signUpWithSupabase({
       email,
       password,
-      options: {
-        data: {
-          name,
-          sectorId: sectorIdNumber,
-        },
-      },
+      name,
+      sectorId: sectorIdNumber,
     });
 
     if (authError) {
       return { user: null, error: authError.message };
     }
 
-    // Hash password and create admin in database
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const admin = await prisma.admin.create({
-      data: {
-        email,
-        name,
-        password: hashedPassword,
-        isPending: true,
-        sectors: {
-          create: {
-            sectorId: sectorIdNumber,
-          },
-        },
-      },
-      include: {
-        sectors: {
-          include: {
-            sector: true,
-          },
-        },
-      },
+    // Create admin in database
+    await createAdmin({
+      email,
+      name,
+      password,
+      sectorId: sectorIdNumber,
     });
 
-    // Return success without redirecting
-    return { user: null, error: null };
+    // Return success with message
+    return {
+      user: null,
+      error: null,
+      message:
+        "Please check your email to verify your account before logging in.",
+    };
   } catch (error) {
     console.error("Signup error:", error);
     return {
@@ -200,23 +152,21 @@ export async function handleSignup(formData: FormData): Promise<AuthResponse> {
   }
 }
 
-export async function handleLogout(): Promise<void> {
+export async function handleLogout(): Promise<AuthResponse> {
   try {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signOut();
+    const { error } = await signOutFromSupabase();
 
     if (error) {
       throw error;
     }
-
-    revalidatePath("/", "layout");
-    redirect("/login");
   } catch (error) {
     console.error("Logout error:", error);
-    redirect(
-      `/error?message=${encodeURIComponent(
-        error instanceof Error ? error.message : "An unexpected error occurred",
-      )}`,
-    );
+    return {
+      user: null,
+      error: "An unexpected error occurred",
+    };
   }
+
+  revalidatePath("/", "layout");
+  redirect("/login");
 }
