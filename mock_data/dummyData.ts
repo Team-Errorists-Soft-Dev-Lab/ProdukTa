@@ -1,12 +1,12 @@
 export const sectors = [
   "All",
   "Bamboo",
-  "Coffee & Cacao",
+  "Coffee",
+  "Cacao",
   "Coconut",
   "Processed Foods",
-  "Coco",
-  "Weaving",
   "IT - BPM",
+  "Wearables and Homestyles",
 ];
 
 export const municipalities = [
@@ -358,7 +358,7 @@ export const msmeLines = [
   },
 ];
 
-// Add new mock data for superadmin
+// TODO: Remove this mock data once proper CRUD operations are implemented
 export const superAdminMockData = {
   sectors: [
     {
@@ -369,31 +369,37 @@ export const superAdminMockData = {
     },
     {
       id: 2,
-      name: "Coffee & Cacao",
+      name: "Coffee",
       adminCount: 1,
       msmeCount: 5,
     },
     {
       id: 3,
-      name: "Coconut",
+      name: "Cacao",
       adminCount: 2,
       msmeCount: 8,
     },
     {
       id: 4,
-      name: "Processed Foods",
+      name: "Coconut",
       adminCount: 1,
       msmeCount: 6,
     },
     {
       id: 5,
-      name: "Weaving",
+      name: "Processed Foods",
       adminCount: 1,
       msmeCount: 4,
     },
     {
       id: 6,
       name: "IT - BPM",
+      adminCount: 1,
+      msmeCount: 3,
+    },
+    {
+      id: 7,
+      name: "Wearables and Homestyles",
       adminCount: 1,
       msmeCount: 3,
     },

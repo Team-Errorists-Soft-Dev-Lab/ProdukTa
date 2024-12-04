@@ -2,72 +2,150 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { type Admin } from "@prisma/client";
+import { handleLogin, handleSignup, handleLogout } from "@/lib/auth-handlers";
+import { toast } from "sonner";
+
+interface SessionResponse {
+  user: Admin | null;
+  error?: string;
+}
 
 interface AuthContextType {
+  user: Admin | null;
+  isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => boolean;
-  signup: (email: string, fullName: string, password: string) => boolean;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ error?: string }>;
+  signup: (
+    email: string,
+    name: string,
+    password: string,
+    sectorId: string,
+  ) => Promise<{ error?: string }>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<Admin | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const authStatus = localStorage.getItem("isAuthenticated");
-    setIsAuthenticated(authStatus === "true");
-  }, []);
+    const checkSession = async () => {
+      try {
+        const response = await fetch("/api/auth/session");
+        const data = (await response.json()) as SessionResponse;
 
-  const login = (email: string, password: string) => {
-    // Mock accounts
-    const accounts = [
-      {
-        email: "superadmin@gmail.com",
-        password: "superadmin",
-        role: "superadmin",
-      },
-      { email: "admin@gmail.com", password: "admin", role: "admin" },
-    ];
+        if (data.error) {
+          throw new Error(data.error);
+        }
 
-    const account = accounts.find(
-      (acc) => acc.email === email && acc.password === password,
-    );
+        if (data.user) {
+          setUser(data.user);
+          if (
+            window.location.pathname === "/login" ||
+            window.location.pathname === "/signup"
+          ) {
+            router.push(data.user.isSuperadmin ? "/superadmin" : "/admin");
+          }
+        } else {
+          if (!/^\/(login|signup|guest)/.exec(window.location.pathname)) {
+            router.push("/login");
+          }
+        }
+      } catch (error) {
+        console.error("Session check failed:", error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    if (account) {
-      setIsAuthenticated(true);
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userRole", account.role);
-      router.push(`/${account.role}`);
-      return true;
+    void checkSession();
+  }, [router]);
+
+  const login = async (email: string, password: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
+
+      const { user: authUser, error } = await handleLogin(formData);
+
+      if (error) {
+        return { error };
+      }
+
+      if (!authUser) {
+        return { error: "Invalid email or password" };
+      }
+
+      setUser(authUser);
+      router.push(authUser.isSuperadmin ? "/superadmin" : "/admin");
+      return {};
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "An error occurred";
+      return { error: message };
     }
-
-    return false;
   };
 
-  const signup = (email: string, fullName: string, password: string) => {
-    console.log("Signup attempt:", { email, fullName, password });
+  const signup = async (
+    email: string,
+    name: string,
+    password: string,
+    sectorId: string,
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("name", name);
+      formData.append("password", password);
+      formData.append("sectorId", sectorId);
 
-    setIsAuthenticated(true);
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("adminRole", "admin");
-    router.push("/auth");
-    return true;
+      const { error } = await handleSignup(formData);
+
+      if (error) {
+        return { error };
+      }
+
+      toast.success("Signup successful!", {
+        description: "Please wait for admin verification before logging in.",
+        duration: 5000,
+      });
+
+      router.push("/login");
+      return {};
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "An error occurred";
+      return { error: message };
+    }
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    localStorage.setItem("isAuthenticated", "false");
-    localStorage.removeItem("userRole");
-    setTimeout(() => {
-      router.push("/auth");
-    }, 100);
+  const logout = async () => {
+    try {
+      await handleLogout();
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      throw error;
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        login,
+        signup,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

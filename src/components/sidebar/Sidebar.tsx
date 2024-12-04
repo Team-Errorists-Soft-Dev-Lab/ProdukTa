@@ -3,17 +3,20 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Home,
+  LayoutDashboard,
   LogOut,
   Users,
-  Briefcase,
+  Factory,
   ChevronLeft,
   ChevronRight,
+  Building2,
+  UserCircle2,
+  Store,
 } from "lucide-react";
 import {
   Tooltip,
@@ -22,37 +25,54 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const sidebarNavItems = [
   {
     title: "Dashboard",
     href: "/superadmin",
-    icon: Home,
+    icon: LayoutDashboard,
   },
   {
     title: "Sectors",
     href: "/superadmin/sectors",
-    icon: Briefcase,
+    icon: Factory,
   },
   {
     title: "Admins",
     href: "/superadmin/admins",
-    icon: Users,
+    icon: Building2,
   },
   {
     title: "MSMEs",
     href: "/superadmin/msme",
-    icon: Users,
+    icon: Store,
+  },
+  {
+    title: "Guest",
+    href: "/guest",
+    icon: UserCircle2,
   },
 ];
 
 export default function Sidebar() {
   const { logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      setIsLoading(true);
+      await logout();
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Failed to logout");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -131,14 +151,17 @@ export default function Sidebar() {
                   isCollapsed && "justify-center",
                 )}
                 onClick={handleLogout}
+                disabled={isLoading}
               >
                 <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
-                {!isCollapsed && <span>Logout</span>}
+                {!isCollapsed && (
+                  <span>{isLoading ? "Logging out..." : "Logout"}</span>
+                )}
               </Button>
             </TooltipTrigger>
             {isCollapsed && (
               <TooltipContent side="right" className="bg-white text-[#A2A14A]">
-                Logout
+                {isLoading ? "Logging out..." : "Logout"}
               </TooltipContent>
             )}
           </Tooltip>
