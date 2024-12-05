@@ -5,22 +5,28 @@ export async function GET() {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
+      data: { user: supabaseUser },
       error,
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getUser();
 
     if (error) {
-      console.error("Session error:", error);
+      console.error("Auth error:", error);
       return Response.json({ user: null });
     }
 
-    if (!session?.user?.email) {
+    if (!supabaseUser?.email) {
       return Response.json({ user: null });
     }
 
     const user = await prisma.admin.findUnique({
-      where: { email: session.user.email },
-      include: { sectors: true },
+      where: { email: supabaseUser.email },
+      include: {
+        sectors: {
+          include: {
+            sector: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -34,7 +40,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Session error:", error);
+    console.error("Auth error:", error);
     return Response.json({ user: null });
   }
 }
