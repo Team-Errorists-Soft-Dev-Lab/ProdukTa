@@ -1,79 +1,91 @@
 "use client";
 
-import Hero from "@/components/hero";
-import Features from "@/components/Features";
-import DataSection from "@/components/data-section";
-import CallToAction from "@/components/Call-to-Action";
+import dynamic from "next/dynamic";
+import Hero from "@/components/landing-page/hero";
+import Features from "@/components/landing-page/Features";
+import DataSection from "@/components/landing-page/data-section";
+import CallToAction from "@/components/landing-page/Call-to-Action";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import BarChart from "@/components/BarChart";
+import Reference from "@/components/landing-page/Reference";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
+const DynamicBarChart2 = dynamic(
+  () => import("@/components/landing-page/BarChart_2"),
+  {
+    ssr: false,
+  },
 );
 
 const barChartData = [
   {
-    cardTitle: "Top 5 municipalities for Bamboo",
-    labels: ["leganes", "Pavia", "Pototan", "Oton", "Calinog"],
     label: "Bamboo",
-    data: [65, 59, 80, 81, 56, 55],
+    data: [
+      { name: "Leganes", uv: 65 },
+      { name: "Pavia", uv: 59 },
+      { name: "Pototan", uv: 80 },
+      { name: "Oton", uv: 81 },
+      { name: "Calinog", uv: 56 },
+    ],
   },
-
   {
-    cardTitle: "Top 5 municipalities for Cacao",
-    labels: ["leganes", "Pavia", "Pototan", "Oton", "Calinog"],
     label: "Cacao",
-    data: [65, 59, 80, 81, 56, 55],
+    data: [
+      { name: "Leganes", uv: 65 },
+      { name: "Pavia", uv: 59 },
+      { name: "Pototan", uv: 80 },
+      { name: "Oton", uv: 81 },
+      { name: "Calinog", uv: 56 },
+    ],
   },
-
   {
-    cardTitle: "Top 5 municipalities for Coffee",
-    labels: ["leganes", "Pavia", "Pototan", "Oton", "Calinog"],
     label: "Coffee",
-    data: [65, 59, 80, 81, 56, 55],
+    data: [
+      { name: "Leganes", uv: 65 },
+      { name: "Pavia", uv: 59 },
+      { name: "Pototan", uv: 80 },
+      { name: "Oton", uv: 81 },
+      { name: "Calinog", uv: 56 },
+    ],
   },
-
   {
-    cardTitle: "Top 5 municipalities for High Value Coco Products",
-    labels: ["leganes", "Pavia", "Pototan", "Oton", "Calinog"],
     label: "High Value Coco Products",
-    data: [65, 59, 80, 81, 56, 55],
+    data: [
+      { name: "Leganes", uv: 65 },
+      { name: "Pavia", uv: 59 },
+      { name: "Pototan", uv: 80 },
+      { name: "Oton", uv: 81 },
+      { name: "Calinog", uv: 56 },
+    ],
   },
-
   {
-    cardTitle: "Top 5 municipalities for Homestyles and Wearables",
-    labels: ["leganes", "Pavia", "Pototan", "Oton", "Calinog"],
     label: "Homestyles and Wearables",
-    data: [65, 59, 80, 81, 56, 55],
+    data: [
+      { name: "Leganes", uv: 65 },
+      { name: "Pavia", uv: 59 },
+      { name: "Pototan", uv: 80 },
+      { name: "Oton", uv: 81 },
+      { name: "Calinog", uv: 56 },
+    ],
   },
-
   {
-    cardTitle: "Top 5 municipalities for IT-BPM",
-    labels: ["leganes", "Pavia", "Pototan", "Oton", "Calinog"],
-    label: "IT_BPM",
-    data: [65, 59, 80, 81, 56, 55],
+    label: "IT-BPM",
+    data: [
+      { name: "Leganes", uv: 65 },
+      { name: "Pavia", uv: 59 },
+      { name: "Pototan", uv: 80 },
+      { name: "Oton", uv: 81 },
+      { name: "Calinog", uv: 56 },
+    ],
   },
-
   {
-    cardTitle: "Top 5 municipalities for Processed Foods",
-    labels: ["leganes", "Pavia", "Pototan", "Oton", "Calinog"],
     label: "Processed Foods",
-    data: [65, 59, 80, 81, 56, 55],
+    data: [
+      { name: "Leganes", uv: 65 },
+      { name: "Pavia", uv: 59 },
+      { name: "Pototan", uv: 80 },
+      { name: "Oton", uv: 81 },
+      { name: "Calinog", uv: 56 },
+    ],
   },
 ];
 
@@ -85,18 +97,15 @@ export default function LandingPage() {
         <Hero />
         <Features />
         <DataSection />
-        <div className="grid grid-cols-1 gap-6 p-12 md:grid-cols-2 lg:grid-cols-2">
-          {barChartData.map((data, index) => (
-            <BarChart
-              key={index}
-              cardTitle={data.cardTitle}
-              labels={data.labels}
-              label={data.label}
-              data={data.data}
-            />
+        <div className="grid grid-cols-1 gap-6 p-12 md:grid-cols-1 lg:grid-cols-2">
+          {barChartData.map((chartData, index) => (
+            <div key={index}>
+              <DynamicBarChart2 data={chartData.data} label={chartData.label} />
+            </div>
           ))}
         </div>
         <CallToAction />
+        <Reference />
       </main>
       <Footer />
     </div>

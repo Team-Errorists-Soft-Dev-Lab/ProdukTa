@@ -138,7 +138,6 @@ export default function GuestPage() {
           </div>
         </div>
       </main>
-
       <nav className="flex justify-center space-x-4 overflow-x-auto bg-white p-4">
         {sectors.map((category) => (
           <Button
@@ -169,7 +168,7 @@ export default function GuestPage() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 p-12 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 p-20 md:grid-cols-2 lg:grid-cols-3">
         {displayedMSME.length > 0 ? (
           displayedMSME.map((msme) => (
             <Dialog key={msme.id}>

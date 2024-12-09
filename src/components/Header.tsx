@@ -30,12 +30,14 @@ export default function Header() {
         </div>
         <div className="hidden items-center space-x-4 md:flex">
           <Button
+            onClick={() => router.push("/landing-page")}
             variant="ghost"
             className="bg-[#996439] text-white hover:bg-[#8B4513]"
           >
             Home
           </Button>
           <Button
+            onClick={() => router.push("/about-us")}
             variant="ghost"
             className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
           >
