@@ -42,14 +42,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw new Error(data.error);
         }
 
-        setUser(data.user);
-        if (!data.user) {
-          router.push("/login");
+        if (data.user) {
+          setUser(data.user);
+          if (
+            window.location.pathname === "/login" ||
+            window.location.pathname === "/signup"
+          ) {
+            router.push(data.user.isSuperadmin ? "/superadmin" : "/admin");
+          }
+        } else {
+          if (!/^\/(login|signup|guest)/.exec(window.location.pathname)) {
+            router.push("/login");
+          }
         }
       } catch (error) {
         console.error("Session check failed:", error);
         setUser(null);
-        router.push("/login");
       } finally {
         setIsLoading(false);
       }
@@ -97,18 +105,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       formData.append("password", password);
       formData.append("sectorId", sectorId);
 
-      const { user: authUser, error } = await handleSignup(formData);
+      const { error } = await handleSignup(formData);
 
       if (error) {
         return { error };
       }
 
-      if (!authUser) {
-        return { error: "Signup failed" };
-      }
+      toast.success("Signup successful!", {
+        description: "Please wait for admin verification before logging in.",
+        duration: 5000,
+      });
 
-      setUser(authUser);
-      router.push("/admin");
+      router.push("/login");
       return {};
     } catch (error) {
       const message =
@@ -121,9 +129,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await handleLogout();
       setUser(null);
-      router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
+      throw error;
     }
   };
 

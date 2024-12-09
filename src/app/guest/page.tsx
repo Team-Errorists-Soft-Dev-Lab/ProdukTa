@@ -1,7 +1,7 @@
 "use client";
 
 import { msmeLines, sectors } from "mock_data/dummyData";
-import { MSME } from "@/types/MSME";
+import type { MSME } from "@/types/MSME";
 import React, { useState } from "react";
 import MSMEModal from "@/components/modals/MSMEModal";
 import MunicipalitiesModal from "@/components/modals/MunicipalitiesModal";

@@ -1,42 +1,67 @@
 "use client";
-
+// TODO: REMOVE ALL MOCKS AND REPLACE WITH ACTUAL DATA AND API CALLS ONCE THEY ARE IMPLEMENTED
 import { useState, useMemo } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMSMEMock } from "@/contexts/MSMEMockContext";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-);
+import type { MSME } from "@/types/MSME";
+import { ExportsLineChart } from "@/components/dashboard/ExportsLineChart";
+import { SectorPieChart } from "@/components/dashboard/SectorPieChart";
 
 const ITEMS_PER_PAGE = 4;
 
+const COLORS = [
+  "#10B981", // Emerald
+  "#6366F1", // Indigo
+  "#F59E0B", // Ambers
+  "#EC4899", // Pink
+  "#8B5CF6", // Purple
+  "#0EA5E9", // Sky
+  "#F97316", // Orange
+  "#A855F7", // Fuchsia
+  "#EA580C", // Orange (darker)
+  "#3B82F6", // Blue
+];
+
 export default function Dashboard() {
-  const { sectors, admins, msmes } = useSuperAdminContext();
+  const { sectors, msmes } = useMSMEMock();
+  const { activeAdmins } = useSuperAdminContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Export analytics data transformed for line chart
+  const lineChartData = [
+    { month: "January", exports: 45 },
+    { month: "February", exports: 65 },
+    { month: "March", exports: 35 },
+    { month: "April", exports: 55 },
+    { month: "May", exports: 70 },
+    { month: "June", exports: 40 },
+  ];
+
+  // Calculate total exports from line chart data
+  const totalExports = useMemo(() => {
+    return lineChartData.reduce((acc, curr) => acc + curr.exports, 0);
+  }, [lineChartData]);
+
+  // Prepare sector data for pie chart
+  const sectorChartData = sectors.map((sector) => ({
+    name: sector.name,
+    value: sector.msmeCount,
+  }));
+
   const filteredMSMEs = useMemo(() => {
-    return msmes.filter(
-      (msme) =>
-        msme.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msme.address.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    return msmes.filter((msme) => {
+      const name = (msme as unknown as MSME)?.name?.toLowerCase() ?? "";
+      const address =
+        `${(msme as unknown as MSME)?.address ?? ""}`.toLowerCase();
+      const searchTermLower = searchTerm.toLowerCase();
+
+      return (
+        name.includes(searchTermLower) || address.includes(searchTermLower)
+      );
+    });
   }, [msmes, searchTerm]);
 
   const totalPages = Math.ceil(filteredMSMEs.length / ITEMS_PER_PAGE);
@@ -47,63 +72,6 @@ export default function Dashboard() {
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-  };
-
-  const exportAnalytics = {
-    labels: ["January", "February", "March", "April", "May", "June"],
-    datasets: [
-      {
-        label: "Guest Exports",
-        data: [65, 59, 80, 81, 56, 55],
-        backgroundColor: "rgba(16, 185, 129, 0.6)", // Slightly less opaque for better layering
-        borderColor: "rgb(16, 185, 129)", // emerald-500
-        borderWidth: 3, // Thicker border for better definition
-        hoverBackgroundColor: "rgba(16, 185, 129, 0.8)", // More opaque on hover
-        hoverBorderColor: "rgb(16, 185, 129)", // Solid border on hover
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false, // Allow height adjustment
-    plugins: {
-      legend: {
-        position: "top" as const,
-        labels: {
-          boxWidth: 20,
-          padding: 15,
-          color: "#4B5563", // Darker color for better readability
-        },
-      },
-      title: {
-        display: true,
-        text: "Monthly Guest Data Exports",
-        font: {
-          size: 24, // Increased font size for better visibility
-          weight: "bold" as const,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 20,
-          color: "#4B5563", // Darker color for better readability
-        },
-        grid: {
-          color: "#E5E7EB", // Light gray grid lines
-          lineWidth: 1, // Thinner grid lines for a cleaner look
-        },
-      },
-      x: {
-        grid: {
-          color: "#E5E7EB", // Light gray grid lines
-          lineWidth: 1, // Thinner grid lines for a cleaner look
-        },
-      },
-    },
   };
 
   return (
@@ -130,37 +98,35 @@ export default function Dashboard() {
         </Card>
         <Card className="border-emerald-600">
           <CardHeader>
-            <CardTitle className="text-center">Total Admins</CardTitle>
+            <CardTitle className="text-center">Active Admins</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-center text-3xl font-bold text-emerald-600">
-              {admins.length}
+              {activeAdmins.length}
+            </p>
+            <p className="mt-1 text-center text-sm text-gray-500">
+              Across {sectors.length} sectors
             </p>
           </CardContent>
         </Card>
         <Card className="border-emerald-600">
           <CardHeader>
-            <CardTitle className="text-center">Total MSMEs</CardTitle>
+            <CardTitle className="text-center">Data Exports</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-center text-3xl font-bold text-emerald-600">
-              {msmes.length}
+              {totalExports}
+            </p>
+            <p className="mt-1 text-center text-sm text-gray-500">
+              Total exports this year
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="mt-6">
-        <Card className="border-emerald-600">
-          <CardHeader>
-            <CardTitle>Export Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full">
-              <Bar options={chartOptions} data={exportAnalytics} />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <ExportsLineChart data={lineChartData} totalExports={totalExports} />
+        <SectorPieChart sectors={sectorChartData} colors={COLORS} />
       </div>
 
       <div className="mt-6">
@@ -178,31 +144,31 @@ export default function Dashboard() {
                 }}
                 className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
-              <Search
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={20}
-              />
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="p-4">
-              {paginatedMSMEs.map((msme) => (
-                <div
-                  key={msme.id}
-                  className="mb-4 rounded-lg border border-emerald-600 bg-white p-4 shadow-md last:mb-0"
-                >
-                  <h3 className="text-lg font-semibold">{msme.name}</h3>
-                  <p className="text-sm">
-                    <strong>Email:</strong> {msme.email}
-                  </p>
-                  <p className="text-sm">
-                    <strong>Address:</strong> {msme.address}
-                  </p>
-                  <p className="text-sm">
-                    <strong>Registration Date:</strong> {msme.registrationDate}
-                  </p>
-                </div>
-              ))}
+              {paginatedMSMEs.map((msme) => {
+                const typedMsme = msme as unknown as MSME;
+                return (
+                  <div
+                    key={typedMsme.id}
+                    className="mb-4 rounded-lg border border-emerald-600 bg-white p-4 shadow-md last:mb-0"
+                  >
+                    <h3 className="text-lg font-semibold">{typedMsme.name}</h3>
+                    <p className="text-sm">
+                      <strong>Category:</strong> {typedMsme.category}
+                    </p>
+                    <p className="text-sm">
+                      <strong>Address:</strong> {typedMsme.address}
+                    </p>
+                    <p className="text-sm">
+                      <strong>Contact:</strong> {typedMsme.contactPerson}
+                    </p>
+                  </div>
+                );
+              })}
 
               {totalPages > 1 && (
                 <div className="mt-6 flex items-center justify-between">
