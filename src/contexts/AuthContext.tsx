@@ -51,7 +51,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             router.push(data.user.isSuperadmin ? "/superadmin" : "/admin");
           }
         } else {
-          if (!/^\/(login|signup|guest)/.exec(window.location.pathname)) {
+          if (
+            !/^\/(login|signup|guest|landing-page)/.exec(
+              window.location.pathname,
+            )
+          ) {
             router.push("/login");
           }
         }
