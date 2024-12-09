@@ -12,10 +12,27 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Sidebar() {
+  const { logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoading(true);
+      await logout();
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Failed to logout");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -108,15 +125,25 @@ export default function Sidebar() {
         </Link>
       </nav>
       <div className="p-4">
-        <button className="flex w-full items-center justify-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]">
-          <LogOut className="mr-2" size={18} />
+        <button
+          onClick={handleLogout}
+          disabled={isLoading}
+          className={cn(
+            "flex w-full items-center justify-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]",
+            isLoading && "cursor-not-allowed opacity-50", // Adds a disabled state visual indicator
+          )}
+        >
+          <LogOut
+            className={cn("mr-2 transition-opacity", isCollapsed && "hidden")}
+            size={18}
+          />
           <span
             className={cn(
               "transition-opacity",
               isCollapsed ? "hidden opacity-0" : "opacity-100",
             )}
           >
-            Logout
+            {isLoading ? "Logging out..." : "Logout"}
           </span>
         </button>
       </div>
