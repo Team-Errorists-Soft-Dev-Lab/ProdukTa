@@ -2,22 +2,22 @@ import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/utils/prisma/client";
 
 export async function GET() {
+  const supabase = await createClient();
+  const {
+    data: { user: supabaseUser },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error?.name === "AuthSessionMissingError" || !supabaseUser?.email) {
+    return Response.json({ user: null });
+  }
+
+  if (error) {
+    console.error("Unexpected auth error:", error);
+    return Response.json({ user: null });
+  }
+
   try {
-    const supabase = await createClient();
-    const {
-      data: { user: supabaseUser },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error) {
-      console.error("Auth error:", error);
-      return Response.json({ user: null });
-    }
-
-    if (!supabaseUser?.email) {
-      return Response.json({ user: null });
-    }
-
     const user = await prisma.admin.findUnique({
       where: { email: supabaseUser.email },
       include: {
@@ -40,7 +40,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Auth error:", error);
+    console.error("Database error:", error);
     return Response.json({ user: null });
   }
 }
