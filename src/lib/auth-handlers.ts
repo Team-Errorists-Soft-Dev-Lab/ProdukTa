@@ -44,19 +44,19 @@ export async function handleLogin(formData: FormData): Promise<AuthResponse> {
     const { email, password } = parseResult.data;
 
     // Get user from database
-    const user = await prisma.admin.findUnique({
-      where: { email },
-      include: {
-        sectors: {
-          include: {
-            sector: true,
-          },
-        },
-      },
-    });
+    const user = await findUserByEmail(email);
 
-    if (!user) {
-      return { user: null, error: "Invalid email or password" };
+    // Validate login attempt (includes email verification check)
+    const validationError = await validateLoginAttempt(user);
+    if (validationError) {
+      return {
+        user: null,
+        error: validationError.message,
+        message:
+          validationError.code === "email_unverified"
+            ? "Please check your email for the verification link."
+            : undefined,
+      };
     }
 
     // Verify password
@@ -209,10 +209,12 @@ export async function handleLogout(): Promise<void> {
     }
   } catch (error) {
     console.error("Logout error:", error);
-    redirect(
-      `/error?message=${encodeURIComponent(
-        error instanceof Error ? error.message : "An unexpected error occurred",
-      )}`,
-    );
+    return {
+      user: null,
+      error: "An unexpected error occurred",
+    };
+  } finally {
+    revalidatePath("/", "layout");
+    redirect("/login");
   }
 }
