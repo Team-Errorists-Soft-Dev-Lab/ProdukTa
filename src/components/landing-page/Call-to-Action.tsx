@@ -7,7 +7,7 @@ export default function CallToAction() {
 
   return (
     <section className="bg-muted/50 py-20">
-      <div className="container text-center">
+      <div className="container max-w-full text-center">
         <h2 className="mb-4 text-3xl font-bold">
           Ready to Explore Iloilo's MSMEs?
         </h2>

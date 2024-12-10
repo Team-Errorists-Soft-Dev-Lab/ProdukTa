@@ -14,7 +14,7 @@ export default function Hero() {
         backgroundPosition: "center",
       }}
     >
-      <div className="container relative z-10 flex items-center justify-center">
+      <div className="container relative z-10 flex max-w-full items-center justify-center">
         <div className="max-w-2xl text-center">
           <h1 className="mb-6 text-4xl font-bold text-white">
             Empowering MSMEs Across Iloilo

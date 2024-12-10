@@ -13,7 +13,10 @@ export default function Header() {
   return (
     <header className="bg-white p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+        <div
+          className="flex items-center space-x-2"
+          onClick={() => router.push("/landing-page")}
+        >
           <Image
             src="/ProdukTa_Logo.png"
             alt="ProdukTa Logo"
