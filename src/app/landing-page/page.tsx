@@ -1,16 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Hero from "@/components/landing-page/hero";
+import Hero from "@/components/landing-page/Hero";
 import Features from "@/components/landing-page/Features";
-import DataSection from "@/components/landing-page/data-section";
+import DataSection from "@/components/landing-page/Data-Section";
 import CallToAction from "@/components/landing-page/Call-to-Action";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reference from "@/components/landing-page/Reference";
 
 const DynamicBarChart2 = dynamic(
-  () => import("@/components/landing-page/BarChart_2"),
+  () => import("@/components/landing-page/BarChart"),
   {
     ssr: false,
   },

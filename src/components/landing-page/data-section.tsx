@@ -50,7 +50,7 @@ export default function DataSection() {
 
   return (
     <section className="py-20">
-      <div className="container bg-[#8B4513]">
+      <div className="container max-w-screen-2xl bg-[#8B4513]">
         <div className="w-full text-center">
           <Card>
             <CardHeader className="bg-[#996439]">
