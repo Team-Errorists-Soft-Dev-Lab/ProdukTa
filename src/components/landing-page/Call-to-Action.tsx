@@ -9,7 +9,7 @@ export default function CallToAction() {
     <section className="bg-muted/50 py-20">
       <div className="container max-w-full text-center">
         <h2 className="mb-4 text-3xl font-bold">
-          Ready to Explore Iloilo's MSMEs?
+          Ready to Explore Iloilo&apos;s MSMEs?
         </h2>
         <p className="mb-8 text-lg text-muted-foreground">
           Discover the businesses driving our economy and connect with local
