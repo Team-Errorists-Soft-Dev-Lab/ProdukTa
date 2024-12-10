@@ -88,12 +88,12 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     void fetchSectors();
   }, []);
 
-  const handleAddMSME = async (msme: MSME) => {
+  const handleAddMSME = async (msme: Omit<MSME, "id">) => {
     try {
       const response = await fetch("/api/msme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(msme),
+        body: JSON.stringify(msme), // No need to include id
       });
 
       if (!response.ok) {
@@ -105,11 +105,13 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       setMSMEs((prev) => [...prev, newMSME]);
 
       toast.success("MSME added successfully");
+      return newMSME;
     } catch (error) {
       console.error("Error adding MSME:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to add MSME",
       );
+      throw error;
     }
   };
 

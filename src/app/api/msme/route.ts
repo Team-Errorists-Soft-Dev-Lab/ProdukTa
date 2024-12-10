@@ -30,3 +30,20 @@ export async function GET() {
     );
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const newMSME = await prisma.mSME.create({
+      data: body,
+    });
+
+    return NextResponse.json(newMSME, { status: 201 });
+  } catch (error) {
+    console.error("Error creating MSME:", error);
+    return NextResponse.json(
+      { error: "Failed to create MSME" },
+      { status: 500 },
+    );
+  }
+}
