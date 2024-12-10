@@ -47,6 +47,7 @@ export default function Header() {
             About Us
           </Button>
           <Button
+            onClick={() => router.push("/guest")}
             variant="ghost"
             className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
           >
