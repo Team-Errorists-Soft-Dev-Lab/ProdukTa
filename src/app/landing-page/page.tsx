@@ -1,9 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Hero from "@/components/landing-page/Hero";
+import Hero from "@/components/landing-page/hero";
 import Features from "@/components/landing-page/Features";
-import DataSection from "@/components/landing-page/Data-Section";
+import DataSection from "@/components/landing-page/data-section";
 import CallToAction from "@/components/landing-page/Call-to-Action";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
