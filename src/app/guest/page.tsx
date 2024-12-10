@@ -2,10 +2,11 @@
 
 import { msmeLines, sectors } from "mock_data/dummyData";
 import type { MSME } from "@/types/MSME";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Pagination } from "@/components/guest/Pagination";
 
 import { Search, ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -22,11 +23,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
+const itemsPerPage = 9;
+
 export default function GuestPage() {
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [sort, setSort] = useState<string>("name");
   const [searchResult, setSearchResult] = useState<MSME[]>(msmeLines);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const searchMSME = (query: string) => {
     setSearchResult(
@@ -34,6 +38,7 @@ export default function GuestPage() {
         msme.name.toLowerCase().includes(query.toLowerCase()),
       ),
     );
+    setCurrentPage(1);
   };
 
   const sortMSMEs = (MSMEs: MSME[], sortType: string) => {
@@ -53,9 +58,16 @@ export default function GuestPage() {
     ? msmeLines.filter((msme) => msme.category === selectedSector)
     : msmeLines;
 
-  const displayedMSME = searchQuery
-    ? searchResult
-    : sortMSMEs(filteredMSME, sort);
+  const displayedMSME = useMemo(() => {
+    const sorted = searchQuery ? searchResult : sortMSMEs(filteredMSME, sort);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sorted.slice(startIndex, endIndex);
+  }, [searchQuery, searchResult, filteredMSME, sort, currentPage]);
+
+  const totalPages = Math.ceil(
+    (searchQuery ? searchResult : filteredMSME).length / itemsPerPage,
+  );
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
@@ -65,6 +77,7 @@ export default function GuestPage() {
     } else {
       setSearchResult(msmeLines);
     }
+    setCurrentPage(1);
   };
 
   const handleSectorChange = (sector: string) => {
@@ -75,10 +88,16 @@ export default function GuestPage() {
     }
     setSearchQuery("");
     setSearchResult(msmeLines);
+    setCurrentPage(1);
   };
 
   const handleSortChange = (sortType: string) => {
     setSort(sortType);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -190,6 +209,11 @@ export default function GuestPage() {
             </p>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
       <Footer />
     </div>
