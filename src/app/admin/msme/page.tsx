@@ -38,7 +38,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
+import { toast } from "sonner";
 interface MSME {
   id: number;
   name: string;
@@ -147,6 +147,7 @@ export default function ManageMSMEs() {
   const confirmDelete = () => {
     if (selectedMSME !== null) {
       setMsmes(msmes.filter((msme) => msme.id !== selectedMSME));
+      toast("MSME successfully deleted!");
     }
     setShowDeleteDialog(false);
   };
