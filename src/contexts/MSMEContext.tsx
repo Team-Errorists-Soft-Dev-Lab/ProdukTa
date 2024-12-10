@@ -21,7 +21,7 @@ interface MSME {
 }
 
 interface MSMEResponse {
-  msme: MSME[];
+  msmes: MSME[];
 }
 
 interface Sector {
@@ -63,7 +63,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       if (!response.ok) throw new Error("Failed to fetch MSMEs");
 
       const data = (await response.json()) as MSMEResponse;
-      setMSMEs(data.msme);
+      setMSMEs(data.msmes);
     } catch (error) {
       console.error("Error fetching MSMEs:", error);
       toast.error("Failed to fetch MSMEs");
