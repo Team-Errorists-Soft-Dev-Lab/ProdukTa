@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+
 import { motion } from "framer-motion";
 
 export default function LoginPage() {
@@ -25,18 +25,10 @@ export default function LoginPage() {
       const result = await login(email, password);
       if (result?.error) {
         setError(result.error);
-        if (result.error.includes("pending approval")) {
-          toast.error("Account pending approval", {
-            description: "Please wait for admin verification.",
-          });
-        } else {
-          toast.error(result.error);
-        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
       setError(message);
-      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +148,7 @@ export default function LoginPage() {
                     Loading...
                   </>
                 ) : (
-                  "Log in"
+                  "Login"
                 )}
               </button>
             </motion.div>
