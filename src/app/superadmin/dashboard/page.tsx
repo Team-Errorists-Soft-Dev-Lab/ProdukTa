@@ -3,11 +3,12 @@
 import { useState, useMemo } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useMSMEMock } from "@/contexts/MSMEMockContext";
+import { useMSMEContext } from "@/contexts/MSMEContext";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import type { MSME } from "@/types/MSME";
 import { ExportsLineChart } from "@/components/dashboard/ExportsLineChart";
 import { SectorPieChart } from "@/components/dashboard/SectorPieChart";
+import { useEffect } from "react";
 
 const ITEMS_PER_PAGE = 4;
 
@@ -25,20 +26,29 @@ const COLORS = [
 ];
 
 export default function Dashboard() {
-  const { sectors, msmes } = useMSMEMock();
+  const { sectors, msmes, isLoading, error } = useMSMEContext();
   const { activeAdmins } = useSuperAdminContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  useEffect(() => {
+    if (error) {
+      console.error("Error fetching MSME data:", error);
+    }
+  }, [error]);
+
   // Export analytics data transformed for line chart
-  const lineChartData = [
-    { month: "January", exports: 45 },
-    { month: "February", exports: 65 },
-    { month: "March", exports: 35 },
-    { month: "April", exports: 55 },
-    { month: "May", exports: 70 },
-    { month: "June", exports: 40 },
-  ];
+  const lineChartData = useMemo(
+    () => [
+      { month: "January", exports: 45 },
+      { month: "February", exports: 65 },
+      { month: "March", exports: 35 },
+      { month: "April", exports: 55 },
+      { month: "May", exports: 70 },
+      { month: "June", exports: 40 },
+    ],
+    [],
+  );
 
   // Calculate total exports from line chart data
   const totalExports = useMemo(() => {
@@ -52,17 +62,26 @@ export default function Dashboard() {
   }));
 
   const filteredMSMEs = useMemo(() => {
+    if (!msmes || isLoading) return [];
+
     return msmes.filter((msme) => {
-      const name = (msme as unknown as MSME)?.name?.toLowerCase() ?? "";
-      const address =
-        `${(msme as unknown as MSME)?.address ?? ""}`.toLowerCase();
+      if (!msme) return false;
+
+      const name = msme.companyName?.toLowerCase() ?? "";
+      const email = msme.email?.toLowerCase() ?? "";
+      const description = msme.companyDescription?.toLowerCase() ?? "";
+      const contactNumber = msme.contactNumber?.toLowerCase() ?? "";
+
       const searchTermLower = searchTerm.toLowerCase();
 
       return (
-        name.includes(searchTermLower) || address.includes(searchTermLower)
+        name.includes(searchTermLower) ||
+        email.includes(searchTermLower) ||
+        description.includes(searchTermLower) ||
+        contactNumber.includes(searchTermLower)
       );
     });
-  }, [msmes, searchTerm]);
+  }, [msmes, isLoading, searchTerm]);
 
   const totalPages = Math.ceil(filteredMSMEs.length / ITEMS_PER_PAGE);
   const paginatedMSMEs = useMemo(() => {
@@ -156,15 +175,18 @@ export default function Dashboard() {
                     key={typedMsme.id}
                     className="mb-4 rounded-lg border border-emerald-600 bg-white p-4 shadow-md last:mb-0"
                   >
-                    <h3 className="text-lg font-semibold">{typedMsme.name}</h3>
+                    <h3 className="text-lg font-semibold">
+                      {typedMsme.companyName}
+                    </h3>
                     <p className="text-sm">
-                      <strong>Category:</strong> {typedMsme.category}
+                      <strong>Email:</strong> {typedMsme.email}
                     </p>
                     <p className="text-sm">
-                      <strong>Address:</strong> {typedMsme.address}
+                      <strong>Address:</strong>{" "}
+                      {typedMsme.cityMunicipalityAddress}
                     </p>
                     <p className="text-sm">
-                      <strong>Contact:</strong> {typedMsme.contactPerson}
+                      <strong>Contact:</strong> {typedMsme.contactNumber}
                     </p>
                   </div>
                 );

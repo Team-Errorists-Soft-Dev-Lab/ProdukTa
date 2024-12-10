@@ -4,7 +4,7 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { redirect } from "next/navigation";
 import { SuperAdminProvider } from "@/contexts/SuperAdminContext";
-import { MSMEMockProvider } from "@/contexts/MSMEMockContext";
+import { MSMEProvider } from "@/contexts/MSMEContext";
 
 export default function SuperAdminLayout({
   children,
@@ -15,10 +15,9 @@ export default function SuperAdminLayout({
   if (!isAuthenticated) {
     redirect("/login");
   }
-  // TODO: remove MSMEMockProvider once proper CRUD operations are implemented
   return (
     <SuperAdminProvider>
-      <MSMEMockProvider>
+      <MSMEProvider>
         <div className="flex h-screen bg-gray-100">
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
@@ -27,7 +26,7 @@ export default function SuperAdminLayout({
             </main>
           </div>
         </div>
-      </MSMEMockProvider>
+      </MSMEProvider>
     </SuperAdminProvider>
   );
 }

@@ -25,13 +25,13 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
-import { useMSMEMock } from "@/contexts/MSMEMockContext"; // TODO: remove once proper CRUD operations are implemented
+import { useMSMEContext } from "@/contexts/MSMEContext";
 import AddMSMEModal from "@/components/modals/AddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
 import type { MSME } from "@/types/superadmin";
 
 export default function ManageMSME() {
-  const { msmes, handleDeleteMSME } = useMSMEMock(); // TODO: remove once proper CRUD operations are implemented
+  const { msmes } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -41,10 +41,12 @@ export default function ManageMSME() {
 
   const filteredMSMEs = msmes.filter(
     (msme) =>
-      msme.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       msme.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      msme.businessType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      msme.sector.toLowerCase().includes(searchTerm.toLowerCase()),
+      msme.companyDescription
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      msme.contactNumber.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const paginatedMSMEs = filteredMSMEs.slice(
@@ -102,9 +104,9 @@ export default function ManageMSME() {
             <TableBody>
               {paginatedMSMEs.map((msme) => (
                 <TableRow key={msme.id}>
-                  <TableCell>{msme.name}</TableCell>
-                  <TableCell>{msme.sector}</TableCell>
-                  <TableCell>{msme.businessType}</TableCell>
+                  <TableCell>{msme.companyName}</TableCell>
+                  <TableCell>{msme.email}</TableCell>
+                  <TableCell>{msme.companyDescription}</TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
