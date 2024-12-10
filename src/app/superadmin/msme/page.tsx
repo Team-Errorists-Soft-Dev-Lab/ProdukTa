@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,15 +39,23 @@ export default function ManageMSME() {
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
 
-  const filteredMSMEs = msmes.filter(
-    (msme) =>
-      msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      msme.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      msme.companyDescription
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      msme.contactNumber.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredMSMEs = useMemo(() => {
+    return msmes.filter((msme) => {
+      const name = msme.companyName?.toLowerCase() ?? "";
+      const email = msme.email?.toLowerCase() ?? "";
+      const description = msme.companyDescription?.toLowerCase() ?? "";
+      const contactNumber = msme.contactNumber?.toLowerCase() ?? "";
+
+      const searchTermLower = searchTerm.toLowerCase();
+
+      return (
+        name.includes(searchTermLower) ||
+        email.includes(searchTermLower) ||
+        description.includes(searchTermLower) ||
+        contactNumber.includes(searchTermLower)
+      );
+    });
+  }, [msmes, searchTerm]);
 
   const paginatedMSMEs = filteredMSMEs.slice(
     (currentPage - 1) * itemsPerPage,
@@ -64,7 +72,7 @@ export default function ManageMSME() {
             Manage MSMEs
           </CardTitle>
           <CardDescription className="mt-1 text-lg font-bold text-gray-600">
-            Total: {msmes.length} MSMEs
+            Total: {msmes?.length ?? 0} MSMEs
           </CardDescription>
         </div>
         <Button
@@ -95,9 +103,9 @@ export default function ManageMSME() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Sector</TableHead>
-                <TableHead>Business Type</TableHead>
+                <TableHead>Company Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -122,7 +130,7 @@ export default function ManageMSME() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteMSME(msme.id)}
+                      // onClick={() => handleDeleteMSME(msme.id)}
                     >
                       <Trash className="h-4 w-4" />
                     </Button>

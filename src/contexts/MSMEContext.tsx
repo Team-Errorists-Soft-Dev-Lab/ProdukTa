@@ -164,7 +164,9 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     <MSMEContext.Provider
       value={{
         sectors,
-        msmes,
+        msmes: msmes || [],
+        isLoading: !sectors.length,
+        error: null,
         handleAddMSME,
         handleUpdateMSME,
         handleDeleteMSME,

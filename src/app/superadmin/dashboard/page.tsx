@@ -1,6 +1,6 @@
 "use client";
 // TODO: REMOVE ALL MOCKS AND REPLACE WITH ACTUAL DATA AND API CALLS ONCE THEY ARE IMPLEMENTED
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMSMEContext } from "@/contexts/MSMEContext";
@@ -8,7 +8,6 @@ import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import type { MSME } from "@/types/MSME";
 import { ExportsLineChart } from "@/components/dashboard/ExportsLineChart";
 import { SectorPieChart } from "@/components/dashboard/SectorPieChart";
-import { useEffect } from "react";
 
 const ITEMS_PER_PAGE = 4;
 
