@@ -38,7 +38,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 interface MSME {
   id: number;
   name: string;
@@ -147,7 +147,7 @@ export default function ManageMSMEs() {
   const confirmDelete = () => {
     if (selectedMSME !== null) {
       setMsmes(msmes.filter((msme) => msme.id !== selectedMSME));
-      toast.success("MSME successfully deleted!");
+      toast("MSME successfully deleted!");
     }
     setShowDeleteDialog(false);
   };
@@ -159,7 +159,6 @@ export default function ManageMSMEs() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
       <main className="flex-1 overflow-hidden bg-gray-100">
-        <Toaster />
         <div className="p-4 md:p-6">
           <Card className="border-[#996439]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
