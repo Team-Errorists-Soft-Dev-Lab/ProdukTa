@@ -30,6 +30,7 @@ const features = [
 export default function Features() {
   return (
     <div className="container max-w-full">
+      <br />
       <h2 className="mb-12 text-center text-3xl font-bold">How It Works</h2>
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
         {features.map((feature) => (
