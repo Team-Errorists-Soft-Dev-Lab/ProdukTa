@@ -10,14 +10,13 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
-  const logIn = () => {
-    router.push("/login");
-  };
-
   return (
     <header className="bg-white p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+        <div
+          className="flex items-center space-x-2"
+          onClick={() => router.push("/landing-page")}
+        >
           <Image
             src="/ProdukTa_Logo.png"
             alt="ProdukTa Logo"
@@ -34,23 +33,31 @@ export default function Header() {
         </div>
         <div className="hidden items-center space-x-4 md:flex">
           <Button
-            variant="default"
+            onClick={() => router.push("/landing-page")}
+            variant="ghost"
             className="bg-[#996439] text-white hover:bg-[#8B4513]"
           >
             Home
+          </Button>
+          <Button
+            onClick={() => router.push("/about-us")}
+            variant="ghost"
+            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
+          >
+            About Us
+          </Button>
+          <Button
+            onClick={() => router.push("/guest")}
+            variant="ghost"
+            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
+          >
+            Search <br /> MSME
           </Button>
           <Button
             variant="ghost"
             className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
           >
             Export
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
-            onClick={logIn}
-          >
-            Login
           </Button>
           <Image src="/DTI_logo.png" alt="DTI Logo" width={40} height={40} />
         </div>
