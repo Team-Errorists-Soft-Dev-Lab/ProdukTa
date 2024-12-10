@@ -54,7 +54,7 @@ export default function Signup() {
         setSectors(data.sectors);
       } catch (error) {
         console.error("Error fetching sectors:", error);
-        toast.error("Failed to load sectors");
+        toast("Failed to load sectors");
       } finally {
         setIsLoadingSectors(false);
       }
@@ -104,7 +104,7 @@ export default function Signup() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
       setError(message);
-      toast.error(message);
+      toast(message);
     } finally {
       setIsLoading(false);
     }
