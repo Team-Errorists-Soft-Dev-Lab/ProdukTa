@@ -1,5 +1,5 @@
 import Dashboard from "./dashboard/page";
 
-export default function SuperAdminPage() {
+export default function AdminPage() {
   return <Dashboard />;
 }

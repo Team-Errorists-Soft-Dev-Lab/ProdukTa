@@ -43,7 +43,7 @@ export async function handleLogin(formData: FormData): Promise<AuthResponse> {
         user: null,
         error: validationError.message,
         message:
-          validationError.code === "email_not_confirmed"
+          validationError.code === "email_unverified"
             ? "Please check your email for the verification link."
             : undefined,
       };
@@ -165,8 +165,8 @@ export async function handleLogout(): Promise<AuthResponse> {
       user: null,
       error: "An unexpected error occurred",
     };
+  } finally {
+    revalidatePath("/", "layout");
+    redirect("/login");
   }
-
-  revalidatePath("/", "layout");
-  redirect("/login");
 }

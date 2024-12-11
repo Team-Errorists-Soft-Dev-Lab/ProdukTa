@@ -51,7 +51,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             router.push(data.user.isSuperadmin ? "/superadmin" : "/admin");
           }
         } else {
-          if (!/^\/(login|signup|guest)/.exec(window.location.pathname)) {
+          if (
+            !/^\/(login|signup|guest|landing-page)/.exec(
+              window.location.pathname,
+            )
+          ) {
             router.push("/login");
           }
         }
@@ -111,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error };
       }
 
-      toast.success("Signup successful!", {
+      toast("Signup successful!", {
         description: "Please wait for admin verification before logging in.",
         duration: 5000,
       });
