@@ -25,16 +25,15 @@ export const SignupSchema = z.object({
 export type LoginData = z.infer<typeof LoginSchema>;
 export type SignupData = z.infer<typeof SignupSchema>;
 
-export type CustomAuthError = {
+export interface CustomAuthError {
   code:
     | "invalid_credentials"
-    | "email_not_confirmed"
     | "pending_approval"
-    | "user_not_found"
-    | "same_password"
-    | "unexpected_error";
+    | "account_disabled"
+    | "no_sectors"
+    | "email_unverified";
   message: string;
-};
+}
 
 export const AuthErrorHandler = (error: AuthError | CustomAuthError) => {
   // Handle Supabase auth errors
@@ -52,14 +51,14 @@ export const AuthErrorHandler = (error: AuthError | CustomAuthError) => {
   switch (error.code) {
     case "invalid_credentials":
       return { error: "Invalid email or password" };
-    case "email_not_confirmed":
-      return { error: "Please verify your email before logging in" };
     case "pending_approval":
       return { error: "Your account is pending approval" };
-    case "user_not_found":
-      return { error: "User not found" };
-    case "same_password":
-      return { error: "New password must be different from the old password" };
+    case "account_disabled":
+      return { error: "Your account has been deactivated" };
+    case "no_sectors":
+      return { error: "No sectors assigned to your account" };
+    case "email_unverified":
+      return { error: "Please verify your email before logging in" };
     default:
       return { error: "An unexpected error occurred" };
   }

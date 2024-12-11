@@ -42,7 +42,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Define paths
-  const publicPaths = ["/login", "/signup", "/guest"];
+  const publicPaths = ["/login", "/signup", "/guest", "/landing-page"];
   const adminPaths = ["/admin"];
   const superadminPaths = ["/superadmin"];
   const currentPath = request.nextUrl.pathname;

@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
-const itemsPerPage = 9;
+const itemsPerPage = 15;
 
 export default function GuestPage() {
   const [selectedSector, setSelectedSector] = useState<string | null>(null);

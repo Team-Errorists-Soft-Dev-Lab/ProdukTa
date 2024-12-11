@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -58,7 +58,7 @@ const sidebarNavItems = [
 export default function Sidebar() {
   const { logout } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
+  // const router = useRouter();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -66,10 +66,10 @@ export default function Sidebar() {
     try {
       setIsLoading(true);
       await logout();
-      window.location.href = "/login";
+      toast("Logout successful");
     } catch (error) {
       console.error("Logout failed:", error);
-      toast.error("Failed to logout");
+      toast("Failed to logout");
     } finally {
       setIsLoading(false);
     }
