@@ -18,16 +18,18 @@ export function Pagination({
         variant="outline"
         size="sm"
         onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        disabled={currentPage === 1 || totalPages === 0}
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
-      <span>{currentPage}</span>
+      <span>
+        {currentPage} of {totalPages}
+      </span>
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={currentPage === totalPages || totalPages === 0}
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
