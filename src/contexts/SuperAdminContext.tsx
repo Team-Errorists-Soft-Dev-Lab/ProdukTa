@@ -69,7 +69,7 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
       setPendingAdmins(pendingData.pendingAdmins);
     } catch (error) {
       console.error("Error fetching admins:", error);
-      toast("Failed to fetch admins");
+      toast.error("Failed to fetch admins");
     }
   };
 
@@ -82,7 +82,7 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
       setSectors(data.sectors);
     } catch (error) {
       console.error("Error fetching sectors:", error);
-      toast("Failed to fetch sectors");
+      toast.error("Failed to fetch sectors");
     }
   };
 
@@ -114,12 +114,14 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
       const activeData = (await activeResponse.json()) as AdminsResponse;
       setActiveAdmins(activeData.admins);
 
-      toast("Admin approved successfully");
+      toast.success("Admin approved successfully");
     } catch (error) {
       console.error("Error approving admin:", error);
       // Revert optimistic update on error
       void fetchAdmins();
-      toast(error instanceof Error ? error.message : "Failed to approve admin");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to approve admin",
+      );
     }
   };
 
@@ -139,12 +141,14 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(error.message ?? "Failed to reject admin");
       }
 
-      toast("Admin rejected successfully");
+      toast.success("Admin rejected successfully");
     } catch (error) {
       console.error("Error rejecting admin:", error);
       // Revert optimistic update on error
       void fetchAdmins();
-      toast(error instanceof Error ? error.message : "Failed to reject admin");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reject admin",
+      );
     }
   };
 
@@ -164,12 +168,14 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(error.message ?? "Failed to delete admin");
       }
 
-      toast("Admin deleted successfully");
+      toast.success("Admin deleted successfully");
     } catch (error) {
       console.error("Error deleting admin:", error);
       // Revert optimistic update on error
       void fetchAdmins();
-      toast(error instanceof Error ? error.message : "Failed to delete admin");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete admin",
+      );
     }
   };
 

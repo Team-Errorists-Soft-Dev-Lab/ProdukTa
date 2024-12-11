@@ -147,7 +147,7 @@ export default function ManageMSMEs() {
   const confirmDelete = () => {
     if (selectedMSME !== null) {
       setMsmes(msmes.filter((msme) => msme.id !== selectedMSME));
-      toast("MSME successfully deleted!");
+      toast.success("MSME successfully deleted!");
     }
     setShowDeleteDialog(false);
   };
