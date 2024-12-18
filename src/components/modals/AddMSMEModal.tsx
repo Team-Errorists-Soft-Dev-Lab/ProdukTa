@@ -64,6 +64,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         dti_number: parseInt(dtiNumber),
         sectorId: sectorId!,
       });
+
       onClose();
       // Reset form
       setCompanyName("");
