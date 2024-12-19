@@ -20,6 +20,8 @@ interface MSME {
   sectorId: number;
 }
 
+type CreateMSME = Omit<MSME, "id">;
+
 interface MSMEResponse {
   msmes: MSME[];
 }
@@ -46,7 +48,7 @@ interface MSMEContextType {
   msmes: MSME[];
   isLoading: boolean;
   error: Error | null;
-  handleAddMSME: (msme: MSME) => Promise<void>;
+  handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
   handleDeleteMSME: (msmeId: number) => Promise<void>;
 }
@@ -88,7 +90,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     void fetchSectors();
   }, []);
 
-  const handleAddMSME = async (msme: Omit<MSME, "id">) => {
+  const handleAddMSME = async (msme: CreateMSME) => {
     try {
       const response = await fetch("/api/msme", {
         method: "POST",
