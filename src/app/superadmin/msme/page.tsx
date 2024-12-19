@@ -32,7 +32,7 @@ import EditMSMEModal from "@/components/modals/EditMSMEModal";
 import type { MSME } from "@/types/superadmin";
 
 export default function ManageMSME() {
-  const { msmes } = useMSMEContext();
+  const { msmes, handleDeleteMSME } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
