@@ -12,4 +12,5 @@ export type MSME = {
   yearEstablished: number;
   dti_number: number;
   sectorId: number;
+  createdAt: Date;
 };
