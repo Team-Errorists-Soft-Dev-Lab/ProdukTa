@@ -76,13 +76,22 @@ export default function ManageSectors() {
 
   return (
     <div className="p-4 md:p-6">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold text-gray-800">
-          Sectors
-        </CardTitle>
-        <CardDescription className="text-gray-600">
-          Total: {sortedSectors.length} Sectors
-        </CardDescription>
+      <CardHeader className="mb-6 px-0">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <div className="rounded-lg bg-emerald-50 p-2">
+                <Factory className="h-6 w-6 text-emerald-600" />
+              </div>
+              <CardTitle className="text-3xl font-bold text-gray-800">
+                Sectors
+              </CardTitle>
+            </div>
+            <CardDescription className="text-base text-gray-600">
+              Total: {sortedSectors.length} Sectors
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
