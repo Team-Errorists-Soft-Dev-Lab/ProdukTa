@@ -25,10 +25,10 @@ export default function Sidebar() {
     try {
       setIsLoading(true);
       await logout();
-      toast("Logout successful");
+      toast.success("Logout successful");
     } catch (error) {
       console.error("Logout failed:", error);
-      toast("Failed to logout");
+      toast.error("Failed to logout");
     } finally {
       setIsLoading(false);
     }
