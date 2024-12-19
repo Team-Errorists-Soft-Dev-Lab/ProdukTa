@@ -18,17 +18,20 @@ export default function AdminLayout({
     redirect("/login");
   }
 
+  // Temporary fix: <MSMEProvider> provides mock data for MSMEs
   return (
     <AdminProvider>
-      <div className="flex h-screen bg-gray-100">
-        <Sidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <Navbar />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-100 p-6">
-            {children}
-          </main>
+      <MSMEProvider>
+        <div className="flex h-screen bg-gray-100">
+          <Sidebar />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <Navbar />
+            <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-100 p-6">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </MSMEProvider>
     </AdminProvider>
   );
 }

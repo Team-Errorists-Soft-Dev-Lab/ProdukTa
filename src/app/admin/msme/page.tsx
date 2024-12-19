@@ -72,7 +72,9 @@ export default function ManageMSMEs() {
   //   ...foodMSMEs,
   // ]);
 
-  const { msmes } = useAdmin();
+  // Temporary fix: useMSMEContext() should be replaced with useAdmin()
+  // const { msmes } = useAdmin();
+  const { msmes } = useMSMEContext();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingMSME, setEditingMSME] = useState<MSME | null>(null);
