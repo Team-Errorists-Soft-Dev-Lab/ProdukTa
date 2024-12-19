@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error };
       }
 
-      toast("Signup successful!", {
+      toast.success("Signup successful!", {
         description: "Please wait for admin verification before logging in.",
         duration: 5000,
       });
