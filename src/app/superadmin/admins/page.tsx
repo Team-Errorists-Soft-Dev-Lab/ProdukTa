@@ -31,6 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SECTOR_COLORS } from "@/lib/sector-colors";
 
 export default function ManageAdmins() {
   const {
@@ -118,9 +119,24 @@ export default function ManageAdmins() {
                     <div className="mt-2 grid grid-cols-1 gap-4">
                       <div className="rounded-lg p-3">
                         <p className="text-sm text-emerald-600">Sector</p>
-                        <p className="text-lg font-semibold text-emerald-700">
-                          {admin.sectors[0]?.sector.name ?? "Unknown"}
-                        </p>
+                        {admin.sectors[0]?.sector.name && (
+                          <div className="mt-2">
+                            <Badge
+                              variant="secondary"
+                              style={{
+                                backgroundColor: `${SECTOR_COLORS[admin.sectors[0].sector.name as keyof typeof SECTOR_COLORS] ?? "#4B5563"}20`,
+                                color:
+                                  SECTOR_COLORS[
+                                    admin.sectors[0].sector
+                                      .name as keyof typeof SECTOR_COLORS
+                                  ] ?? "#4B5563",
+                                borderColor: `${SECTOR_COLORS[admin.sectors[0].sector.name as keyof typeof SECTOR_COLORS] ?? "#4B5563"}40`,
+                              }}
+                            >
+                              {admin.sectors[0].sector.name}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -208,9 +224,23 @@ export default function ManageAdmins() {
                     <div className="mt-2 grid grid-cols-1 gap-4">
                       <div className="rounded-lg bg-yellow-50 p-3 transition-colors duration-300 group-hover:bg-yellow-100">
                         <p className="text-sm text-yellow-600">Sector</p>
-                        <p className="text-lg font-semibold text-yellow-700">
-                          {admin.sector}
-                        </p>
+                        {admin.sector && (
+                          <div className="mt-2">
+                            <Badge
+                              variant="secondary"
+                              style={{
+                                backgroundColor: `${SECTOR_COLORS[admin.sector as keyof typeof SECTOR_COLORS] ?? "#4B5563"}20`,
+                                color:
+                                  SECTOR_COLORS[
+                                    admin.sector as keyof typeof SECTOR_COLORS
+                                  ] ?? "#4B5563",
+                                borderColor: `${SECTOR_COLORS[admin.sector as keyof typeof SECTOR_COLORS] ?? "#4B5563"}40`,
+                              }}
+                            >
+                              {admin.sector}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                       <div className="rounded-lg bg-yellow-50 p-3 transition-colors duration-300 group-hover:bg-yellow-100">
                         <p className="text-sm text-yellow-600">Applied</p>
