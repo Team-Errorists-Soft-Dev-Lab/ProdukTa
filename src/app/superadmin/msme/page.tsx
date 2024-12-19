@@ -123,7 +123,7 @@ export default function ManageMSME() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      // onClick={() => handleDeleteMSME(msme.id)}
+                      onClick={() => handleDeleteMSME(msme.id)}
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
