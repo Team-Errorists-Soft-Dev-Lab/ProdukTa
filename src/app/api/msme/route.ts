@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const msmes = await prisma.mSME.findMany();
+    const msmes = await prisma.mSME.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
     const formattedMSMEs = msmes.map((msme) => ({
       id: msme.id,
@@ -19,6 +23,7 @@ export async function GET() {
       yearEstablished: msme.yearEstablished,
       dti_number: msme.dti_number,
       sectorId: msme.sectorId,
+      createdAt: msme.createdAt,
     }));
 
     return NextResponse.json({ msmes: formattedMSMEs });
