@@ -24,9 +24,11 @@ export default function LoginPage() {
 
     try {
       const result = await login(email, password);
-      toast("Logged in successfully", {
-        duration: 2000,
-      });
+      if (!result?.error) {
+        toast.success("Logged in successfully!", {
+          duration: 2000,
+        });
+      }
       if (result?.error) {
         setError(result.error);
       }
