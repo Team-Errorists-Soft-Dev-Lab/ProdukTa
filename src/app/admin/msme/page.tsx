@@ -9,13 +9,13 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import {
-  bambooMSMEs,
-  coconutMSMEs,
-  coffeeMSMEs,
-  weavingMSMEs,
-  foodMSMEs,
-} from "@/lib/mock-data";
+// import {
+//   bambooMSMEs,
+//   coconutMSMEs,
+//   coffeeMSMEs,
+//   weavingMSMEs,
+//   foodMSMEs,
+// } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,16 +39,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-interface MSME {
-  id: number;
-  name: string;
-  email: string;
-  contactNumber: number;
-  address: string;
-  contactPerson?: string;
-  description?: string;
-  image?: string;
-}
+import { useAdmin } from "@/contexts/AdminContext";
+import type { MSME } from "@/types/superadmin";
+import { useMSMEContext } from "@/contexts/MSMEContext";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -71,14 +64,15 @@ const formSchema = z.object({
 });
 
 export default function ManageMSMEs() {
-  const [msmes, setMsmes] = useState<MSME[]>([
-    ...bambooMSMEs,
-    ...coconutMSMEs,
-    ...coffeeMSMEs,
-    ...weavingMSMEs,
-    ...foodMSMEs,
-  ]);
+  // const [msmes, setMsmes] = useState<MSME[]>([
+  //   ...bambooMSMEs,
+  //   ...coconutMSMEs,
+  //   ...coffeeMSMEs,
+  //   ...weavingMSMEs,
+  //   ...foodMSMEs,
+  // ]);
 
+  const { msmes } = useAdmin();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingMSME, setEditingMSME] = useState<MSME | null>(null);
@@ -191,7 +185,7 @@ export default function ManageMSMEs() {
                   <Card key={msme.id} className="border-[#996439]">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">
-                        {msme.name}
+                        {msme.companyName}
                       </CardTitle>
                       <div className="flex space-x-2">
                         <Button
@@ -220,7 +214,7 @@ export default function ManageMSMEs() {
                         <strong>Email:</strong> {msme.email}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        <strong>Address:</strong> {msme.address}
+                        <strong>Address:</strong> {msme.cityMunicipalityAddress}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         <strong>Phone:</strong> {msme.contactNumber}

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { AdminProvider } from "@/contexts/AdminContext";
 import Sidebar from "@/components/AdminSidebar";
 import Navbar from "@/components/AdminNavbar";
+import { MSMEProvider } from "@/contexts/MSMEContext";
 
 export default function AdminLayout({
   children,
