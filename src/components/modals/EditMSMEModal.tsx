@@ -16,14 +16,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectGroup,
-  SelectLabel,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import type { MSME } from "@/types/superadmin";
 import { cn } from "@/lib/utils";
-import { ILOILO_LOCATIONS } from "@/data/iloilo-locations";
 import { LocationSelect } from "@/components/forms/LocationSelect";
 
 interface EditMSMEModalProps {

@@ -16,13 +16,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectGroup,
-  SelectLabel,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
-import { ILOILO_LOCATIONS } from "@/data/iloilo-locations";
 import { LocationSelect } from "@/components/forms/LocationSelect";
 
 interface AddMSMEModalProps {
@@ -97,6 +94,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         yearEstablished: parseInt(yearEstablished),
         dti_number: parseInt(dtiNumber),
         sectorId,
+        createdAt: new Date(),
       });
 
       onClose();
