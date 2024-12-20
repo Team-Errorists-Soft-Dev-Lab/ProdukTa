@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
+import { useMSMEContext } from "@/contexts/MSMEContext";
 import {
   Coffee,
   Candy,
@@ -20,13 +21,7 @@ import {
   Store,
   type LucideIcon,
 } from "lucide-react";
-
-interface Sector {
-  id: number;
-  name: string;
-  adminCount: number;
-  msmeCount: number;
-}
+import { SECTOR_COLORS } from "@/lib/sector-colors";
 
 // Map sector names to icons
 const sectorIcons: Record<string, LucideIcon> = {
@@ -36,10 +31,7 @@ const sectorIcons: Record<string, LucideIcon> = {
   Bamboo: Sprout,
   "IT - BPM": Monitor,
   "Processed Foods": Utensils,
-  Manufacturing: Factory,
-  Wearables: Shirt,
-  Homestyles: Shirt,
-  Retail: Store,
+  "Wearables and Homestyles": Shirt,
 };
 
 // Get icon for a sector, with fallback
@@ -70,35 +62,76 @@ function getSectorIcon(sectorName: string): LucideIcon {
 
 export default function ManageSectors() {
   const { sectors } = useSuperAdminContext();
+  const { msmes } = useMSMEContext();
 
-  // Sort sectors by ID in ascending order
-  const sortedSectors = [...sectors].sort((a, b) => a.id - b.id);
+  // Calculate MSME counts for each sector
+  const sectorMSMECounts = useMemo(() => {
+    const counts: Record<number, number> = {};
+    msmes.forEach((msme) => {
+      if (msme?.sectorId) {
+        counts[msme.sectorId] = (counts[msme.sectorId] ?? 0) + 1;
+      }
+    });
+    return counts;
+  }, [msmes]);
+
+  // Sort sectors by ID in ascending order and include real-time MSME counts
+  const sortedSectors = useMemo(() => {
+    return [...sectors]
+      .sort((a, b) => a.id - b.id)
+      .map((sector) => ({
+        ...sector,
+        msmeCount: sectorMSMECounts[sector.id] ?? 0,
+      }));
+  }, [sectors, sectorMSMECounts]);
 
   return (
     <div className="p-4 md:p-6">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold text-gray-800">
-          Sectors
-        </CardTitle>
-        <CardDescription className="text-gray-600">
-          Total: {sortedSectors.length} Sectors
-        </CardDescription>
+      <CardHeader className="mb-6 px-0">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <div className="rounded-lg bg-emerald-50 p-2">
+                <Factory className="h-6 w-6 text-emerald-600" />
+              </div>
+              <CardTitle className="text-3xl font-bold text-gray-800">
+                Sectors
+              </CardTitle>
+            </div>
+            <CardDescription className="text-base text-gray-600">
+              Total: {sortedSectors.length} Sectors
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {sortedSectors.map((sector: Sector) => {
+          {sortedSectors.map((sector) => {
             const Icon = getSectorIcon(sector.name);
+            const sectorColor =
+              SECTOR_COLORS[sector.name as keyof typeof SECTOR_COLORS] ??
+              "#4B5563";
             return (
               <Card
                 key={sector.id}
-                className="group relative cursor-pointer overflow-hidden rounded-lg border border-emerald-600 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group relative cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                style={{ borderColor: sectorColor }}
               >
-                <div className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 transform opacity-5 transition-opacity duration-300 group-hover:opacity-10">
+                <div
+                  className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 transform opacity-5 transition-opacity duration-300 group-hover:opacity-10"
+                  style={{ color: sectorColor }}
+                >
                   <Icon size={96} />
                 </div>
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    <div className="rounded-full bg-emerald-100 p-2 text-emerald-600 transition-transform duration-300 group-hover:scale-110">
+                    <div
+                      className="rounded-full p-2 transition-transform duration-300 group-hover:scale-110"
+                      style={{
+                        backgroundColor: `${sectorColor}20`,
+                        color: sectorColor,
+                      }}
+                    >
                       <Icon size={24} />
                     </div>
                     <div>
@@ -113,15 +146,27 @@ export default function ManageSectors() {
                 </CardHeader>
                 <CardContent>
                   <div className="mt-2 grid grid-cols-2 gap-4">
-                    <div className="rounded-lg bg-emerald-50 p-3 transition-colors duration-300 group-hover:bg-emerald-100">
-                      <p className="text-sm text-emerald-600">Admins</p>
-                      <p className="text-2xl font-semibold text-emerald-700">
+                    <div
+                      className="rounded-lg p-3 transition-colors duration-300"
+                      style={{
+                        backgroundColor: `${sectorColor}10`,
+                        color: sectorColor,
+                      }}
+                    >
+                      <p className="text-sm opacity-90">Admins</p>
+                      <p className="text-2xl font-semibold">
                         {sector.adminCount}
                       </p>
                     </div>
-                    <div className="rounded-lg bg-emerald-50 p-3 transition-colors duration-300 group-hover:bg-emerald-100">
-                      <p className="text-sm text-emerald-600">MSMEs</p>
-                      <p className="text-2xl font-semibold text-emerald-700">
+                    <div
+                      className="rounded-lg p-3 transition-colors duration-300"
+                      style={{
+                        backgroundColor: `${sectorColor}10`,
+                        color: sectorColor,
+                      }}
+                    >
+                      <p className="text-sm opacity-90">MSMEs</p>
+                      <p className="text-2xl font-semibold">
                         {sector.msmeCount}
                       </p>
                     </div>

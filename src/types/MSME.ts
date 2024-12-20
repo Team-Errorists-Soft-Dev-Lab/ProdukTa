@@ -1,11 +1,16 @@
 export type MSME = {
   id: number;
-  name: string;
-  category: string;
-  description: string;
+  companyName: string;
+  companyDescription: string;
+  companyLogo: string;
   contactPerson: string;
-  address: string;
   contactNumber: string;
-  productGallery: string[];
-  majorProductLines: string[];
+  email: string;
+  provinceAddress: string;
+  cityMunicipalityAddress: string;
+  barangayAddress: string;
+  yearEstablished: number;
+  dti_number: number;
+  sectorId: number;
+  createdAt: Date;
 };
