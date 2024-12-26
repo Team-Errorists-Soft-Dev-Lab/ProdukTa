@@ -8,6 +8,8 @@ import CallToAction from "@/components/landing-page/Call-to-Action";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reference from "@/components/landing-page/Reference";
+import { ScrollIndicator } from "@/components/ScrollIndicator";
+import { BackToTopButton } from "@/components/BackToTopButton";
 
 const DynamicBarChart2 = dynamic(
   () => import("@/components/landing-page/BarChart"),
@@ -106,6 +108,8 @@ export default function LandingPage() {
         </div>
         <CallToAction />
         <Reference />
+        <ScrollIndicator />
+        <BackToTopButton />
       </main>
       <Footer />
     </div>

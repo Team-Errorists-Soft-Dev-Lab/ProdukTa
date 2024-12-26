@@ -7,6 +7,7 @@ import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Pagination } from "@/components/guest/Pagination";
+import { BackToTopButton } from "@/components/BackToTopButton";
 
 import { Search, ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -22,8 +23,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-
-const itemsPerPage = 15;
+import { ScrollIndicator } from "@/components/ScrollIndicator";
 
 export default function GuestPage() {
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
@@ -31,6 +31,7 @@ export default function GuestPage() {
   const [searchResult, setSearchResult] = useState<MSME[]>(msmeLines);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
 
   const searchMSME = (query: string) => {
     setSearchResult(
@@ -63,7 +64,14 @@ export default function GuestPage() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return sorted.slice(startIndex, endIndex);
-  }, [searchQuery, searchResult, filteredMSME, sort, currentPage]);
+  }, [
+    searchQuery,
+    searchResult,
+    filteredMSME,
+    sort,
+    currentPage,
+    itemsPerPage,
+  ]);
 
   const totalPages = Math.ceil(
     (searchQuery ? searchResult : filteredMSME).length / itemsPerPage,
@@ -100,8 +108,16 @@ export default function GuestPage() {
     setCurrentPage(page);
   };
 
+  const handleSetItemsPerPage = (value: string) => {
+    const parsedValue = parseInt(value, 10);
+    if (!isNaN(parsedValue)) {
+      setItemsPerPage(parsedValue);
+      setCurrentPage(1);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white">
       <Header />
       <main className="bg-[#8B4513] p-8">
         <div className="mx-auto max-w-6xl">
@@ -146,12 +162,22 @@ export default function GuestPage() {
                   ))}
                 </SelectContent>
               </Select>
+              <Select onValueChange={handleSetItemsPerPage}>
+                <SelectTrigger className="w-full bg-white text-[#8B4513] sm:w-[180px]">
+                  <SelectValue placeholder="Items per page" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="12">12</SelectItem>
+                  <SelectItem value="24">24</SelectItem>
+                  <SelectItem value="30">30</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
       </main>
 
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div id="scroll-container" className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {displayedMSME.length > 0 ? (
             displayedMSME.map((msme) => (
@@ -214,6 +240,8 @@ export default function GuestPage() {
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
+        <ScrollIndicator />
+        <BackToTopButton />
       </div>
       <Footer />
     </div>
