@@ -34,9 +34,11 @@ import { cn } from "@/lib/utils";
 
 type ViewMode = "card" | "table";
 
-const sectorName = "BAMBOO";
-
-export default function ManageMSME() {
+export default function MSMEPage({
+  params,
+}: {
+  params: { sectorName: string };
+}) {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,6 +47,7 @@ export default function ManageMSME() {
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("card");
+  const { sectorName } = params;
 
   const Sector = sectors.find(
     (s) => s.name.toLocaleLowerCase() === sectorName.toLocaleLowerCase(),

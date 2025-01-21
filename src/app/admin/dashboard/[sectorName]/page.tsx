@@ -8,13 +8,16 @@ import { useMSMEContext } from "@/contexts/MSMEContext";
 import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-const sectorName = "coffee";
-
-export default function MSMEPage() {
+export default function MSMEPage({
+  params,
+}: {
+  params: { sectorName: string };
+}) {
   const { msmes, sectors, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+  const { sectorName } = params;
   const sector = sectors.find(
     (sector) => sector.name.toLowerCase() === sectorName.toLocaleLowerCase(),
   );
