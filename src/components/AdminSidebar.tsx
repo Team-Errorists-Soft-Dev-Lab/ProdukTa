@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -17,9 +17,29 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Sidebar() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [sectorPath, setSectorPath] = useState("");
+
+  useEffect(() => {
+    const fetchSector = async () => {
+      if (user && !user.isSuperadmin) {
+        try {
+          const response = await fetch(`/api/admin/${user.id}/sector`);
+          const { sector }: { sector: { name: string } } =
+            (await response.json()) as { sector: { name: string } };
+          if (sector) {
+            setSectorPath(sector.name.toLowerCase());
+          }
+        } catch (error) {
+          console.error("Failed to fetch sector:", error);
+        }
+      }
+    };
+
+    void fetchSector();
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -68,7 +88,7 @@ export default function Sidebar() {
       </div>
       <nav className="mt-8 flex-grow">
         <Link
-          href="/admin/dashboard"
+          href={`/admin/dashboard/${sectorPath}`}
           className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
         >
           <Home className="mr-3" size={18} />
@@ -82,7 +102,7 @@ export default function Sidebar() {
           </span>
         </Link>
         <Link
-          href="/admin/msme"
+          href={`/admin/msme/${sectorPath}`}
           className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
         >
           <Users className="mr-3" size={18} />
@@ -96,7 +116,7 @@ export default function Sidebar() {
           </span>
         </Link>
         <Link
-          href="/admin/export-data"
+          href={`/admin/export-data/${sectorPath}`}
           className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
         >
           <FileText className="mr-3" size={18} />
