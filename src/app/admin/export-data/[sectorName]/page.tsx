@@ -91,6 +91,7 @@ export default function ExportDataPage({
           <Button
             className="bg-[#996439] hover:bg-[#ce9261]"
             onClick={() => {
+              setCurrentPage(1);
               if (itemsPerPage === 3) {
                 setItemsPerPage(999999);
               } else {

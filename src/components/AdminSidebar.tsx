@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   Home,
   Users,
@@ -21,6 +22,7 @@ export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [sectorPath, setSectorPath] = useState("");
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchSector = async () => {
@@ -58,6 +60,10 @@ export default function Sidebar() {
     setIsCollapsed(!isCollapsed);
   };
 
+  const isLinkActive = (href: string) => {
+    return pathname.startsWith(href);
+  };
+
   return (
     <aside
       className={cn(
@@ -89,7 +95,11 @@ export default function Sidebar() {
       <nav className="mt-8 flex-grow">
         <Link
           href={`/admin/dashboard/${sectorPath}`}
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive(`/admin/dashboard/${sectorPath}`) &&
+              "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <Home className="mr-3" size={18} />
           <span
@@ -103,7 +113,11 @@ export default function Sidebar() {
         </Link>
         <Link
           href={`/admin/msme/${sectorPath}`}
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive(`/admin/msme/${sectorPath}`) &&
+              "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <Users className="mr-3" size={18} />
           <span
@@ -117,7 +131,11 @@ export default function Sidebar() {
         </Link>
         <Link
           href={`/admin/export-data/${sectorPath}`}
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive(`/admin/export-data/${sectorPath}`) &&
+              "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <FileText className="mr-3" size={18} />
           <span
@@ -131,7 +149,10 @@ export default function Sidebar() {
         </Link>
         <Link
           href="/guest"
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive("/guest") && "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <User className="mr-3" size={18} />
           <span
@@ -150,7 +171,7 @@ export default function Sidebar() {
           disabled={isLoading}
           className={cn(
             "flex w-full items-center justify-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]",
-            isLoading && "cursor-not-allowed opacity-50", // Adds a disabled state visual indicator
+            isLoading && "cursor-not-allowed opacity-50",
           )}
         >
           <LogOut

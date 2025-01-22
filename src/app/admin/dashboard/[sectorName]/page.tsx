@@ -48,13 +48,14 @@ export default function MSMEPage({
         </h1>
         <div className="flex items-center gap-4">
           <Link href={`/admin/export-data/${sectorName}`}>
-            <Button>
+            <Button className="bg-[#996439]">
               <Download className="mr-2 h-4 w-4" /> Export Data
             </Button>
           </Link>
           <Button
             className="bg-[#996439] hover:bg-[#ce9261]"
             onClick={() => {
+              setCurrentPage(1);
               if (itemsPerPage === 3) {
                 setItemsPerPage(999999);
               } else {
