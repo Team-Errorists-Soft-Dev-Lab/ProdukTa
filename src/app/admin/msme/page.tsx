@@ -40,7 +40,7 @@ export default function ManageMSME() {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
   const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
@@ -103,7 +103,10 @@ export default function ManageMSME() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setViewMode("card")}
+                  onClick={() => {
+                    setViewMode("card");
+                    setItemsPerPage(3);
+                  }}
                   className={cn(
                     "h-8 w-8",
                     viewMode === "card" &&
@@ -122,7 +125,10 @@ export default function ManageMSME() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setViewMode("table")}
+                  onClick={() => {
+                    setViewMode("table");
+                    setItemsPerPage(10);
+                  }}
                   className={cn(
                     "h-8 w-8",
                     viewMode === "table" &&

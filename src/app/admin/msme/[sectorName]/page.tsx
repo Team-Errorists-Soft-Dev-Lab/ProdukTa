@@ -19,7 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import AddMSMEModal from "@/components/modals/AddMSMEModal";
+import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
 import type { MSME } from "@/types/superadmin";
 import {
@@ -31,6 +31,7 @@ import {
 import { MSMETableView } from "@/components/msme/MSMETableView";
 import { MSMECardView } from "@/components/admin/cardView";
 import { cn } from "@/lib/utils";
+import { set } from "date-fns";
 
 type ViewMode = "card" | "table";
 
@@ -42,7 +43,7 @@ export default function MSMEPage({
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
   const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
@@ -106,7 +107,10 @@ export default function MSMEPage({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setViewMode("card")}
+                  onClick={() => {
+                    setViewMode("card");
+                    setItemsPerPage(3);
+                  }}
                   className={cn(
                     "h-8 w-8",
                     viewMode === "card" &&
@@ -125,7 +129,10 @@ export default function MSMEPage({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setViewMode("table")}
+                  onClick={() => {
+                    setViewMode("table");
+                    setItemsPerPage(4);
+                  }}
                   className={cn(
                     "h-8 w-8",
                     viewMode === "table" &&
@@ -140,10 +147,16 @@ export default function MSMEPage({
           </TooltipProvider>
           <Button
             onClick={() => setIsAddMSMEModalOpen(true)}
-            className="bg-[#996439] hover:bg-[#996439]"
+            className="bg-[#996439] hover:bg-[#ce9261]"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add MSME
+          </Button>
+          <Button
+            className="bg-[#996439] hover:bg-[#ce9261]"
+            onClick={() => setItemsPerPage(1000000)}
+          >
+            Display All
           </Button>
         </div>
       </CardHeader>
@@ -234,7 +247,7 @@ export default function MSMEPage({
         )}
       </CardContent>
 
-      <AddMSMEModal
+      <AdminAddMSMEModal
         isOpen={isAddMSMEModalOpen}
         onClose={() => setIsAddMSMEModalOpen(false)}
       />
