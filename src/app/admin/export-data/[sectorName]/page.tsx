@@ -1,249 +1,211 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MSMECardView } from "@/components/admin/exportCardView";
+import { useMSMEContext } from "@/contexts/MSMEContext";
+import { Download, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
-  bambooMSMEs,
-  coconutMSMEs,
-  coffeeMSMEs,
-  weavingMSMEs,
-  foodMSMEs,
-} from "@/lib/mock-data";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
 
-const allMSMEs = [
-  ...bambooMSMEs,
-  ...coconutMSMEs,
-  ...coffeeMSMEs,
-  ...weavingMSMEs,
-  ...foodMSMEs,
-].map((msme) => ({
-  ...msme,
-  date: new Date(msme.date),
-}));
-
-export default function AllMSMEs() {
+export default function ExportDataPage({
+  params,
+}: {
+  params: { sectorName: string };
+}) {
+  const { msmes, sectors, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
-  const [itemsPerPage, setItemsPerPage] = useState(6); // State for items per page
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const { sectorName } = params;
+  const sector = sectors.find(
+    (sector) => sector.name.toLowerCase() === sectorName.toLowerCase(),
+  );
 
-  const filteredMSMEs = useMemo(() => {
-    return allMSMEs.filter((msme) => {
-      const matchesSearch = Object.values(msme).some(
-        (value) =>
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-
-      const matchesDateRange =
-        (!startDate || msme.date >= new Date(startDate)) &&
-        (!endDate || msme.date <= new Date(endDate));
-
-      return matchesSearch && matchesDateRange;
+  const filteredMSMEs = msmes
+    .filter(
+      (msme) =>
+        msme.sectorId === sector?.id &&
+        msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .sort((a, b) => {
+      if (date) {
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+      return 0;
     });
-  }, [searchTerm, startDate, endDate]);
-
-  const paginatedMSMEs = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredMSMEs.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredMSMEs, currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
 
-  const toggleMSMESelection = (id: number) => {
-    setSelectedMSMEs((prev) =>
-      prev.includes(id) ? prev.filter((eId) => eId !== id) : [...prev, id],
-    );
+  const currentMSMEs = filteredMSMEs.filter((_, index) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return index >= startIndex && index < endIndex;
+  });
+
+  const getSectorName = (id: number) => {
+    return sectors.find((sector) => sector.id === id)?.name ?? "Unknown Sector";
   };
 
-  const toggleAllMSMEs = () => {
-    const currentPageIds = paginatedMSMEs.map((msme) => msme.id);
-    const allSelected = currentPageIds.every((id) =>
-      selectedMSMEs.includes(id),
-    );
-
-    if (allSelected) {
-      setSelectedMSMEs((prev) =>
-        prev.filter((id) => !currentPageIds.includes(id)),
-      );
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedMSMEs(currentMSMEs.map((msme) => msme.id));
     } else {
-      setSelectedMSMEs((prev) => [...new Set([...prev, ...currentPageIds])]);
+      setSelectedMSMEs([]);
     }
   };
 
-  const handleExportData = () => {
-    const selectedData = allMSMEs.filter((msme) =>
-      selectedMSMEs.includes(msme.id),
-    );
-    console.log("Exporting data:", selectedData);
+  const handleSelectMSME = (id: number, checked: boolean) => {
+    if (checked) {
+      setSelectedMSMEs([...selectedMSMEs, id]);
+    } else {
+      setSelectedMSMEs(selectedMSMEs.filter((msmeId) => msmeId !== id));
+    }
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
-      <main className="flex-1 overflow-x-hidden bg-gray-100">
-        <div className="p-4 md:p-6">
-          <Card className="border-[#996439]">
-            <div className="p-6">
-              <div className="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                <h1 className="text-2xl font-bold">All MSMEs</h1>
-                <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-                  <div className="relative flex-1 sm:w-96">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder="Search"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8 pr-8"
-                    />
-                  </div>
-                  <Button
-                    onClick={handleExportData}
-                    className="bg-[#996439] text-white hover:bg-[#996439]/90"
-                  >
-                    Export Data ({selectedMSMEs.length})
-                  </Button>
-                </div>
-              </div>
-              <div className="mb-4 justify-items-end">
-                <label className="block text-sm font-medium">
-                  Items Per Page
-                </label>
-                <input
-                  type="number"
-                  value={itemsPerPage}
-                  onChange={(e) => {
-                    const value = Math.min(
-                      30,
-                      Math.max(1, Number(e.target.value)),
-                    );
-                    setItemsPerPage(value);
-                  }}
-                  className="rounded border p-2"
-                  min="1"
-                />
-              </div>
-
-              <div className="mb-4 flex space-x-4">
-                <div>
-                  <label className="block text-sm font-medium">
-                    Start Date
-                  </label>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">End Date</label>
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={paginatedMSMEs.every((msme) =>
-                      selectedMSMEs.includes(msme.id),
-                    )}
-                    onCheckedChange={toggleAllMSMEs}
-                  />
-                  <span className="text-sm">Select All on This Page</span>
-                </label>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {paginatedMSMEs.map((msme) => (
-                  <Card
-                    key={msme.id}
-                    className="border-[#996439] transition-shadow hover:shadow-md"
-                  >
-                    <CardContent className="p-4">
-                      <div className="mb-2 flex items-start justify-between">
-                        <h3 className="text-lg font-semibold">{msme.name}</h3>
-                        <Checkbox
-                          checked={selectedMSMEs.includes(msme.id)}
-                          onCheckedChange={() => toggleMSMESelection(msme.id)}
-                        />
-                      </div>
-                      <div className="space-y-1 text-sm">
-                        <p>
-                          <span className="font-semibold">Location:</span>{" "}
-                          {msme.address}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Phone:</span>{" "}
-                          {msme.contactNumber}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Date:</span>{" "}
-                          {msme.date.toDateString()}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              <div className="mt-6 flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  Showing 1 to {paginatedMSMEs.length} of {filteredMSMEs.length}{" "}
-                  entries
-                </p>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(1, prev - 1))
-                    }
-                    disabled={currentPage === 1}
-                    className="h-8 w-8 p-0"
-                  >
-                    {"<"}
-                  </Button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <Button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        variant={currentPage === page ? "default" : "outline"}
-                        className={`h-8 w-8 p-0 ${
-                          currentPage === page
-                            ? "bg-[#996439] text-white hover:bg-[#996439]/90"
-                            : ""
-                        }`}
-                      >
-                        {page}
-                      </Button>
-                    ),
-                  )}
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="h-8 w-8 p-0"
-                  >
-                    {">"}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">
+          {sectorName.toLocaleUpperCase()} MSME Dashboard
+        </h1>
+        <div className="flex items-center gap-4">
+          <Button className="bg-[#996439] hover:bg-[#ce9261]">
+            <Download className="mr-2 h-4 w-4" /> Export Data
+            <span className="text-xl font-bold text-white">
+              [{selectedMSMEs.length}]
+            </span>
+          </Button>
+          <Button
+            className="bg-[#996439] hover:bg-[#ce9261]"
+            onClick={() => {
+              if (itemsPerPage === 3) {
+                setItemsPerPage(999999);
+              } else {
+                setItemsPerPage(3);
+              }
+            }}
+          >
+            Display All
+          </Button>
         </div>
-      </main>
+      </div>
+
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <p className="text-lg">
+            Total Registered MSMEs:{" "}
+            <span className="font-bold">{filteredMSMEs.length}</span>
+          </p>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="selectAll"
+              checked={selectedMSMEs.length === currentMSMEs.length}
+              onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+            />
+            <label
+              htmlFor="selectAll"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Select All
+            </label>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <Input
+            type="text"
+            placeholder="Search MSMEs..."
+            className="max-w-xs"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={date ? "text-emerald-600" : "text-muted-foreground"}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {date ? format(date, "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <CalendarComponent
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+      <MSMECardView
+        msmes={currentMSMEs}
+        isLoading={isLoading}
+        getSectorName={getSectorName}
+        selectedMSMEs={selectedMSMEs}
+        onSelectMSME={handleSelectMSME}
+      />
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between border-t pt-4">
+          <p className="text-sm text-gray-500">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className={
+                    currentPage === page
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : ""
+                  }
+                >
+                  {page}
+                </Button>
+              ),
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
