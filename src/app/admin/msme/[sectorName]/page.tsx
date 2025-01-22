@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
-import EditMSMEModal from "@/components/modals/EditMSMEModal";
+import AdminEditMSMEModal from "@/components/modals/AdminEditMSMEModal";
 import type { MSME } from "@/types/superadmin";
 import {
   Tooltip,
@@ -31,7 +31,6 @@ import {
 import { MSMETableView } from "@/components/msme/MSMETableView";
 import { MSMECardView } from "@/components/admin/cardView";
 import { cn } from "@/lib/utils";
-import { set } from "date-fns";
 
 type ViewMode = "card" | "table";
 
@@ -93,7 +92,7 @@ export default function MSMEPage({
               <Building2 className="h-6 w-6 text-emerald-600" />
             </div>
             <CardTitle className="text-3xl font-bold text-gray-800">
-              {sectorName}
+              {sectorName.toLocaleUpperCase()}
             </CardTitle>
           </div>
           <CardDescription className="mt-1 text-lg font-bold text-gray-600">
@@ -154,7 +153,13 @@ export default function MSMEPage({
           </Button>
           <Button
             className="bg-[#996439] hover:bg-[#ce9261]"
-            onClick={() => setItemsPerPage(1000000)}
+            onClick={() => {
+              if (itemsPerPage === 3) {
+                setItemsPerPage(9999999);
+              } else {
+                setItemsPerPage(3);
+              }
+            }}
           >
             Display All
           </Button>
@@ -251,7 +256,7 @@ export default function MSMEPage({
         isOpen={isAddMSMEModalOpen}
         onClose={() => setIsAddMSMEModalOpen(false)}
       />
-      <EditMSMEModal
+      <AdminEditMSMEModal
         isOpen={isEditMSMEModalOpen}
         onClose={() => setIsEditMSMEModalOpen(false)}
         msme={currentMSME}

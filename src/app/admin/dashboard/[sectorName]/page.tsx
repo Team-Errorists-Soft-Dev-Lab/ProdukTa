@@ -47,7 +47,7 @@ export default function MSMEPage({
           {sectorName.toLocaleUpperCase()} MSME Dashboard
         </h1>
         <div className="flex items-center gap-4">
-          <Link href="/admin/export-data">
+          <Link href={`/admin/export-data/${sectorName}`}>
             <Button>
               <Download className="mr-2 h-4 w-4" /> Export Data
             </Button>
