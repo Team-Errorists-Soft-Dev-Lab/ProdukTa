@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   Home,
   Users,
@@ -17,9 +18,30 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Sidebar() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [sectorPath, setSectorPath] = useState("");
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const fetchSector = async () => {
+      if (user && !user.isSuperadmin) {
+        try {
+          const response = await fetch(`/api/admin/${user.id}/sector`);
+          const { sector }: { sector: { name: string } } =
+            (await response.json()) as { sector: { name: string } };
+          if (sector) {
+            setSectorPath(sector.name.toLowerCase());
+          }
+        } catch (error) {
+          console.error("Failed to fetch sector:", error);
+        }
+      }
+    };
+
+    void fetchSector();
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -36,6 +58,10 @@ export default function Sidebar() {
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
+  };
+
+  const isLinkActive = (href: string) => {
+    return pathname.startsWith(href);
   };
 
   return (
@@ -68,8 +94,12 @@ export default function Sidebar() {
       </div>
       <nav className="mt-8 flex-grow">
         <Link
-          href="/admin/dashboard"
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          href={`/admin/dashboard/${sectorPath}`}
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive(`/admin/dashboard/${sectorPath}`) &&
+              "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <Home className="mr-3" size={18} />
           <span
@@ -82,8 +112,12 @@ export default function Sidebar() {
           </span>
         </Link>
         <Link
-          href="/admin/msme"
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          href={`/admin/msme/${sectorPath}`}
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive(`/admin/msme/${sectorPath}`) &&
+              "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <Users className="mr-3" size={18} />
           <span
@@ -96,8 +130,12 @@ export default function Sidebar() {
           </span>
         </Link>
         <Link
-          href="/admin/export-data"
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          href={`/admin/export-data/${sectorPath}`}
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive(`/admin/export-data/${sectorPath}`) &&
+              "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <FileText className="mr-3" size={18} />
           <span
@@ -111,7 +149,10 @@ export default function Sidebar() {
         </Link>
         <Link
           href="/guest"
-          className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]"
+          className={cn(
+            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+            isLinkActive("/guest") && "bg-[#996439] text-[#FCFBFA]",
+          )}
         >
           <User className="mr-3" size={18} />
           <span
@@ -130,7 +171,7 @@ export default function Sidebar() {
           disabled={isLoading}
           className={cn(
             "flex w-full items-center justify-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]",
-            isLoading && "cursor-not-allowed opacity-50", // Adds a disabled state visual indicator
+            isLoading && "cursor-not-allowed opacity-50",
           )}
         >
           <LogOut

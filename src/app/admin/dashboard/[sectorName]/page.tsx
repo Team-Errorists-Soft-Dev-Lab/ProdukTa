@@ -8,13 +8,16 @@ import { useMSMEContext } from "@/contexts/MSMEContext";
 import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-const sectorName = "coffee";
-
-export default function MSMEPage() {
+export default function MSMEPage({
+  params,
+}: {
+  params: { sectorName: string };
+}) {
   const { msmes, sectors, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const { sectorName } = params;
   const sector = sectors.find(
     (sector) => sector.name.toLowerCase() === sectorName.toLocaleLowerCase(),
   );
@@ -43,12 +46,28 @@ export default function MSMEPage() {
         <h1 className="text-2xl font-bold">
           {sectorName.toLocaleUpperCase()} MSME Dashboard
         </h1>
-        <Link href="/admin/export-data">
-          <Button>
-            <Download className="mr-2 h-4 w-4" /> Export Data
+        <div className="flex items-center gap-4">
+          <Link href={`/admin/export-data/${sectorName}`}>
+            <Button className="bg-[#996439]">
+              <Download className="mr-2 h-4 w-4" /> Export Data
+            </Button>
+          </Link>
+          <Button
+            className="bg-[#996439] hover:bg-[#ce9261]"
+            onClick={() => {
+              setCurrentPage(1);
+              if (itemsPerPage === 3) {
+                setItemsPerPage(999999);
+              } else {
+                setItemsPerPage(3);
+              }
+            }}
+          >
+            Display All
           </Button>
-        </Link>
+        </div>
       </div>
+
       <div className="mb-4 flex items-center justify-between">
         <p className="text-lg">
           Total Registered MSMEs:{" "}
