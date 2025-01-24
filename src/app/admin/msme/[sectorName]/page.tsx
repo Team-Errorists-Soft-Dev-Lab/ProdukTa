@@ -19,8 +19,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import AddMSMEModal from "@/components/modals/AddMSMEModal";
-import EditMSMEModal from "@/components/modals/EditMSMEModal";
+import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
+import AdminEditMSMEModal from "@/components/modals/AdminEditMSMEModal";
 import type { MSME } from "@/types/superadmin";
 import {
   Tooltip,
@@ -34,9 +34,11 @@ import { cn } from "@/lib/utils";
 
 type ViewMode = "card" | "table";
 
-const sectorName = "BAMBOO";
-
-export default function ManageMSME() {
+export default function MSMEPage({
+  params,
+}: {
+  params: { sectorName: string };
+}) {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,6 +47,7 @@ export default function ManageMSME() {
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("card");
+  const { sectorName } = params;
 
   const Sector = sectors.find(
     (s) => s.name.toLocaleLowerCase() === sectorName.toLocaleLowerCase(),
@@ -89,7 +92,7 @@ export default function ManageMSME() {
               <Building2 className="h-6 w-6 text-emerald-600" />
             </div>
             <CardTitle className="text-3xl font-bold text-gray-800">
-              {sectorName}
+              {sectorName.toLocaleUpperCase()}
             </CardTitle>
           </div>
           <CardDescription className="mt-1 text-lg font-bold text-gray-600">
@@ -127,7 +130,7 @@ export default function ManageMSME() {
                   size="icon"
                   onClick={() => {
                     setViewMode("table");
-                    setItemsPerPage(10);
+                    setItemsPerPage(4);
                   }}
                   className={cn(
                     "h-8 w-8",
@@ -143,10 +146,23 @@ export default function ManageMSME() {
           </TooltipProvider>
           <Button
             onClick={() => setIsAddMSMEModalOpen(true)}
-            className="bg-[#996439] hover:bg-[#996439]"
+            className="bg-[#996439] hover:bg-[#ce9261]"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add MSME
+          </Button>
+          <Button
+            className="bg-[#996439] hover:bg-[#ce9261]"
+            onClick={() => {
+              setCurrentPage(1);
+              if (itemsPerPage === 3) {
+                setItemsPerPage(9999999);
+              } else {
+                setItemsPerPage(3);
+              }
+            }}
+          >
+            Display All
           </Button>
         </div>
       </CardHeader>
@@ -237,11 +253,11 @@ export default function ManageMSME() {
         )}
       </CardContent>
 
-      <AddMSMEModal
+      <AdminAddMSMEModal
         isOpen={isAddMSMEModalOpen}
         onClose={() => setIsAddMSMEModalOpen(false)}
       />
-      <EditMSMEModal
+      <AdminEditMSMEModal
         isOpen={isEditMSMEModalOpen}
         onClose={() => setIsEditMSMEModalOpen(false)}
         msme={currentMSME}

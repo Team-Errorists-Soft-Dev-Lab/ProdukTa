@@ -48,7 +48,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             window.location.pathname === "/login" ||
             window.location.pathname === "/signup"
           ) {
-            router.push(data.user.isSuperadmin ? "/superadmin" : "/admin");
+            if (data.user.isSuperadmin) {
+              router.push("/superadmin");
+            } else {
+              const adminWithSector = await fetch(
+                `/api/admin/${data.user.id}/sector`,
+              );
+              const { sector } = (await adminWithSector.json()) as {
+                sector: { name: string };
+              };
+
+              if (sector) {
+                router.push(`/admin/dashboard/${sector.name.toLowerCase()}`);
+              } else {
+                router.push("/admin");
+              }
+            }
           }
         } else {
           if (
@@ -87,7 +102,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(authUser);
-      router.push(authUser.isSuperadmin ? "/superadmin" : "/admin");
+
+      if (authUser.isSuperadmin) {
+        router.push("/superadmin");
+      } else {
+        const adminWithSector = await fetch(`/api/admin/${authUser.id}/sector`);
+        const { sector }: { sector: { name: string } } =
+          (await adminWithSector.json()) as { sector: { name: string } };
+
+        if (sector) {
+          router.push(`/admin/dashboard/${sector.name.toLowerCase()}`);
+        }
+      }
+
       return {};
     } catch (error) {
       const message =
