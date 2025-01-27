@@ -47,6 +47,7 @@ export default function MSMEPage({
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("card");
+  const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
   const { sectorName } = params;
 
   const Sector = sectors.find(
@@ -62,7 +63,11 @@ export default function MSMEPage({
         msme.companyDescription
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
-        msme.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()),
+        (msme.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          (!municipalityFilter ||
+            msme.cityMunicipalityAddress
+              .toLowerCase()
+              .includes(municipalityFilter.toLowerCase()))),
     );
 
   const paginatedMSMEs = filteredMSMEs.slice(
@@ -156,13 +161,13 @@ export default function MSMEPage({
             onClick={() => {
               setCurrentPage(1);
               if (itemsPerPage === 3) {
-                setItemsPerPage(9999999);
+                setItemsPerPage(999999999);
               } else {
                 setItemsPerPage(3);
               }
             }}
           >
-            Display All
+            {itemsPerPage === 3 ? "Display All" : "Display Less"}
           </Button>
         </div>
       </CardHeader>
@@ -179,9 +184,17 @@ export default function MSMEPage({
               }}
               className="pl-10 focus:ring-emerald-600"
             />
+
             <Search
               className="absolute left-3 top-2.5 text-gray-400"
               size={20}
+            />
+            <Input
+              type="text"
+              placeholder="Filter by Municipality..."
+              className="mt-2 max-w-xs"
+              value={municipalityFilter}
+              onChange={(e) => setMunicipalityFilter(e.target.value)}
             />
           </div>
         </div>

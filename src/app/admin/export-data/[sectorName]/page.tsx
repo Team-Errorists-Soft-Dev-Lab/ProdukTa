@@ -1,19 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MSMECardView } from "@/components/admin/exportCardView";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import { Download, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
 
 export default function ExportDataPage({
   params,
@@ -25,7 +18,9 @@ export default function ExportDataPage({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [startYear, setStartYear] = useState<string>("");
+  const [endYear, setEndYear] = useState<string>("");
+  const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
   const { sectorName } = params;
   const sector = sectors.find(
     (sector) => sector.name.toLowerCase() === sectorName.toLowerCase(),
@@ -35,24 +30,28 @@ export default function ExportDataPage({
     .filter(
       (msme) =>
         msme.sectorId === sector?.id &&
-        msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()),
+        msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (!startYear ||
+          parseInt(msme.yearEstablished.toString()) >= parseInt(startYear)) &&
+        (!endYear ||
+          parseInt(msme.yearEstablished.toString()) <= parseInt(endYear)) &&
+        (!municipalityFilter ||
+          msme.cityMunicipalityAddress
+            .toLowerCase()
+            .includes(municipalityFilter.toLowerCase())),
     )
-    .sort((a, b) => {
-      if (date) {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      }
-      return 0;
-    });
+    .sort(
+      (a, b) =>
+        parseInt(b.yearEstablished.toString()) -
+        parseInt(a.yearEstablished.toString()),
+    );
 
   const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
 
-  const currentMSMEs = filteredMSMEs.filter((_, index) => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return index >= startIndex && index < endIndex;
-  });
+  const currentMSMEs = filteredMSMEs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   const getSectorName = (id: number) => {
     return sectors.find((sector) => sector.id === id)?.name ?? "Unknown Sector";
@@ -74,6 +73,17 @@ export default function ExportDataPage({
     }
   };
 
+  const resetAllFilters = () => {
+    setStartYear("");
+    setEndYear("");
+    setMunicipalityFilter("");
+    setSearchTerm("");
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, startYear, endYear, municipalityFilter]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
@@ -91,14 +101,10 @@ export default function ExportDataPage({
             className="bg-[#996439] hover:bg-[#ce9261]"
             onClick={() => {
               setCurrentPage(1);
-              if (itemsPerPage === 3) {
-                setItemsPerPage(999999);
-              } else {
-                setItemsPerPage(3);
-              }
+              setItemsPerPage(itemsPerPage === 3 ? 99999999 : 3);
             }}
           >
-            Display All
+            {itemsPerPage === 3 ? "Display All" : "Display Less"}
           </Button>
         </div>
       </div>
@@ -129,30 +135,44 @@ export default function ExportDataPage({
             placeholder="Search MSMEs..."
             className="max-w-xs"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={date ? "text-emerald-600" : "text-muted-foreground"}
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : <span>Pick a date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <CalendarComponent
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <Input
+            type="text"
+            placeholder="Filter by Municipality..."
+            className="max-w-xs"
+            value={municipalityFilter}
+            onChange={(e) => setMunicipalityFilter(e.target.value)}
+          />
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              placeholder="Start Year"
+              className="w-28"
+              value={startYear}
+              onChange={(e) => setStartYear(e.target.value)}
+              min="1900"
+              max={new Date().getFullYear().toString()}
+            />
+            <span>-</span>
+            <Input
+              type="number"
+              placeholder="End Year"
+              className="w-28"
+              value={endYear}
+              onChange={(e) => setEndYear(e.target.value)}
+              min="1900"
+              max={new Date().getFullYear().toString()}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={resetAllFilters}
+              className="h-10 w-10"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
       <MSMECardView

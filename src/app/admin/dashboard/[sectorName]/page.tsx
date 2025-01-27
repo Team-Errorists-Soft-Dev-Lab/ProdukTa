@@ -21,11 +21,15 @@ export default function MSMEPage({
   const sector = sectors.find(
     (sector) => sector.name.toLowerCase() === sectorName.toLocaleLowerCase(),
   );
-
+  const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
   const filteredMSMEs = msmes.filter(
     (msme) =>
       msme.sectorId === sector?.id &&
-      msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()),
+      msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (!municipalityFilter ||
+        msme.cityMunicipalityAddress
+          .toLowerCase()
+          .includes(municipalityFilter.toLowerCase())),
   );
 
   const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
@@ -57,13 +61,13 @@ export default function MSMEPage({
             onClick={() => {
               setCurrentPage(1);
               if (itemsPerPage === 3) {
-                setItemsPerPage(999999);
+                setItemsPerPage(99999999);
               } else {
                 setItemsPerPage(3);
               }
             }}
           >
-            Display All
+            {itemsPerPage === 3 ? "Display All" : "Display Less"}
           </Button>
         </div>
       </div>
@@ -82,6 +86,14 @@ export default function MSMEPage({
             setSearchTerm(e.target.value);
             setCurrentPage(1);
           }}
+        />
+
+        <Input
+          type="text"
+          placeholder="Filter by Municipality..."
+          className="max-w-xs"
+          value={municipalityFilter}
+          onChange={(e) => setMunicipalityFilter(e.target.value)}
         />
       </div>
       <MSMECardView
