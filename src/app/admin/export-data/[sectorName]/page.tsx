@@ -87,18 +87,18 @@ export default function ExportDataPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">
-          {sectorName.toLocaleUpperCase()} MSME Dashboard
+        <h1 className="text-2xl font-bold text-[#996439]">
+          {sectorName.toLocaleUpperCase()} MSME
         </h1>
         <div className="flex items-center gap-4">
-          <Button className="bg-[#996439] hover:bg-[#ce9261]">
+          <Button className="bg-[#996439] font-bold hover:bg-[#ce9261]">
             <Download className="mr-2 h-4 w-4" /> Export Data
             <span className="text-xl font-bold text-white">
               [{selectedMSMEs.length}]
             </span>
           </Button>
           <Button
-            className="bg-[#996439] hover:bg-[#ce9261]"
+            className="bg-[#996439] font-bold hover:bg-[#ce9261]"
             onClick={() => {
               setCurrentPage(1);
               setItemsPerPage(itemsPerPage === 3 ? 99999999 : 3);
@@ -111,7 +111,7 @@ export default function ExportDataPage({
 
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <p className="text-lg">
+          <p className="text-lg text-[#996439]">
             Total Registered MSMEs:{" "}
             <span className="font-bold">{filteredMSMEs.length}</span>
           </p>

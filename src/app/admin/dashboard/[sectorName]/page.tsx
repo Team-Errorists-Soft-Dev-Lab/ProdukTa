@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MSMECardView } from "@/components/admin/DashboardCardView";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { TopMunicipalitiesChart } from "@/components/admin/municipalityChart";
+import { SectorPieChart } from "@/components/admin/sectorPieChart";
+import { TotalSectorMSMEChart } from "@/components/admin/totalSectorMSMEChart";
 
 export default function MSMEPage({
   params,
@@ -19,7 +22,7 @@ export default function MSMEPage({
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const { sectorName } = params;
   const sector = sectors.find(
-    (sector) => sector.name.toLowerCase() === sectorName.toLocaleLowerCase(),
+    (sector) => sector.name.toLowerCase() === sectorName.toLowerCase(),
   );
   const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
   const filteredMSMEs = msmes.filter(
@@ -34,73 +37,101 @@ export default function MSMEPage({
 
   const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
 
-  const currentMSMEs = filteredMSMEs.filter((_, index) => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return index >= startIndex && index < endIndex;
-  });
+  const currentMSMEs = filteredMSMEs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   const getSectorName = (id: number) => {
     return sectors.find((sector) => sector.id === id)?.name ?? "Unknown Sector";
   };
 
+  const sectorData = useMemo(() => {
+    return sectors.map((sector) => ({
+      name: sector.name,
+      value: msmes.filter((msme) => msme.sectorId === sector.id).length,
+    }));
+  }, [sectors, msmes]);
+
+  const colors = [
+    "#FF6384",
+    "#36A2EB",
+    "#FFCE56",
+    "#4BC0C0",
+    "#9966FF",
+    "#FF9F40",
+    "#FF77FF",
+    "#33FFAA",
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">
-          {sectorName.toLocaleUpperCase()} MSME Dashboard
-        </h1>
-        <div className="flex items-center gap-4">
-          <Link href={`/admin/export-data/${sectorName}`}>
-            <Button className="bg-[#996439]">
-              <Download className="mr-2 h-4 w-4" /> Export Data
+      <div className="mb-8 flex gap-4">
+        <div className="w-1/3">
+          <TopMunicipalitiesChart sectorName={sectorName} />
+        </div>
+        <div className="w-1/3">
+          <SectorPieChart sectors={sectorData} colors={colors} />
+        </div>
+        <div className="flex w-1/3 flex-col justify-between">
+          <div>
+            <h1 className="mb-4 text-2xl font-bold text-[#996439]">
+              {sectorName.toUpperCase()} MSME DASHBOARD
+            </h1>
+            <p className="mb-4 text-lg text-[#996439]">
+              Total Registered MSMEs:
+            </p>
+            <div className="flex items-center justify-center">
+              <div>
+                <TotalSectorMSMEChart
+                  totalMSMEs={filteredMSMEs.length}
+                  sectorName={sectorName}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <Link href={`/admin/export-data/${sectorName}`} className="block">
+              <Button className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]">
+                <Download className="mr-2 h-4 w-4" /> Export Data
+              </Button>
+            </Link>
+            <Button
+              className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]"
+              onClick={() => {
+                setCurrentPage(1);
+                setItemsPerPage(itemsPerPage === 3 ? 99999999 : 3);
+              }}
+            >
+              {itemsPerPage === 3 ? "Display All" : "Display Less"}
             </Button>
-          </Link>
-          <Button
-            className="bg-[#996439] hover:bg-[#ce9261]"
-            onClick={() => {
-              setCurrentPage(1);
-              if (itemsPerPage === 3) {
-                setItemsPerPage(99999999);
-              } else {
-                setItemsPerPage(3);
-              }
-            }}
-          >
-            {itemsPerPage === 3 ? "Display All" : "Display Less"}
-          </Button>
+            <Input
+              type="text"
+              placeholder="Search MSMEs..."
+              className="w-full"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+            <Input
+              type="text"
+              placeholder="Filter by Municipality..."
+              className="w-full"
+              value={municipalityFilter}
+              onChange={(e) => setMunicipalityFilter(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-lg">
-          Total Registered MSMEs:{" "}
-          <span className="font-bold">{filteredMSMEs.length}</span>
-        </p>
-        <Input
-          type="text"
-          placeholder="Search MSMEs..."
-          className="max-w-xs"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
-        />
-
-        <Input
-          type="text"
-          placeholder="Filter by Municipality..."
-          className="max-w-xs"
-          value={municipalityFilter}
-          onChange={(e) => setMunicipalityFilter(e.target.value)}
-        />
-      </div>
       <MSMECardView
         msmes={currentMSMEs}
         isLoading={isLoading}
         getSectorName={getSectorName}
       />
+
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between border-t pt-4">
           <p className="text-sm text-gray-500">

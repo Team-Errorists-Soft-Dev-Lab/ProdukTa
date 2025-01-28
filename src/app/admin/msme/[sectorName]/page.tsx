@@ -12,11 +12,12 @@ import {
 import {
   Plus,
   Search,
-  Building2,
   LayoutGrid,
   TableIcon,
   ChevronLeft,
   ChevronRight,
+  Store,
+  SquarePlus,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
@@ -58,16 +59,18 @@ export default function MSMEPage({
     .filter((msme) => msme.sectorId === Sector?.id)
     .filter(
       (msme) =>
-        msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msme.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msme.companyDescription
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        (msme.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          (!municipalityFilter ||
-            msme.cityMunicipalityAddress
-              .toLowerCase()
-              .includes(municipalityFilter.toLowerCase()))),
+        (msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          msme.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          msme.companyDescription
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          msme.contactPerson
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) &&
+        (!municipalityFilter ||
+          msme.cityMunicipalityAddress
+            .toLowerCase()
+            .includes(municipalityFilter.toLowerCase())),
     );
 
   const paginatedMSMEs = filteredMSMEs.slice(
@@ -93,14 +96,14 @@ export default function MSMEPage({
       <CardHeader className="flex flex-row items-center justify-between space-y-0 px-0 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-emerald-50 p-2">
-              <Building2 className="h-6 w-6 text-emerald-600" />
+            <div className="rounded-lg bg-amber-50 p-3">
+              <Store className="h-6 w-6 text-[#996439]" />
             </div>
-            <CardTitle className="text-3xl font-bold text-gray-800">
+            <CardTitle className="text-3xl font-bold text-[#996439]">
               {sectorName.toLocaleUpperCase()}
             </CardTitle>
           </div>
-          <CardDescription className="mt-1 text-lg font-bold text-gray-600">
+          <CardDescription className="mt-1 text-lg font-bold text-[#996439]">
             Total: {filteredMSMEs?.length ?? 0} MSMEs
           </CardDescription>
         </div>
@@ -151,13 +154,13 @@ export default function MSMEPage({
           </TooltipProvider>
           <Button
             onClick={() => setIsAddMSMEModalOpen(true)}
-            className="bg-[#996439] hover:bg-[#ce9261]"
+            className="bg-[#996439] font-bold hover:bg-[#ce9261]"
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <SquarePlus className="mr-2 h-4 w-4" />
             Add MSME
           </Button>
           <Button
-            className="bg-[#996439] hover:bg-[#ce9261]"
+            className="bg-[#996439] font-bold hover:bg-[#ce9261]"
             onClick={() => {
               setCurrentPage(1);
               if (itemsPerPage === 3) {
@@ -173,29 +176,32 @@ export default function MSMEPage({
       </CardHeader>
       <CardContent className="px-0">
         <div className="mb-4">
-          <div className="relative w-64">
-            <Input
-              type="text"
-              placeholder="Search MSMEs..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="pl-10 focus:ring-emerald-600"
-            />
-
-            <Search
-              className="absolute left-3 top-2.5 text-gray-400"
-              size={20}
-            />
-            <Input
-              type="text"
-              placeholder="Filter by Municipality..."
-              className="mt-2 max-w-xs"
-              value={municipalityFilter}
-              onChange={(e) => setMunicipalityFilter(e.target.value)}
-            />
+          <div className="relative flex items-center space-x-4">
+            <div className="relative w-64">
+              <Input
+                type="text"
+                placeholder="Search MSMEs..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 focus:ring-emerald-600"
+              />
+              <Search
+                className="absolute left-3 top-2.5 text-gray-400"
+                size={20}
+              />
+            </div>
+            <div className="relative w-64">
+              <Input
+                type="text"
+                placeholder="Filter by Municipality..."
+                className="pl-10 focus:ring-emerald-600"
+                value={municipalityFilter}
+                onChange={(e) => setMunicipalityFilter(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
