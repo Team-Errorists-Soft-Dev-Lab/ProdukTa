@@ -163,7 +163,7 @@ export function MSMECardView({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 hover:bg-emerald-200"
                           onClick={() => onEdit(msme)}
                         >
                           <Edit className="h-4 w-4 text-emerald-600" />
@@ -180,7 +180,7 @@ export function MSMECardView({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 hover:bg-red-200"
                             >
                               <Trash className="h-4 w-4 text-red-600" />
                             </Button>
