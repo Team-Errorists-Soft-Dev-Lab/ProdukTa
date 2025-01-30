@@ -14,7 +14,6 @@ import {
   Factory,
   ChevronLeft,
   ChevronRight,
-  Building2,
   UserCircle2,
   Store,
 } from "lucide-react";
@@ -32,31 +31,26 @@ const sidebarNavItems = [
     title: "Dashboard",
     href: "/superadmin",
     icon: LayoutDashboard,
-    description: "Overview and analytics",
   },
   {
     title: "Sectors",
     href: "/superadmin/sectors",
     icon: Factory,
-    description: "Manage business sectors",
   },
   {
     title: "Admins",
     href: "/superadmin/admins",
     icon: Users,
-    description: "Manage administrators",
   },
   {
     title: "MSMEs",
     href: "/superadmin/msme",
     icon: Store,
-    description: "Manage registered MSMEs",
   },
   {
     title: "Guest",
     href: "/guest",
     icon: UserCircle2,
-    description: "Guest portal access",
   },
 ];
 
@@ -82,39 +76,39 @@ export default function Sidebar() {
   return (
     <div
       className={cn(
-        "group/sidebar relative flex h-full flex-col border-r bg-[#fffcf4] font-body text-slate-600 shadow-sm transition-all duration-500",
-        isCollapsed ? "w-20" : "w-72",
+        "group/sidebar relative flex h-full flex-col border-r border-white/10 bg-emerald-700 font-body text-white shadow-xl transition-all duration-500",
+        isCollapsed ? "w-20" : "w-64",
       )}
     >
       {/* Logo and Toggle Section */}
-      <div className="relative flex h-20 items-center justify-between border-b px-4">
-        <div className="relative flex items-center">
-          {isCollapsed ? (
-            <Image
-              src="/ProdukTa1.png"
-              alt="ProdukTa Logo"
-              className="h-18 w-auto"
-              width={500}
-              height={500}
-              priority
-            />
-          ) : (
-            <Image
-              src="/Produkta2.png"
-              alt="ProdukTa Logo"
-              className="h-50 w-auto"
-              width={500}
-              height={500}
-              priority
-            />
-          )}
+      <div className="relative flex h-20 items-center justify-between border-b border-white/10 px-4 shadow-sm">
+        <div className="relative flex items-center gap-2">
+          <Image
+            src="/ProdukTa_Logo.png"
+            alt="ProdukTa Logo"
+            className={cn(
+              "w-auto drop-shadow-md transition-all duration-300",
+              isCollapsed ? "h-12" : "h-16",
+            )}
+            width={500}
+            height={500}
+            priority
+          />
+          <span
+            className={cn(
+              "text-2xl font-bold transition-opacity duration-300",
+              isCollapsed ? "opacity-0" : "opacity-100",
+            )}
+          >
+            ProdukTa
+          </span>
         </div>
         <Button
           variant="ghost"
           size="icon"
           className={cn(
-            "absolute -right-4 top-7 z-50 h-8 w-8 rounded-full border bg-[#fffcf4] text-slate-600 shadow-md transition-all hover:bg-slate-100 hover:text-slate-900 hover:shadow-lg",
-            "focus-visible:ring-slate-200",
+            "absolute -right-4 top-7 z-50 h-8 w-8 rounded-full border border-white/10 bg-emerald-700 text-white shadow-md transition-all hover:bg-emerald-800 hover:shadow-lg",
+            "focus-visible:ring-emerald-500",
           )}
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -139,16 +133,16 @@ export default function Sidebar() {
                     <Link href={item.href} className="relative">
                       <div
                         className={cn(
-                          "absolute inset-y-0 left-0 w-1 rounded-full bg-emerald-600 transition-all",
+                          "absolute inset-y-0 left-0 w-1 rounded-full bg-white transition-all",
                           isActive ? "opacity-100" : "opacity-0",
                         )}
                       />
                       <Button
                         variant="ghost"
                         className={cn(
-                          "group relative w-full justify-start overflow-hidden rounded-lg text-slate-600 transition-all hover:bg-emerald-50/80 hover:text-emerald-900",
+                          "group relative w-full justify-start overflow-hidden rounded-lg text-white/80 transition-all hover:bg-white/10 hover:text-white",
                           isActive &&
-                            "bg-emerald-100 font-medium text-emerald-800 shadow-sm hover:bg-emerald-200",
+                            "bg-white/10 font-medium text-white shadow-sm hover:bg-white/20",
                           isCollapsed ? "justify-center" : "justify-start",
                         )}
                       >
@@ -156,25 +150,19 @@ export default function Sidebar() {
                           className={cn(
                             "h-5 w-5 transition-all duration-300",
                             !isCollapsed && "mr-3",
-                            isActive && "text-emerald-700",
-                            "group-hover:text-emerald-700",
+                            isActive && "text-white",
                           )}
                         />
                         <span
                           className={cn(
-                            "inline-flex flex-col text-sm transition-all duration-300",
+                            "text-sm transition-all duration-300",
                             isCollapsed && "hidden",
                           )}
                         >
                           {item.title}
-                          {isActive && (
-                            <span className="text-xs font-normal text-emerald-700/70">
-                              {item.description}
-                            </span>
-                          )}
                         </span>
                         {isActive && (
-                          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-100 to-transparent" />
+                          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-white/10 to-transparent" />
                         )}
                       </Button>
                     </Link>
@@ -182,12 +170,9 @@ export default function Sidebar() {
                   {isCollapsed && (
                     <TooltipContent
                       side="right"
-                      className="flex flex-col space-y-1 border-none bg-[#fffcf4] text-slate-900 shadow-xl"
+                      className="border-none bg-emerald-700 text-white shadow-xl"
                     >
                       <p className="font-medium">{item.title}</p>
-                      <p className="text-xs text-slate-500">
-                        {item.description}
-                      </p>
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -198,14 +183,14 @@ export default function Sidebar() {
       </ScrollArea>
 
       {/* Logout Section */}
-      <div className="border-t p-4">
+      <div className="border-t border-white/10 p-4 shadow-inner">
         <TooltipProvider>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 className={cn(
-                  "group w-full justify-start rounded-lg text-slate-600 transition-all hover:bg-red-100 hover:text-red-700",
+                  "group w-full justify-start rounded-lg text-white/80 transition-all hover:bg-white/10 hover:text-white",
                   isCollapsed ? "justify-center" : "justify-start",
                 )}
                 onClick={handleLogout}
@@ -230,10 +215,10 @@ export default function Sidebar() {
             {isCollapsed && (
               <TooltipContent
                 side="right"
-                className="border-none bg-[#fffcf4] text-slate-900 shadow-xl"
+                className="border-none bg-emerald-700 text-white shadow-xl"
               >
                 <p className="font-medium">Logout</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-white/60">
                   Sign out of your account
                 </p>
               </TooltipContent>
