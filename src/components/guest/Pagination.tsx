@@ -23,7 +23,7 @@ export function Pagination({
         <ChevronLeft className="h-4 w-4" />
       </Button>
       <span>
-        {currentPage} of {totalPages}
+        Page {currentPage} of {totalPages}
       </span>
       <Button
         variant="outline"
