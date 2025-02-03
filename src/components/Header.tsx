@@ -1,67 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
-    <header className="bg-white p-4">
+    <header className="border-b border-gray-200 bg-white p-4 shadow-md">
       <div className="flex items-center justify-between">
         <div
-          className="flex items-center space-x-2"
+          className="flex cursor-pointer items-center space-x-2"
           onClick={() => router.push("/landing-page")}
         >
           <Image
-            src="/ProdukTa_Logo.png"
+            src="/ProdukTa2.png"
             alt="ProdukTa Logo"
-            width={50}
-            height={50}
+            width={230}
+            height={230}
             className="rounded-full"
           />
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold text-[#8B4513]">ProdukTa</span>
-            <span className="text-sm text-gray-600">
-              Everything local, in one place
-            </span>
-          </div>
         </div>
-        <div className="hidden items-center space-x-4 md:flex">
-          <Button
-            onClick={() => router.push("/landing-page")}
-            variant="ghost"
-            className="bg-[#996439] text-white hover:bg-[#8B4513]"
-          >
-            Home
-          </Button>
-          <Button
-            onClick={() => router.push("/about-us")}
-            variant="ghost"
-            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
-          >
-            About Us
-          </Button>
-          <Button
-            onClick={() => router.push("/guest")}
-            variant="ghost"
-            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
-          >
-            Search <br /> MSME
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
-          >
-            Export
-          </Button>
-          <Image src="/DTI_logo.png" alt="DTI Logo" width={40} height={40} />
-        </div>
-        <div className="flex items-center space-x-4 md:hidden">
+        <nav className="hidden items-center space-x-6 text-base md:flex">
+          {[
+            { name: "Home", path: "/landing-page" },
+            { name: "About Us", path: "/about-us" },
+            { name: "Search MSME", path: "/guest" },
+            { name: "Export", path: "" },
+          ].map(({ name, path }) => (
+            <Button
+              key={path}
+              onClick={() => router.push(path)}
+              variant="ghost"
+              className={`text-[#996439] transition duration-300 hover:bg-[#8B4513] hover:text-white ${pathname === path ? "bg-[#8B4513] text-white" : ""}`}
+            >
+              {name}
+            </Button>
+          ))}
+          <Image src="/DTI_logo.png" alt="DTI Logo" width={60} height={60} />
+        </nav>
+        <div className="flex items-center md:hidden">
           <Button
             variant="ghost"
             size="icon"
@@ -69,29 +52,30 @@ export default function Header() {
             className="hover:bg-[#8B4513]"
           >
             {isMenuOpen ? (
-              <X className="h-6 w-6 hover:bg-[#8B4513]" />
+              <X className="h-6 w-6" />
             ) : (
-              <Menu className="h-6 w-6 hover:bg-[#8B4513]" />
+              <Menu className="h-6 w-6" />
             )}
           </Button>
-          <Image src="/DTI_logo.png" alt="DTI Logo" width={40} height={40} />
         </div>
       </div>
       {isMenuOpen && (
-        <div className="mt-4 flex flex-col space-y-2 md:hidden">
-          <Button
-            variant="default"
-            className="w-full bg-[#996439] text-white hover:bg-[#8B4513]"
-          >
-            Home
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
-          >
-            Export
-          </Button>
-        </div>
+        <nav className="mt-4 flex flex-col space-y-2 text-base md:hidden">
+          {[
+            { name: "Home", path: "/landing-page" },
+            { name: "About Us", path: "/about-us" },
+            { name: "Search MSME", path: "/guest" },
+            { name: "Export", path: "" },
+          ].map(({ name, path }) => (
+            <Button
+              key={path}
+              onClick={() => router.push(path)}
+              className={`w-full text-[#996439] transition duration-300 hover:bg-[#8B4513] hover:text-white ${pathname === path ? "bg-[#8B4513] text-white" : ""}`}
+            >
+              {name}
+            </Button>
+          ))}
+        </nav>
       )}
     </header>
   );

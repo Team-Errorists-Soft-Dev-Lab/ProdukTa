@@ -1,18 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
-import {
-  bambooMSMEs,
-  coconutMSMEs,
-  coffeeMSMEs,
-  weavingMSMEs,
-  foodMSMEs,
-} from "@/lib/mock-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MSMECardView } from "@/components/admin/DashboardCardView";
+import { useMSMEContext } from "@/contexts/MSMEContext";
+import { Download, ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import {
   Pagination,
   PaginationContent,
@@ -24,39 +18,33 @@ import {
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 
-const ITEMS_PER_PAGE = 6;
+const sectorName = "coffee";
 
-export default function Dashboard() {
+export default function MSMEPage() {
+  const { msmes, sectors, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
-  const allMSMEs = useMemo(
-    () => [
-      ...bambooMSMEs,
-      ...coconutMSMEs,
-      ...coffeeMSMEs,
-      ...weavingMSMEs,
-      ...foodMSMEs,
-    ],
-    [],
+  const itemsPerPage = 3;
+  const sector = sectors.find(
+    (sector) => sector.name.toLowerCase() === sectorName.toLocaleLowerCase(),
   );
 
-  const filteredMSMEs = useMemo(() => {
-    return allMSMEs.filter(
-      (msme) =>
-        msme.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msme.address.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [searchTerm, allMSMEs]);
+  const filteredMSMEs = msmes.filter(
+    (msme) =>
+      msme.sectorId === sector?.id &&
+      msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
-  const totalPages = Math.ceil(filteredMSMEs.length / ITEMS_PER_PAGE);
-  const paginatedMSMEs = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredMSMEs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredMSMEs, currentPage]);
+  const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const currentMSMEs = filteredMSMEs.filter((_, index) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return index >= startIndex && index < endIndex;
+  });
+
+  const getSectorName = (id: number) => {
+    return sectors.find((sector) => sector.id === id)?.name ?? "Unknown Sector";
   };
 
   const renderPaginationItems = () => {
@@ -139,30 +127,80 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
-      <main className="flex-1 overflow-x-hidden bg-gray-100">
-        <div className="p-4 md:p-6">
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Card className="border-[#996439]">
-              <CardHeader>
-                <CardTitle>Total Registered MSMEs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{allMSMEs.length}</p>
-              </CardContent>
-            </Card>
-            <Card className="max-w-[200px] border-[#996439]">
-              <CardHeader></CardHeader>
-              <CardContent>
-                <Link href="/admin/export-data">
-                  <Button className="w-full max-w-[200px] bg-[#996439] text-white hover:bg-[#bb987a]">
-                    Export Data
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">
+          {sectorName.toLocaleUpperCase()} MSME Dashboard
+        </h1>
+        <Link href="/admin/export-data">
+          <Button>
+            <Download className="mr-2 h-4 w-4" /> Export Data
+          </Button>
+        </Link>
+      </div>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-lg">
+          Total Registered MSMEs:{" "}
+          <span className="font-bold">{filteredMSMEs.length}</span>
+        </p>
+        <Input
+          type="text"
+          placeholder="Search MSMEs..."
+          className="max-w-xs"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
+      <MSMECardView
+        msmes={currentMSMEs}
+        isLoading={isLoading}
+        getSectorName={getSectorName}
+      />
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between border-t pt-4">
+          <p className="text-sm text-gray-500">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className={
+                    currentPage === page
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : ""
+                  }
+                >
+                  {page}
+                </Button>
+              ),
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-
           <Card className="border-[#996439]">
             <CardHeader>
               <CardTitle>List of Enterprises</CardTitle>
@@ -255,7 +293,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </main>
+      )}
     </div>
   );
 }

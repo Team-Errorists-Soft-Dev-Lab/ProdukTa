@@ -7,29 +7,34 @@ export default function Hero() {
 
   return (
     <section
-      className="relative overflow-hidden py-10"
+      className="relative overflow-hidden py-12"
       style={{
         backgroundImage: "url('/landing-page-bg.png')",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "top center",
+        height: "500px",
       }}
     >
-      <div className="container relative z-10 flex max-w-full items-center justify-center">
-        <div className="max-w-2xl text-center">
-          <h1 className="mb-6 text-4xl font-bold text-white">
+      <div className="container relative z-10 flex min-h-[300px] max-w-full flex-col items-center justify-center py-8">
+        <div className="max-w-5xl text-center">
+          {/* Heading */}
+          <h1 className="mb-4 mt-3 whitespace-nowrap text-5xl font-extrabold text-[#ffe900] drop-shadow-lg">
             Empowering MSMEs Across Iloilo
           </h1>
-          <p className="mt-6 text-lg font-bold text-muted-foreground text-white">
+
+          {/* Subtitle */}
+          <p className="mb-4 mt-1 text-center text-[18px] text-white drop-shadow-md">
             Explore the MSME directory and discover their contributions to
             Iloilo's thriving economy.
           </p>
+
+          {/* Search Button */}
           <Button
-            className="mt-8 bg-white"
+            className="mt-1 rounded-lg bg-white px-6 py-3 text-lg font-semibold text-[#003DA6] shadow-lg transition duration-300 ease-in-out hover:bg-[#379ae6] focus:ring-2 focus:ring-[#003DA6] focus:ring-offset-2"
             size="lg"
             onClick={() => router.push("/guest")}
           >
-            <ArrowRight className="ml-2 h-4 w-4 bg-[#8B4513]" />
-            <p className="text-[#8B4513]">Search Directory Now</p>
+            <p className="text-[#0056D2]">Search Directory Now</p>
           </Button>
         </div>
       </div>

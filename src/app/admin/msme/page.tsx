@@ -1,47 +1,25 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  Search,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
   Plus,
-  Edit,
-  Trash2,
+  Search,
+  Building2,
+  LayoutGrid,
+  TableIcon,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-// import {
-//   bambooMSMEs,
-//   coconutMSMEs,
-//   coffeeMSMEs,
-//   weavingMSMEs,
-//   foodMSMEs,
-// } from "@/lib/mock-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { toast } from "sonner";
-import { useAdmin } from "@/contexts/AdminContext";
-import type { MSME } from "@/types/superadmin";
 import { useMSMEContext } from "@/contexts/MSMEContext";
+
 import {
   Pagination,
   PaginationContent,
@@ -51,115 +29,67 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+
+import AddMSMEModal from "@/components/modals/AddMSMEModal";
+import EditMSMEModal from "@/components/modals/EditMSMEModal";
+import type { MSME } from "@/types/superadmin";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { MSMETableView } from "@/components/msme/MSMETableView";
+import { MSMECardView } from "@/components/admin/cardView";
+
 import { cn } from "@/lib/utils";
 
-const ITEMS_PER_PAGE = 9;
+type ViewMode = "card" | "table";
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  contactNumber: z.number().min(1000000000, {
-    message: "Please enter a valid contact number.",
-  }),
-  address: z.string().min(5, {
-    message: "Address must be at least 5 characters.",
-  }),
-  contactPerson: z.string().optional(),
-  description: z.string().optional(),
-  image: z.string().url().optional(),
-});
+const sectorName = "BAMBOO";
 
-export default function ManageMSMEs() {
-  // const [msmes, setMsmes] = useState<MSME[]>([
-  //   ...bambooMSMEs,
-  //   ...coconutMSMEs,
-  //   ...coffeeMSMEs,
-  //   ...weavingMSMEs,
-  //   ...foodMSMEs,
-  // ]);
-
-  // Temporary fix: useMSMEContext() should be replaced with useAdmin()
-  // const { msmes } = useAdmin();
-  const { msmes } = useMSMEContext();
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [editingMSME, setEditingMSME] = useState<MSME | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedMSME, setSelectedMSME] = useState<number | null>(null);
+export default function ManageMSME() {
+  const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
+  const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
+  const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("card");
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      contactNumber: 0,
-      address: "",
-      contactPerson: "",
-      description: "",
-      image: "",
-    },
-  });
+  const Sector = sectors.find(
+    (s) => s.name.toLocaleLowerCase() === sectorName.toLocaleLowerCase(),
+  );
 
-  const filteredMSMEs = useMemo(() => {
-    return msmes.filter((msme) =>
-      Object.values(msme).some(
-        (value) =>
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
+  const filteredMSMEs = msmes
+    .filter((msme) => msme.sectorId === Sector?.id)
+    .filter(
+      (msme) =>
+        msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        msme.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        msme.companyDescription
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        msme.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()),
     );
-  }, [msmes, searchTerm]);
 
-  const totalPages = Math.ceil(filteredMSMEs.length / ITEMS_PER_PAGE);
-  const paginatedMSMEs = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredMSMEs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredMSMEs, currentPage]);
+  const paginatedMSMEs = filteredMSMEs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
-  const handleAddMSME = (values: z.infer<typeof formSchema>) => {
-    const id =
-      msmes.length > 0 ? Math.max(...msmes.map((msme) => msme.id)) + 1 : 1;
-    setMsmes([...msmes, { id, ...values }]);
-    setShowAddForm(false);
-    form.reset();
+  const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(currentPage * itemsPerPage, filteredMSMEs.length);
+
+  const handleEdit = (msme: MSME) => {
+    setCurrentMSME(msme);
+    setIsEditMSMEModalOpen(true);
   };
 
-  const handleEditMSME = (values: z.infer<typeof formSchema>) => {
-    if (editingMSME) {
-      setMsmes(
-        msmes.map((msme) => {
-          if (msme.id === editingMSME.id) {
-            return { ...msme, ...values };
-          }
-          return msme;
-        }),
-      );
-      setShowEditForm(false);
-      setEditingMSME(null);
-    }
-  };
-
-  const handleDeleteMSME = (id: number) => {
-    setSelectedMSME(id);
-    setShowDeleteDialog(true);
-  };
-
-  const confirmDelete = () => {
-    if (selectedMSME !== null) {
-      setMsmes(msmes.filter((msme) => msme.id !== selectedMSME));
-      toast.success("MSME successfully deleted!");
-    }
-    setShowDeleteDialog(false);
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const getSectorName = (sectorId: number) => {
+    return sectors.find((s) => s.id === sectorId)?.name ?? "Unknown";
   };
 
   const renderPaginationItems = () => {
@@ -242,19 +172,129 @@ export default function ManageMSMEs() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-100 lg:flex-row">
-      <main className="flex-1 overflow-hidden bg-gray-100">
-        <div className="p-4 md:p-6">
-          <Card className="border-[#996439]">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-2xl font-bold">
-                Registered MSMEs
-              </CardTitle>
+    <div className="overflow-x-hidden">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 px-0 pb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <div className="rounded-lg bg-emerald-50 p-2">
+              <Building2 className="h-6 w-6 text-emerald-600" />
+            </div>
+            <CardTitle className="text-3xl font-bold text-gray-800">
+              {sectorName}
+            </CardTitle>
+          </div>
+          <CardDescription className="mt-1 text-lg font-bold text-gray-600">
+            Total: {filteredMSMEs?.length ?? 0} MSMEs
+          </CardDescription>
+        </div>
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    setViewMode("card");
+                    setItemsPerPage(3);
+                  }}
+                  className={cn(
+                    "h-8 w-8",
+                    viewMode === "card" &&
+                      "bg-emerald-50 text-emerald-600 hover:bg-emerald-100",
+                  )}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Card View</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    setViewMode("table");
+                    setItemsPerPage(10);
+                  }}
+                  className={cn(
+                    "h-8 w-8",
+                    viewMode === "table" &&
+                      "bg-emerald-50 text-emerald-600 hover:bg-emerald-100",
+                  )}
+                >
+                  <TableIcon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Table View</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Button
+            onClick={() => setIsAddMSMEModalOpen(true)}
+            className="bg-[#996439] hover:bg-[#996439]"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add MSME
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="px-0">
+        <div className="mb-4">
+          <div className="relative w-64">
+            <Input
+              type="text"
+              placeholder="Search MSMEs..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-10 focus:ring-emerald-600"
+            />
+            <Search
+              className="absolute left-3 top-2.5 text-gray-400"
+              size={20}
+            />
+          </div>
+        </div>
+
+        {viewMode === "table" ? (
+          <MSMETableView
+            msmes={paginatedMSMEs}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+            onDelete={handleDeleteMSME}
+            getSectorName={getSectorName}
+          />
+        ) : (
+          <div className="">
+            <MSMECardView
+              msmes={paginatedMSMEs}
+              isLoading={isLoading}
+              onEdit={handleEdit}
+              onDelete={handleDeleteMSME}
+              getSectorName={getSectorName}
+            />
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-between border-t pt-4">
+            <div className="text-sm text-gray-500">
+              Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
+              entries
+            </div>
+            <div className="flex items-center gap-2">
               <Button
-                className="bg-[#996439]"
-                onClick={() => setShowAddForm(true)}
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
               >
-                <Plus className="mr-2 h-4 w-4" /> Add MSME
+                <ChevronLeft className="h-4 w-4" />
               </Button>
             </CardHeader>
             <CardContent>
@@ -357,173 +397,30 @@ export default function ManageMSMEs() {
                   </Pagination>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
 
-      <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New MSME</DialogTitle>
-          </DialogHeader>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleAddMSME)}
-              className="space-y-8"
-            >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="contactNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Add MSME</Button>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showEditForm} onOpenChange={setShowEditForm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit MSME</DialogTitle>
-          </DialogHeader>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleEditMSME)}
-              className="space-y-8"
-            >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} defaultValue={editingMSME?.name} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input {...field} defaultValue={editingMSME?.email} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="contactNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        defaultValue={editingMSME?.contactNumber}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input {...field} defaultValue={editingMSME?.address} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Save Changes</Button>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete MSME</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this MSME? This action cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddMSMEModal
+        isOpen={isAddMSMEModalOpen}
+        onClose={() => setIsAddMSMEModalOpen(false)}
+      />
+      <EditMSMEModal
+        isOpen={isEditMSMEModalOpen}
+        onClose={() => setIsEditMSMEModalOpen(false)}
+        msme={currentMSME}
+      />
     </div>
   );
 }
