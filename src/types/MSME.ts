@@ -3,9 +3,13 @@ export type MSME = {
   companyName: string;
   companyDescription: string;
   companyLogo: string;
+  productGallery: string[];
+  majorProductLines: string[];
   contactPerson: string;
   contactNumber: string;
   email: string;
+  facebookPage: string | null;
+  instagramPage: string | null;
   provinceAddress: string;
   cityMunicipalityAddress: string;
   barangayAddress: string;

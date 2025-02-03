@@ -1,12 +1,13 @@
 "use client";
 
-import { msmeLines, sectors } from "mock_data/dummyData";
+// import { msmeLines, sectors } from "mock_data/dummyData";
 import type { MSME } from "@/types/MSME";
 import React, { useState, useMemo } from "react";
 import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Pagination } from "@/components/guest/Pagination";
+import { useMSMEContext } from "@/contexts/MSMEContext";
 
 import { Search, ArrowRight, X, Filter } from "lucide-react";
 import Image from "next/image";
@@ -22,8 +23,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 
 const itemsPerPage = 15;
+
+interface MSMEWithSectorNames extends MSME {
+  sectorName: string;
+}
 
 const municipalities = {
   "1st District": [
@@ -91,85 +97,74 @@ const municipalities = {
 };
 
 export default function GuestPage() {
+  const { msmes, sectors, isLoading } = useMSMEContext();
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<
     string[]
   >([]);
   const [sort, setSort] = useState<string>("name");
-  const [searchResult, setSearchResult] = useState<MSME[]>(msmeLines);
+  const [searchResult, setSearchResult] = useState<MSME[]>(msmes);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  const msmesWithSectorNames = useMemo(() => {
+    return msmes.map((msme) => ({
+      ...msme,
+      sectorName:
+        sectors.find((sector) => sector.id === msme.sectorId)?.name ||
+        "Unknown Sector",
+    }));
+  }, [msmes, sectors]);
+
   const searchMSME = (query: string) => {
-    setSearchResult(
-      msmeLines.filter((msme) =>
-        msme.name.toLowerCase().includes(query.toLowerCase()),
-      ),
+    return msmesWithSectorNames.filter((msme) =>
+      msme.companyName.toLowerCase().includes(query.toLowerCase()),
     );
-    setCurrentPage(1);
   };
 
-  const sortMSMEs = (MSMEs: MSME[], sortType: string) => {
+  const sortMSMEs = (msmes: MSMEWithSectorNames[], sortType: string) => {
     switch (sortType) {
       case "name":
-        return [...MSMEs].sort((a, b) => a.name.localeCompare(b.name));
+        return [...msmes].sort((a, b) =>
+          (a.companyName || "").localeCompare(b.companyName || ""),
+        );
       case "sector":
-        return [...MSMEs].sort((a, b) => a.category.localeCompare(b.category));
+        return [...msmes].sort((a, b) =>
+          (a.sectorName || "").localeCompare(b.sectorName || ""),
+        );
       case "municipality":
-        return [...MSMEs].sort((a, b) => a.address.localeCompare(b.address));
+        return [...msmes].sort((a, b) =>
+          (a.cityMunicipalityAddress || "").localeCompare(
+            b.cityMunicipalityAddress || "",
+          ),
+        );
       default:
-        return MSMEs;
+        return msmes;
     }
   };
-
-  const filteredMSME = useMemo(() => {
-    let filtered = msmeLines;
-    if (selectedSector) {
-      filtered = filtered.filter((msme) => msme.category === selectedSector);
-    }
-    if (selectedMunicipalities.length > 0) {
-      filtered = filtered.filter((msme) =>
-        selectedMunicipalities.some((municipality) =>
-          msme.address.includes(municipality),
-        ),
-      );
-    }
-    return filtered;
-  }, [selectedSector, selectedMunicipalities]);
 
   const displayedMSME = useMemo(() => {
-    const sorted = searchQuery ? searchResult : sortMSMEs(filteredMSME, sort);
+    let filtered = selectedSector
+      ? msmesWithSectorNames.filter(
+          (msme) => msme.sectorName === selectedSector,
+        )
+      : msmesWithSectorNames;
+
+    if (searchQuery) {
+      filtered = searchMSME(searchQuery);
+    }
+
+    const sorted = sortMSMEs(filtered, sort);
+
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sorted.slice(startIndex, endIndex);
-  }, [searchQuery, searchResult, filteredMSME, sort, currentPage]);
+    return sorted.slice(startIndex, startIndex + itemsPerPage);
+  }, [searchQuery, msmesWithSectorNames, sort, selectedSector, currentPage]);
 
   const totalPages = Math.ceil(
-    (searchQuery ? searchResult : filteredMSME).length / itemsPerPage,
+    (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
+      itemsPerPage,
   );
-
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-    if (query) {
-      searchMSME(query);
-    } else {
-      setSearchResult(msmeLines);
-    }
-    setCurrentPage(1);
-  };
-
-  const handleSectorChange = (sector: string) => {
-    if (sector === "All") {
-      setSelectedSector(null);
-    } else {
-      setSelectedSector(sector);
-    }
-    setSearchQuery("");
-    setSearchResult(msmeLines);
-    setCurrentPage(1);
-  };
 
   const handleSortChange = (sortType: string) => {
     setSort(sortType);
@@ -180,11 +175,22 @@ export default function GuestPage() {
     setCurrentPage(page);
   };
 
+  const handleSectorChange = (sector: string) => {
+    if (sector === "All") {
+      setSelectedSector(null);
+    } else {
+      setSelectedSector(sector);
+    }
+    setSearchQuery("");
+    setSearchResult(msmes);
+    setCurrentPage(1);
+  };
+
   const resetFilters = () => {
     setSelectedSector(null);
     setSelectedMunicipalities([]);
     setSearchQuery("");
-    setSearchResult(msmeLines);
+    setSearchResult(msmes);
     setCurrentPage(1);
     setIsFilterOpen(false);
   };
@@ -198,6 +204,14 @@ export default function GuestPage() {
       }
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -215,14 +229,14 @@ export default function GuestPage() {
             <div className="relative w-full flex-1 sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400" />
               <Input
-                onChange={handleSearch}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 type="text"
                 placeholder="Search MSMEs..."
                 className="w-full bg-white pl-10 text-[#8B4513]"
               />
             </div>
             <div className="mt-4 flex w-full gap-4 sm:mt-0 sm:w-auto">
-              <Select onValueChange={handleSortChange}>
+              <Select onValueChange={setSort}>
                 <SelectTrigger className="w-full bg-white text-[#8B4513] hover:bg-[#bb987a] hover:text-[#ffffff] active:bg-[#bb987a] active:text-[#ffffff] sm:w-[180px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -333,12 +347,12 @@ export default function GuestPage() {
           </Button>
           {sectors.slice(1).map((sector) => (
             <Button
-              key={sector}
-              variant={selectedSector === sector ? "secondary" : "outline"}
+              key={sector.id}
+              variant={selectedSector === sector.name ? "secondary" : "outline"}
               className="min-w-fit flex-grow whitespace-nowrap bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
-              onClick={() => handleSectorChange(sector)}
+              onClick={() => handleSectorChange(sector.name)}
             >
-              {sector}
+              {sector.name}
             </Button>
           ))}
         </div>
@@ -354,7 +368,7 @@ export default function GuestPage() {
                     <CardHeader className="p-0">
                       <Image
                         src={msme.productGallery[0] ?? "/placeholder.png"}
-                        alt={msme.name}
+                        alt={msme.companyName}
                         width={400}
                         height={200}
                         className="h-48 w-full object-cover"
@@ -365,22 +379,22 @@ export default function GuestPage() {
                       <div className="flex-1">
                         <div className="mb-2 flex items-center justify-between">
                           <CardTitle className="text-lg font-semibold text-[#8B4513]">
-                            {msme.name}
+                            {msme.companyName}
                           </CardTitle>
                           <Badge
                             variant="secondary"
                             className="text-xs font-normal"
                           >
-                            {msme.category}
+                            {msme.sectorName}
                           </Badge>
                         </div>
                         <p className="mb-4 line-clamp-2 text-sm text-gray-600">
-                          {msme.description}
+                          {msme.companyDescription}
                         </p>
                       </div>
                       <div className="mt-auto flex items-center justify-between text-sm">
                         <span className="max-w-[150px] truncate text-gray-500">
-                          {msme.address}
+                          {msme.cityMunicipalityAddress}
                         </span>
                         <Button
                           variant="link"

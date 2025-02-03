@@ -54,6 +54,10 @@ model MSME {
     barangayAddress         String
     yearEstablished         Int
     dti_number              Int
+    productGallery          String[]
+    majorProductLines       String[]
+    facebookPage            String?
+    instagramPage           String?
     createdAt               DateTime @default(now())
     updatedAt               DateTime @updatedAt
     sectors                 Sector @relation(fields: [sectorId], references: [id])
