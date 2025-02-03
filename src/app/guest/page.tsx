@@ -7,7 +7,6 @@ import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-
 import { Search, ArrowRight, X, Filter } from "lucide-react";
 
 import Image from "next/image";
@@ -44,6 +43,31 @@ interface LocalMSME {
   contactNumber: string;
   productGallery: string[];
   majorProductLines: never[];
+}
+
+function mapLocalMSMEtoMSME(local: LocalMSME): MSME {
+  return {
+    id: local.id,
+    companyName: local.name,
+    companyDescription: local.description,
+    companyLogo: local.productGallery[0] ?? "",
+    contactPerson: local.contactPerson,
+    contactNumber: local.contactNumber,
+    email: "",
+    provinceAddress: "Iloilo",
+    cityMunicipalityAddress: local.address,
+    barangayAddress: "",
+    yearEstablished: new Date().getFullYear(),
+    dti_number: 0,
+    sectorId: 1,
+    createdAt: new Date(),
+    name: local.name,
+    description: local.description,
+    category: local.category,
+    address: local.address,
+    productGallery: local.productGallery,
+    majorProductLines: local.majorProductLines || [],
+  };
 }
 
 const itemsPerPage = 15;
@@ -203,7 +227,6 @@ export default function GuestPage() {
     setCurrentPage(page);
   };
 
-
   const renderPaginationItems = () => {
     const items = [];
     const maxVisible = 2; // Show 2 pages on each side of current page
@@ -281,6 +304,7 @@ export default function GuestPage() {
     }
 
     return items;
+  };
 
   const resetFilters = () => {
     setSelectedSector(null);
@@ -299,7 +323,6 @@ export default function GuestPage() {
         return [...prev, municipality];
       }
     });
-
   };
 
   return (
@@ -496,7 +519,7 @@ export default function GuestPage() {
                     </CardContent>
                   </Card>
                 </DialogTrigger>
-                <MSMEModal MSME={msme} />
+                <MSMEModal MSME={mapLocalMSMEtoMSME(msme)} />
               </Dialog>
             ))
           ) : (
