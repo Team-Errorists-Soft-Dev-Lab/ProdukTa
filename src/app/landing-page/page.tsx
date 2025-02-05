@@ -8,6 +8,7 @@ import CallToAction from "@/components/landing-page/Call-to-Action";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reference from "@/components/landing-page/Reference";
+import { SECTOR_COLORS } from "@/lib/sector-colors";
 
 const DynamicBarChart2 = dynamic(
   () => import("@/components/landing-page/BarChart"),
@@ -19,6 +20,7 @@ const DynamicBarChart2 = dynamic(
 const barChartData = [
   {
     label: "Bamboo",
+    color: SECTOR_COLORS.Bamboo,
     data: [
       { name: "Leganes", uv: 65 },
       { name: "Pavia", uv: 59 },
@@ -29,6 +31,7 @@ const barChartData = [
   },
   {
     label: "Cacao",
+    color: SECTOR_COLORS.Cacao,
     data: [
       { name: "Leganes", uv: 65 },
       { name: "Pavia", uv: 59 },
@@ -39,6 +42,7 @@ const barChartData = [
   },
   {
     label: "Coffee",
+    color: SECTOR_COLORS.Coffee,
     data: [
       { name: "Leganes", uv: 65 },
       { name: "Pavia", uv: 59 },
@@ -49,6 +53,7 @@ const barChartData = [
   },
   {
     label: "High Value Coco Products",
+    color: SECTOR_COLORS.Coconut,
     data: [
       { name: "Leganes", uv: 65 },
       { name: "Pavia", uv: 59 },
@@ -59,6 +64,7 @@ const barChartData = [
   },
   {
     label: "Homestyles and Wearables",
+    color: SECTOR_COLORS["Wearables and Homestyles"],
     data: [
       { name: "Leganes", uv: 65 },
       { name: "Pavia", uv: 59 },
@@ -69,6 +75,7 @@ const barChartData = [
   },
   {
     label: "IT-BPM",
+    color: SECTOR_COLORS["IT - BPM"],
     data: [
       { name: "Leganes", uv: 65 },
       { name: "Pavia", uv: 59 },
@@ -79,6 +86,7 @@ const barChartData = [
   },
   {
     label: "Processed Foods",
+    color: SECTOR_COLORS["Processed Foods"],
     data: [
       { name: "Leganes", uv: 65 },
       { name: "Pavia", uv: 59 },
@@ -100,7 +108,11 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 gap-6 p-12 md:grid-cols-1 lg:grid-cols-2">
           {barChartData.map((chartData, index) => (
             <div key={index}>
-              <DynamicBarChart2 data={chartData.data} label={chartData.label} />
+              <DynamicBarChart2
+                data={chartData.data}
+                label={chartData.label}
+                color={chartData.color}
+              />
             </div>
           ))}
         </div>

@@ -152,7 +152,7 @@ export function MSMETableView({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 hover:bg-emerald-50"
+                            className="h-8 w-8 hover:bg-emerald-200"
                             onClick={() => onEdit(msme)}
                           >
                             <Edit className="h-4 w-4 text-emerald-600" />
@@ -169,7 +169,7 @@ export function MSMETableView({
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 hover:bg-red-50"
+                                className="h-8 w-8 hover:bg-red-200"
                               >
                                 <Trash className="h-4 w-4 text-red-600" />
                               </Button>

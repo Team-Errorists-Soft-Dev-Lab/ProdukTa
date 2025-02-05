@@ -31,6 +31,15 @@ import {
 import { MSMETableView } from "@/components/msme/MSMETableView";
 import { MSMECardView } from "@/components/msme/MSMECardView";
 import { cn } from "@/lib/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 type ViewMode = "card" | "table";
 
@@ -70,6 +79,85 @@ export default function ManageMSME() {
 
   const getSectorName = (sectorId: number) => {
     return sectors.find((s) => s.id === sectorId)?.name ?? "Unknown";
+  };
+
+  const renderPaginationItems = () => {
+    const items = [];
+    const maxVisible = 2; // Show 2 pages on each side of current page
+
+    // Helper function to add page number
+    const addPageNumber = (pageNum: number) => {
+      items.push(
+        <PaginationItem key={pageNum}>
+          <PaginationLink
+            onClick={() => setCurrentPage(pageNum)}
+            isActive={currentPage === pageNum}
+            className={cn(
+              "min-w-9 rounded-md",
+              currentPage === pageNum
+                ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                : "text-emerald-600 hover:bg-emerald-50",
+            )}
+          >
+            {pageNum}
+          </PaginationLink>
+        </PaginationItem>,
+      );
+    };
+
+    // Always show first page
+    addPageNumber(1);
+
+    if (totalPages <= 5) {
+      // If 5 or fewer pages, show all
+      for (let i = 2; i <= totalPages; i++) {
+        addPageNumber(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        // Near start
+        for (let i = 2; i <= 4; i++) {
+          addPageNumber(i);
+        }
+        items.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis className="text-emerald-600" />
+          </PaginationItem>,
+        );
+      } else if (currentPage >= totalPages - 2) {
+        // Near end
+        items.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis className="text-emerald-600" />
+          </PaginationItem>,
+        );
+        for (let i = totalPages - 3; i < totalPages; i++) {
+          addPageNumber(i);
+        }
+      } else {
+        // In middle
+        items.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis className="text-emerald-600" />
+          </PaginationItem>,
+        );
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          addPageNumber(i);
+        }
+        items.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis className="text-emerald-600" />
+          </PaginationItem>,
+        );
+      }
+
+      // Always show last page
+      if (totalPages > 1) {
+        addPageNumber(totalPages);
+      }
+    }
+
+    return items;
   };
 
   return (
@@ -180,43 +268,34 @@ export default function ManageMSME() {
               Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
               entries
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentPage(page)}
-                    className={
-                      currentPage === page
-                        ? "bg-emerald-600 hover:bg-emerald-700"
-                        : ""
+            <Pagination>
+              <PaginationContent className="gap-2">
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
-                  >
-                    {page}
-                  </Button>
-                ),
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+                    className={cn(
+                      "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-600",
+                      currentPage === 1 && "pointer-events-none opacity-50",
+                    )}
+                  />
+                </PaginationItem>
+                {renderPaginationItems()}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    className={cn(
+                      "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-600",
+                      currentPage === totalPages &&
+                        "pointer-events-none opacity-50",
+                    )}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         )}
       </CardContent>
