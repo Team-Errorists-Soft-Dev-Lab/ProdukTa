@@ -8,8 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 import type { MSME } from "@/types/superadmin";
+import type { SortState } from "@/types/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
+import { cn } from "@/lib/utils";
 
 interface MSMETableViewProps {
   msmes: MSME[];
@@ -37,6 +39,8 @@ interface MSMETableViewProps {
   onEdit: (msme: MSME) => void;
   onDelete: (id: number) => void;
   getSectorName: (id: number) => string;
+  sortState: SortState;
+  onSort: (column: string) => void;
 }
 
 export function MSMETableView({
@@ -45,7 +49,55 @@ export function MSMETableView({
   onEdit,
   onDelete,
   getSectorName,
+  sortState,
+  onSort,
 }: MSMETableViewProps) {
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortState.column !== column) {
+      return <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400" />;
+    }
+    if (sortState.direction === "default") {
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
+    }
+    return sortState.direction === "asc" ? (
+      <ChevronUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ChevronDown className="ml-2 h-4 w-4" />
+    );
+  };
+
+  const columnWidths = {
+    companyName: "w-[250px]",
+    sector: "w-[150px]",
+    contact: "w-[200px]",
+    location: "w-[200px]",
+    dti: "w-[150px]",
+    actions: "w-[100px]",
+  };
+
+  const SortableHeader = ({
+    column,
+    children,
+  }: {
+    column: string;
+    children: React.ReactNode;
+  }) => (
+    <TableHead className={columnWidths[column as keyof typeof columnWidths]}>
+      <button
+        className={cn(
+          "inline-flex items-center whitespace-nowrap hover:text-emerald-600",
+          sortState.column === column &&
+            sortState.direction !== "default" &&
+            "font-medium text-emerald-600",
+        )}
+        onClick={() => onSort(column)}
+      >
+        {children}
+        <SortIcon column={column} />
+      </button>
+    </TableHead>
+  );
+
   if (isLoading) {
     return (
       <div className="rounded-lg border border-emerald-100 shadow-sm">
@@ -94,16 +146,18 @@ export function MSMETableView({
   }
 
   return (
-    <div className="rounded-lg border border-emerald-600 shadow-sm">
+    <div className="rounded-md border">
       <Table>
-        <TableHeader className="text-base">
+        <TableHeader className="text-lg font-extrabold">
           <TableRow>
-            <TableHead className="w-[250px]">Company Name</TableHead>
-            <TableHead>Sector</TableHead>
-            <TableHead>Contact</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead>DTI Number</TableHead>
-            <TableHead className="w-[100px] text-right">Actions</TableHead>
+            <SortableHeader column="companyName">Company Name</SortableHeader>
+            <SortableHeader column="sector">Sector</SortableHeader>
+            <SortableHeader column="contact">Contact</SortableHeader>
+            <SortableHeader column="location">Location</SortableHeader>
+            <SortableHeader column="dti">DTI Number</SortableHeader>
+            <TableHead className={columnWidths.actions + " text-right"}>
+              Actions
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -114,7 +168,9 @@ export function MSMETableView({
               "#4B5563";
             return (
               <TableRow key={msme.id}>
-                <TableCell className="font-medium">
+                <TableCell
+                  className={cn("font-medium", columnWidths.companyName)}
+                >
                   {msme.companyName}
                 </TableCell>
                 <TableCell>
