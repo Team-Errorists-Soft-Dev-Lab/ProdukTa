@@ -23,7 +23,9 @@ export default function ExportDataPage({
   const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
   const { sectorName } = params;
   const sector = sectors.find(
-    (sector) => sector.name.toLowerCase() === sectorName.toLowerCase(),
+    (sector) =>
+      sector.name.toLowerCase().replace(/\s+/g, "") ===
+      sectorName.toLowerCase(),
   );
 
   const filteredMSMEs = msmes

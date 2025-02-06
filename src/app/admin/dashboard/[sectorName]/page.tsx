@@ -22,7 +22,9 @@ export default function MSMEPage({
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const { sectorName } = params;
   const sector = sectors.find(
-    (sector) => sector.name.toLowerCase() === sectorName.toLowerCase(),
+    (sector) =>
+      sector.name.toLowerCase().replace(/\s+/g, "") ===
+      sectorName.toLowerCase(),
   );
   const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
   const filteredMSMEs = msmes.filter(
