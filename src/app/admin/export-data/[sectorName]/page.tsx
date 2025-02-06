@@ -7,6 +7,7 @@ import { MSMECardView } from "@/components/admin/exportCardView";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { Download, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 
 export default function ExportDataPage({
   params,
@@ -21,6 +22,7 @@ export default function ExportDataPage({
   const [startYear, setStartYear] = useState<string>("");
   const [endYear, setEndYear] = useState<string>("");
   const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
+  const [selectedId, setSelectedId] = useState<number[]>([]);
   const { sectorName } = params;
   const sector = sectors.find(
     (sector) =>
@@ -61,6 +63,7 @@ export default function ExportDataPage({
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedMSMEs(currentMSMEs.map((msme) => msme.id));
+      setSelectedId(currentMSMEs.map((msme) => msme.id));
     } else {
       setSelectedMSMEs([]);
     }
@@ -69,6 +72,7 @@ export default function ExportDataPage({
   const handleSelectMSME = (id: number, checked: boolean) => {
     if (checked) {
       setSelectedMSMEs([...selectedMSMEs, id]);
+      setSelectedId([...selectedId, id]);
     } else {
       setSelectedMSMEs(selectedMSMEs.filter((msmeId) => msmeId !== id));
     }
@@ -92,12 +96,19 @@ export default function ExportDataPage({
           {sectorName.toLocaleUpperCase()} MSME
         </h1>
         <div className="flex items-center gap-4">
-          <Button className="bg-[#996439] font-bold hover:bg-[#ce9261]">
-            <Download className="mr-2 h-4 w-4" /> Export Data
-            <span className="text-xl font-bold text-white">
-              [{selectedMSMEs.length}]
-            </span>
-          </Button>
+          <Link
+            href={{
+              pathname: "/admin/pdfExport",
+              query: { selectedId: JSON.stringify(selectedId) }, // Convert array to string
+            }}
+          >
+            <Button className="bg-[#996439] font-bold hover:bg-[#ce9261]">
+              <Download className="mr-2 h-4 w-4" /> Export Data
+              <span className="text-xl font-bold text-white">
+                [{selectedMSMEs.length}]
+              </span>
+            </Button>
+          </Link>
           <Button
             className="bg-[#996439] font-bold hover:bg-[#ce9261]"
             onClick={() => {
