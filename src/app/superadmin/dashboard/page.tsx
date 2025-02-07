@@ -1,15 +1,7 @@
 "use client";
 // TODO: REMOVE ALL MOCKS AND REPLACE WITH ACTUAL DATA AND API CALLS ONCE THEY ARE IMPLEMENTED
 import { useState, useEffect, useMemo } from "react";
-import {
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Mail,
-  MapPin,
-  Phone,
-  User,
-} from "lucide-react";
+import { Search, Mail, MapPin, Phone, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
@@ -20,7 +12,7 @@ import { getSectorIcon } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 import { formatDistanceToNow } from "date-fns";
-import { Button } from "@/components/ui/button";
+
 import {
   Pagination,
   PaginationContent,
