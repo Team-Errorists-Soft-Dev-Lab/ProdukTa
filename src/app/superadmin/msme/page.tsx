@@ -111,12 +111,7 @@ export default function ManageMSME() {
             )
           );
         case "dti":
-          return (
-            direction *
-            (a.dti_number?.toString() || "").localeCompare(
-              b.dti_number?.toString() || "",
-            )
-          );
+          return direction * ((a.dti_number || 0) - (b.dti_number || 0));
         default:
           return 0;
       }
