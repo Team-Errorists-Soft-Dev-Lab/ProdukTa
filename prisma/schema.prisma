@@ -52,6 +52,8 @@ model MSME {
     provinceAddress         String
     cityMunicipalityAddress String
     barangayAddress         String
+    longitude               Float
+    latitude                Float
     yearEstablished         Int
     dti_number              Int
     productGallery          String[]
