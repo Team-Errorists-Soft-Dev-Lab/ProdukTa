@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -209,6 +209,11 @@ export default function ManageMSME() {
 
     return items;
   };
+
+  // Add this useEffect to reset to page 1 when filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchTerm]);
 
   return (
     <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
