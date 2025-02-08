@@ -133,7 +133,6 @@ export default function ManageMSME() {
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisible = 2; // Show 2 pages on each side of current page
 
     // Helper function to add page number
     const addPageNumber = (pageNum: number) => {
