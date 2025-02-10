@@ -23,7 +23,7 @@ import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
-import { Map, ControlPosition } from "@vis.gl/react-google-maps";
+import { Map } from "@vis.gl/react-google-maps";
 
 interface AddMSMEModalProps {
   isOpen: boolean;
