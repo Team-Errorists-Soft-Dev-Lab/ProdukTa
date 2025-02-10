@@ -49,6 +49,7 @@
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.46.1",
     "@t3-oss/env-nextjs": "^0.10.1",
+    "@vis.gl/react-google-maps": "^1.5.1",
     "autoprefixer": "^10.4.20",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.6",

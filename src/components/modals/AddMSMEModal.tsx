@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -21,6 +23,7 @@ import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
+import { Map, ControlPosition } from "@vis.gl/react-google-maps";
 
 interface AddMSMEModalProps {
   isOpen: boolean;
@@ -43,6 +46,11 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const [yearEstablished, setYearEstablished] = useState("");
   const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
+
+  // const [clickedPosition, setClickedPosition] = useState(null);
+  // const [markerKey, setMarkerKey] = useState(0);
+  // const [selectedPlace, setSelectedPlace] = useState(null);
+  // const [address, setAddress] = useState(null);
 
   // Generate years for select (from 1900 to current year)
   const currentYear = new Date().getFullYear();
@@ -123,9 +131,13 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
     setSectorId(Number(value));
   };
 
+  const position = { lat: 10.7202, lng: 122.5621 };
+
+  // const mapId = "mapbox/streets-v11";
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
+      <DialogContent className="max-h-[95vh] max-w-[90vw] overflow-y-auto sm:max-w-[800px]">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold">
@@ -340,6 +352,48 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          </div>
+          <div className="mt-6 space-y-6">
+            <div>
+              <Label htmlFor="companyName" className="text-sm font-medium">
+                Pin Location <span className="text-red-500">*</span>
+              </Label>
+
+              <Map
+                defaultCenter={position}
+                defaultZoom={10}
+                className="h-[450px]"
+              ></Map>
+              {/* <Map
+                mapId={mapId}
+                reuseMaps={true}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  border: "1px solid black",
+                  borderRadius: "15px",
+                  overflow: "hidden",
+                }}
+                defaultCenter={{
+                  lat: 10.730833,
+                  lng: 122.548056,
+                }}
+                defaultZoom={15}
+                gestureHandling={"greedy"}
+                disableDefaultUI={true}
+                onClick={(event) => {
+                  setClickedPosition(event.detail.latLng);
+                  setMarkerKey((prevKey) => prevKey + 1);
+                  setAddress(event.detail.latLng);
+                }}
+              >
+                <CustomMapControl
+                  controlPosition={ControlPosition.TOP_CENTER}
+                  onPlaceSelect={setSelectedPlace}
+                />
+                <MapHandler place={selectedPlace} />
+              </Map> */}
             </div>
           </div>
           <div className="flex items-center justify-end gap-4">
