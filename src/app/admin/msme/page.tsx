@@ -27,7 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MSMETableView } from "@/components/msme/MSMETableView";
+import { MSMETableView } from "@/components/msme/MSMETable";
 import { MSMECardView } from "@/components/admin/cardView";
 import {
   Pagination,

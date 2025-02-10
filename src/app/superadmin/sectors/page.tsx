@@ -114,11 +114,11 @@ export default function ManageSectors() {
             return (
               <Card
                 key={sector.id}
-                className="group relative cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-lg bg-white shadow-md"
                 style={{ borderColor: sectorColor }}
               >
                 <div
-                  className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 transform opacity-5 transition-opacity duration-300 group-hover:opacity-10"
+                  className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 transform opacity-5"
                   style={{ color: sectorColor }}
                 >
                   <Icon size={96} />
@@ -126,7 +126,7 @@ export default function ManageSectors() {
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div
-                      className="rounded-full p-2 transition-transform duration-300 group-hover:scale-110"
+                      className="rounded-full p-2"
                       style={{
                         backgroundColor: `${sectorColor}20`,
                         color: sectorColor,
@@ -147,7 +147,7 @@ export default function ManageSectors() {
                 <CardContent>
                   <div className="mt-2 grid grid-cols-2 gap-4">
                     <div
-                      className="rounded-lg p-3 transition-colors duration-300"
+                      className="rounded-lg p-3"
                       style={{
                         backgroundColor: `${sectorColor}10`,
                         color: sectorColor,
@@ -159,7 +159,7 @@ export default function ManageSectors() {
                       </p>
                     </div>
                     <div
-                      className="rounded-lg p-3 transition-colors duration-300"
+                      className="rounded-lg p-3"
                       style={{
                         backgroundColor: `${sectorColor}10`,
                         color: sectorColor,
