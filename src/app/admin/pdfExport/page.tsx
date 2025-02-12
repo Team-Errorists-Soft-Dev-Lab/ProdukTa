@@ -121,7 +121,7 @@ export default function ExportData() {
       </button>
       <div
         ref={contentRef}
-        className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2"
+        className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-3"
       >
         {msmeData.length > 0 ? (
           msmeData.map((msme, index) => (
