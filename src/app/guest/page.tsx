@@ -187,7 +187,9 @@ export default function GuestPage() {
     currentPage,
     msmes,
     sectors,
-  ]); // Added msmes and sectors as dependencies
+  ]);
+
+  console.log("displayedMSME: ", displayedMSME);
 
   const totalPages = Math.ceil(
     (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
@@ -477,11 +479,7 @@ export default function GuestPage() {
                   <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
                     <CardHeader className="p-0">
                       <Image
-                        src={
-                          msme.productGallery[0]
-                            ? `/${msme.productGallery[0]}`
-                            : "/placeholder.jpg"
-                        }
+                        src={`${msme.productGallery?.[0] ?? "/placeholder.jpg"}`}
                         alt={msme.companyName}
                         width={400}
                         height={200}
