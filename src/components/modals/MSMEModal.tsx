@@ -48,7 +48,7 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
                   <CarouselItem>
                     <div className="relative aspect-square">
                       <Image
-                        src={`/${MSME.productGallery?.[0] ?? "/placeholder.jpg"}`}
+                        src={`${MSME.productGallery?.[0] ?? "/placeholder.jpg"}`}
                         alt={MSME.companyName}
                         fill
                         className="rounded-md object-cover"
