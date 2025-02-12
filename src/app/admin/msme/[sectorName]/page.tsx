@@ -52,7 +52,9 @@ export default function MSMEPage({
   const { sectorName } = params;
 
   const Sector = sectors.find(
-    (s) => s.name.toLocaleLowerCase() === sectorName.toLocaleLowerCase(),
+    (sector) =>
+      sector.name.toLowerCase().replace(/\s+/g, "") ===
+      sectorName.toLowerCase(),
   );
 
   const filteredMSMEs = msmes
