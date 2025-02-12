@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { type Admin } from "@prisma/client";
 import { handleLogin, handleSignup, handleLogout } from "@/lib/auth-handlers";
 import { toast } from "sonner";
+import LoadingPage from "@/components/loading/Loading";
 
 interface SessionResponse {
   user: Admin | null;
@@ -33,56 +34,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    let isSubscribed = true;
     const checkSession = async () => {
       try {
-        const response = await fetch("/api/auth/session");
+        const response = await fetch("/api/auth/session?" + Date.now(), {
+          credentials: "same-origin",
+        });
+
+        if (!isSubscribed) return;
+
         const data = (await response.json()) as SessionResponse;
 
-        if (data.error) {
-          throw new Error(data.error);
-        }
+        if (!response.ok) throw new Error(data.error);
 
         if (data.user) {
           setUser(data.user);
-          if (
-            window.location.pathname === "/login" ||
-            window.location.pathname === "/signup"
-          ) {
-            if (data.user.isSuperadmin) {
-              router.push("/superadmin");
-            } else {
-              const adminWithSector = await fetch(
-                `/api/admin/${data.user.id}/sector`,
-              );
-              const { sector } = (await adminWithSector.json()) as {
-                sector: { name: string };
-              };
-
-              if (sector) {
-                router.push(`/admin/dashboard/${sector.name.toLowerCase()}`);
-              } else {
-                router.push("/admin");
-              }
-            }
-          }
         } else {
-          if (
-            !/^\/(login|signup|guest|landing-page)/.exec(
-              window.location.pathname,
-            )
-          ) {
-            router.push("/login");
-          }
+          setUser(null);
         }
       } catch (error) {
         console.error("Session check failed:", error);
+        if (!isSubscribed) return;
         setUser(null);
+        if (error instanceof TypeError) {
+          setTimeout(() => void checkSession(), 1000);
+        }
       } finally {
-        setIsLoading(false);
+        if (isSubscribed) setIsLoading(false);
       }
     };
 
     void checkSession();
+    return () => {
+      isSubscribed = false;
+    };
   }, [router]);
 
   const login = async (email: string, password: string) => {
@@ -162,7 +147,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await handleLogout();
-      setUser(null);
     } catch (error) {
       console.error("Logout failed:", error);
       throw error;
@@ -180,7 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
       }}
     >
-      {children}
+      <div className="contents">{isLoading ? <LoadingPage /> : children}</div>
     </AuthContext.Provider>
   );
 }

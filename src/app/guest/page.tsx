@@ -6,9 +6,9 @@ import React, { useState, useMemo } from "react";
 import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Pagination } from "@/components/guest/Pagination";
 
 import { Search, ArrowRight, X, Filter } from "lucide-react";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,53 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
+
+interface LocalMSME {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  contactPerson: string;
+  address: string;
+  contactNumber: string;
+  productGallery: string[];
+  majorProductLines: never[];
+}
+
+function mapLocalMSMEtoMSME(local: LocalMSME): MSME {
+  return {
+    id: local.id,
+    companyName: local.name,
+    companyDescription: local.description,
+    companyLogo: local.productGallery[0] ?? "",
+    contactPerson: local.contactPerson,
+    contactNumber: local.contactNumber,
+    email: "",
+    provinceAddress: "Iloilo",
+    cityMunicipalityAddress: local.address,
+    barangayAddress: "",
+    yearEstablished: new Date().getFullYear(),
+    dti_number: 0,
+    sectorId: 1,
+    createdAt: new Date(),
+    name: local.name,
+    description: local.description,
+    category: local.category,
+    address: local.address,
+    productGallery: local.productGallery,
+    majorProductLines: local.majorProductLines || [],
+  };
+}
 
 const itemsPerPage = 15;
 
@@ -96,7 +143,7 @@ export default function GuestPage() {
     string[]
   >([]);
   const [sort, setSort] = useState<string>("name");
-  const [searchResult, setSearchResult] = useState<MSME[]>(msmeLines);
+  const [searchResult, setSearchResult] = useState<LocalMSME[]>(msmeLines);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -110,7 +157,7 @@ export default function GuestPage() {
     setCurrentPage(1);
   };
 
-  const sortMSMEs = (MSMEs: MSME[], sortType: string) => {
+  const sortMSMEs = (MSMEs: LocalMSME[], sortType: string) => {
     switch (sortType) {
       case "name":
         return [...MSMEs].sort((a, b) => a.name.localeCompare(b.name));
@@ -178,6 +225,85 @@ export default function GuestPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const renderPaginationItems = () => {
+    const items = [];
+    const maxVisible = 2; // Show 2 pages on each side of current page
+
+    // Helper function to add page number
+    const addPageNumber = (pageNum: number) => {
+      items.push(
+        <PaginationItem key={pageNum}>
+          <PaginationLink
+            onClick={() => handlePageChange(pageNum)}
+            isActive={currentPage === pageNum}
+            className={cn(
+              "min-w-9 rounded-md",
+              currentPage === pageNum
+                ? "bg-[#8B4513] text-white hover:bg-[#A0522D]"
+                : "text-[#8B4513] hover:bg-[#8B4513]/10",
+            )}
+          >
+            {pageNum}
+          </PaginationLink>
+        </PaginationItem>,
+      );
+    };
+
+    // Always show first page
+    addPageNumber(1);
+
+    if (totalPages <= 5) {
+      // If 5 or fewer pages, show all
+      for (let i = 2; i <= totalPages; i++) {
+        addPageNumber(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        // Near start
+        for (let i = 2; i <= 4; i++) {
+          addPageNumber(i);
+        }
+        items.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis className="text-[#8B4513]" />
+          </PaginationItem>,
+        );
+      } else if (currentPage >= totalPages - 2) {
+        // Near end
+        items.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis className="text-[#8B4513]" />
+          </PaginationItem>,
+        );
+        for (let i = totalPages - 3; i < totalPages; i++) {
+          addPageNumber(i);
+        }
+      } else {
+        // In middle
+        items.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis className="text-[#8B4513]" />
+          </PaginationItem>,
+        );
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          addPageNumber(i);
+        }
+        items.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis className="text-[#8B4513]" />
+          </PaginationItem>,
+        );
+      }
+
+      // Always show last page
+      if (totalPages > 1) {
+        addPageNumber(totalPages);
+      }
+    }
+
+    return items;
   };
 
   const resetFilters = () => {
@@ -393,7 +519,7 @@ export default function GuestPage() {
                     </CardContent>
                   </Card>
                 </DialogTrigger>
-                <MSMEModal MSME={msme} />
+                <MSMEModal MSME={mapLocalMSMEtoMSME(msme)} />
               </Dialog>
             ))
           ) : (
@@ -402,11 +528,38 @@ export default function GuestPage() {
             </p>
           )}
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <Pagination>
+              <PaginationContent className="gap-2">
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() =>
+                      handlePageChange(Math.max(1, currentPage - 1))
+                    }
+                    className={cn(
+                      "rounded-md border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10",
+                      currentPage === 1 && "pointer-events-none opacity-50",
+                    )}
+                  />
+                </PaginationItem>
+                {renderPaginationItems()}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() =>
+                      handlePageChange(Math.min(totalPages, currentPage + 1))
+                    }
+                    className={cn(
+                      "rounded-md border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10",
+                      currentPage === totalPages &&
+                        "pointer-events-none opacity-50",
+                    )}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
       <Footer />
     </div>

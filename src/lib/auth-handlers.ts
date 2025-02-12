@@ -10,14 +10,11 @@ import {
   createAdmin,
   validateLoginAttempt,
 } from "@/services/auth-service";
-import {
-  signInWithSupabase,
-  updateSupabaseUser,
-  signUpWithSupabase,
-  signOutFromSupabase,
-} from "@/services/supabase-auth-service";
+
+import { createClient } from "@/utils/supabase/server";
 
 export async function handleLogin(formData: FormData): Promise<AuthResponse> {
+  const supabase = await createClient();
   try {
     const parseResult = LoginSchema.safeParse({
       email: formData.get("email"),
@@ -56,16 +53,21 @@ export async function handleLogin(formData: FormData): Promise<AuthResponse> {
     }
 
     // Sign in with Supabase
-    const { error: authError } = await signInWithSupabase(email, password);
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (authError) {
       return { user: null, error: authError.message };
     }
 
     // Update user metadata
-    await updateSupabaseUser({
-      isSuperadmin: user!.isSuperadmin,
-      name: user!.name,
-      sectorId: user!.sectors[0]?.sectorId ?? 0,
+    await supabase.auth.updateUser({
+      data: {
+        isSuperadmin: user!.isSuperadmin,
+        name: user!.name,
+        sectorId: user!.sectors[0]?.sectorId ?? 0,
+      },
     });
 
     revalidatePath("/", "layout");
@@ -81,6 +83,7 @@ export async function handleLogin(formData: FormData): Promise<AuthResponse> {
 }
 
 export async function handleSignup(formData: FormData): Promise<AuthResponse> {
+  const supabase = await createClient();
   try {
     const parseResult = SignupSchema.safeParse({
       email: formData.get("email"),
@@ -116,15 +119,16 @@ export async function handleSignup(formData: FormData): Promise<AuthResponse> {
     }
 
     // Create Supabase auth user with email confirmation required
-    const { error: authError } = await signUpWithSupabase({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
-      name,
-      sectorId: sectorIdNumber,
+      options: {
+        data: { name, sectorId: sectorIdNumber },
+      },
     });
 
-    if (authError) {
-      return { user: null, error: authError.message };
+    if (error) {
+      return { user: null, error: error.message };
     }
 
     // Create admin in database
@@ -153,8 +157,9 @@ export async function handleSignup(formData: FormData): Promise<AuthResponse> {
 }
 
 export async function handleLogout(): Promise<AuthResponse> {
+  const supabase = await createClient();
   try {
-    const { error } = await signOutFromSupabase();
+    const { error } = await supabase.auth.signOut();
 
     if (error) {
       throw error;
