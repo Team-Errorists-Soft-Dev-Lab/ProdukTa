@@ -2,11 +2,10 @@
 
 // import { msmeLines, sectors } from "mock_data/dummyData";
 import type { MSME } from "@/types/MSME";
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Pagination } from "@/components/guest/Pagination";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 
 import { Search, ArrowRight, X, Filter } from "lucide-react";
@@ -35,43 +34,6 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
-
-interface LocalMSME {
-  id: number;
-  name: string;
-  category: string;
-  description: string;
-  contactPerson: string;
-  address: string;
-  contactNumber: string;
-  productGallery: string[];
-  majorProductLines: never[];
-}
-
-function mapLocalMSMEtoMSME(local: LocalMSME): MSME {
-  return {
-    id: local.id,
-    companyName: local.name,
-    companyDescription: local.description,
-    companyLogo: local.productGallery[0] ?? "",
-    contactPerson: local.contactPerson,
-    contactNumber: local.contactNumber,
-    email: "",
-    provinceAddress: "Iloilo",
-    cityMunicipalityAddress: local.address,
-    barangayAddress: "",
-    yearEstablished: new Date().getFullYear(),
-    dti_number: 0,
-    sectorId: 1,
-    createdAt: new Date(),
-    name: local.name,
-    description: local.description,
-    category: local.category,
-    address: local.address,
-    productGallery: local.productGallery,
-    majorProductLines: local.majorProductLines || [],
-  };
-}
 
 const itemsPerPage = 15;
 
@@ -156,6 +118,9 @@ export default function GuestPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  console.log("sectors: ", sectors);
+  console.log("msmes: ", msmes);
+
   const msmesWithSectorNames = useMemo(() => {
     return msmes.map((msme) => ({
       ...msme,
@@ -193,11 +158,17 @@ export default function GuestPage() {
   };
 
   const displayedMSME = useMemo(() => {
-    let filtered = selectedSector
-      ? msmesWithSectorNames.filter(
-          (msme) => msme.sectorName === selectedSector,
-        )
-      : msmesWithSectorNames;
+    let filtered = msmesWithSectorNames;
+
+    if (selectedSector) {
+      filtered = filtered.filter((msme) => msme.sectorName === selectedSector);
+    }
+
+    if (selectedMunicipalities.length > 0) {
+      filtered = filtered.filter((msme) =>
+        selectedMunicipalities.includes(msme.cityMunicipalityAddress),
+      );
+    }
 
     if (searchQuery) {
       filtered = searchMSME(searchQuery);
@@ -207,7 +178,16 @@ export default function GuestPage() {
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     return sorted.slice(startIndex, startIndex + itemsPerPage);
-  }, [searchQuery, msmesWithSectorNames, sort, selectedSector, currentPage]);
+  }, [
+    searchQuery,
+    msmesWithSectorNames,
+    sort,
+    selectedSector,
+    selectedMunicipalities,
+    currentPage,
+    msmes,
+    sectors,
+  ]); // Added msmes and sectors as dependencies
 
   const totalPages = Math.ceil(
     (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
@@ -232,10 +212,6 @@ export default function GuestPage() {
     setSearchQuery("");
     setSearchResult(msmes);
     setCurrentPage(1);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
   };
 
   const renderPaginationItems = () => {
@@ -327,13 +303,12 @@ export default function GuestPage() {
   };
 
   const handleMunicipalitySelection = (municipality: string) => {
-    setSelectedMunicipalities((prev) => {
-      if (prev.includes(municipality)) {
-        return prev.filter((item) => item !== municipality);
-      } else {
-        return [...prev, municipality];
-      }
-    });
+    setSelectedMunicipalities((prev) =>
+      prev.includes(municipality)
+        ? prev.filter((item) => item !== municipality)
+        : [...prev, municipality],
+    );
+    setCurrentPage(1);
   };
 
   if (isLoading) {
@@ -447,7 +422,11 @@ export default function GuestPage() {
                               ? "default"
                               : "outline"
                           }
-                          className={`w-full border-[#996439] bg-white text-[#171a1f] hover:bg-[#8B4513] ${selectedMunicipalities.includes(place) ? "bg-[#996439] text-white hover:bg-[#8B4513]" : ""}`}
+                          className={`w-full border-[#996439] bg-white text-[#171a1f] hover:bg-[#8B4513] ${
+                            selectedMunicipalities.includes(place)
+                              ? "bg-[#996439] text-white hover:bg-[#8B4513]"
+                              : ""
+                          }`}
                         >
                           {place}
                         </Button>
@@ -476,7 +455,7 @@ export default function GuestPage() {
           >
             All
           </Button>
-          {sectors.slice(1).map((sector) => (
+          {sectors.slice(0).map((sector) => (
             <Button
               key={sector.id}
               variant={selectedSector === sector.name ? "secondary" : "outline"}
@@ -498,7 +477,11 @@ export default function GuestPage() {
                   <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
                     <CardHeader className="p-0">
                       <Image
-                        src={msme.productGallery[0] ?? "/placeholder.png"}
+                        src={
+                          msme.productGallery[0]
+                            ? `/${msme.productGallery[0]}`
+                            : "/placeholder.jpg"
+                        }
                         alt={msme.companyName}
                         width={400}
                         height={200}
@@ -538,7 +521,7 @@ export default function GuestPage() {
                     </CardContent>
                   </Card>
                 </DialogTrigger>
-                <MSMEModal MSME={mapLocalMSMEtoMSME(msme)} />
+                <MSMEModal MSME={msme} sectorName={msme.sectorName} />
               </Dialog>
             ))
           ) : (

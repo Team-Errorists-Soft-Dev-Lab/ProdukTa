@@ -19,6 +19,8 @@ interface MSME {
   provinceAddress: string;
   cityMunicipalityAddress: string;
   barangayAddress: string;
+  longitude: number;
+  latitude: number;
   yearEstablished: number;
   dti_number: number;
   sectorId: number;

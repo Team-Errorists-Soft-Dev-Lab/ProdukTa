@@ -20,9 +20,14 @@ import { Separator } from "@/components/ui/separator";
 
 interface MSMEModalProps {
   MSME: MSME;
+  sectorName: string;
 }
 
-export default function MSMEModal({ MSME }: MSMEModalProps) {
+interface MSMEWithSectorNames extends MSME {
+  sectorName: string;
+}
+
+export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
   // Combine address fields
   const fullAddress = `${MSME.barangayAddress}, ${MSME.cityMunicipalityAddress}, ${MSME.provinceAddress}`;
 
@@ -43,7 +48,11 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
                   <CarouselItem>
                     <div className="relative aspect-square">
                       <Image
-                        src={MSME.companyLogo || "/placeholder.png"}
+                        src={
+                          MSME.companyLogo[0]
+                            ? `/${MSME.companyLogo[0]}`
+                            : "/placeholder.png"
+                        }
                         alt={MSME.companyName}
                         fill
                         className="rounded-md object-cover"
@@ -55,7 +64,7 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
                     <CarouselItem key={index}>
                       <div className="relative aspect-square">
                         <Image
-                          src={image}
+                          src={`/${image}`}
                           alt={`${MSME.companyName} product ${index + 1}`}
                           fill
                           className="rounded-md object-cover"
@@ -71,7 +80,8 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
 
             <div>
               <Badge variant="secondary" className="mb-2">
-                {MSME.category || "Uncategorized"}
+                {sectorName || "Uncategorized"}{" "}
+                {/* this is suppoesd to be sector name */}
               </Badge>
               <p className="text-sm text-muted-foreground">
                 {MSME.companyDescription}
