@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ILOILO_LOCATIONS } from "@/data/iloilo-locations";
+import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
 
 interface LocationSelectProps {
   value: string;
