@@ -21,7 +21,23 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Check, X, Trash2, Users2, Shield, UserPlus } from "lucide-react";
+import {
+  Check,
+  X,
+  Trash2,
+  Users2,
+  Shield,
+  UserPlus,
+  Coffee,
+  Candy,
+  Palmtree,
+  Monitor,
+  Shirt,
+  Utensils,
+  Sprout,
+  Store,
+  type LucideIcon,
+} from "lucide-react";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +48,37 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
+
+// Map sector names to icons
+const sectorIcons: Record<string, LucideIcon> = {
+  Coffee: Coffee,
+  Cacao: Candy,
+  Coconut: Palmtree,
+  Bamboo: Sprout,
+  "IT - BPM": Monitor,
+  "Processed Foods": Utensils,
+  "Wearables and Homestyles": Shirt,
+};
+
+// Get icon for a sector, with fallback
+function getSectorIcon(sectorName: string | undefined): LucideIcon {
+  if (!sectorName) return Store;
+
+  const parts = sectorName.split(/[&,]/);
+  for (const part of parts) {
+    const trimmedPart = part.trim();
+    const icon = sectorIcons[trimmedPart];
+    if (icon) return icon;
+
+    const matchingSector = Object.keys(sectorIcons).find((key) =>
+      trimmedPart.toLowerCase().includes(key.toLowerCase()),
+    );
+    if (matchingSector && sectorIcons[matchingSector]) {
+      return sectorIcons[matchingSector];
+    }
+  }
+  return Store;
+}
 
 export default function ManageAdmins() {
   const {
@@ -87,16 +134,22 @@ export default function ManageAdmins() {
               {activeAdmins.map((admin) => (
                 <Card
                   key={admin.id}
-                  className="group relative cursor-pointer overflow-hidden rounded-lg border border-emerald-600 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                  className="group relative overflow-hidden rounded-lg border border-emerald-600 bg-white shadow-md"
                 >
                   <div className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 transform opacity-5 transition-opacity duration-300 group-hover:opacity-10">
-                    <Shield size={96} />
+                    {React.createElement(
+                      getSectorIcon(admin.sectors[0]?.sector.name),
+                      { size: 96 },
+                    )}
                   </div>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="rounded-full bg-emerald-100 p-2 text-emerald-600 transition-transform duration-300 group-hover:scale-110">
-                          <Shield className="h-6 w-6" />
+                          {React.createElement(
+                            getSectorIcon(admin.sectors[0]?.sector.name),
+                            { className: "h-6 w-6" },
+                          )}
                         </div>
                         <div>
                           <CardTitle className="text-lg font-semibold">
@@ -149,7 +202,7 @@ export default function ManageAdmins() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-50"
+                                className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-600 hover:text-white"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Remove Access
@@ -192,16 +245,20 @@ export default function ManageAdmins() {
               {pendingAdmins.map((admin) => (
                 <Card
                   key={admin.id}
-                  className="group relative cursor-pointer overflow-hidden rounded-lg border border-yellow-600 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                  className="group relative overflow-hidden rounded-lg border border-emerald-600 bg-white shadow-md"
                 >
                   <div className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 transform opacity-5 transition-opacity duration-300 group-hover:opacity-10">
-                    <UserPlus size={96} />
+                    {React.createElement(getSectorIcon(admin.sector), {
+                      size: 96,
+                    })}
                   </div>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="rounded-full bg-yellow-100 p-2 text-yellow-600 transition-transform duration-300 group-hover:scale-110">
-                          <UserPlus className="h-6 w-6" />
+                        <div className="rounded-full bg-emerald-100 p-2 text-emerald-600 transition-transform duration-300 group-hover:scale-110">
+                          {React.createElement(getSectorIcon(admin.sector), {
+                            className: "h-6 w-6",
+                          })}
                         </div>
                         <div>
                           <CardTitle className="text-lg font-semibold">
@@ -214,7 +271,7 @@ export default function ManageAdmins() {
                       </div>
                       <Badge
                         variant="secondary"
-                        className="bg-yellow-50 text-yellow-600"
+                        className="bg-emerald-50 text-emerald-600"
                       >
                         Pending
                       </Badge>
@@ -222,8 +279,8 @@ export default function ManageAdmins() {
                   </CardHeader>
                   <CardContent>
                     <div className="mt-2 grid grid-cols-1 gap-4">
-                      <div className="rounded-lg bg-yellow-50 p-3 transition-colors duration-300 group-hover:bg-yellow-100">
-                        <p className="text-sm text-yellow-600">Sector</p>
+                      <div className="rounded-lg bg-emerald-50 p-3">
+                        <p className="text-sm text-emerald-600">Sector</p>
                         {admin.sector && (
                           <div className="mt-2">
                             <Badge
@@ -242,9 +299,9 @@ export default function ManageAdmins() {
                           </div>
                         )}
                       </div>
-                      <div className="rounded-lg bg-yellow-50 p-3 transition-colors duration-300 group-hover:bg-yellow-100">
-                        <p className="text-sm text-yellow-600">Applied</p>
-                        <p className="text-lg font-semibold text-yellow-700">
+                      <div className="rounded-lg bg-emerald-50 p-3">
+                        <p className="text-sm text-emerald-600">Applied</p>
+                        <p className="text-lg font-semibold text-emerald-700">
                           {admin.dateApplied}
                         </p>
                       </div>
@@ -258,7 +315,7 @@ export default function ManageAdmins() {
                             onClick={() => handleAcceptAdmin(admin.id)}
                             variant="outline"
                             size="sm"
-                            className="border-emerald-500 text-emerald-600 transition-colors duration-200 hover:bg-emerald-50"
+                            className="border-emerald-500 text-emerald-600 transition-colors duration-200 hover:bg-emerald-600 hover:text-white"
                           >
                             <Check className="mr-2 h-4 w-4" />
                             Accept
@@ -276,7 +333,7 @@ export default function ManageAdmins() {
                             onClick={() => handleRejectAdmin(admin.id)}
                             variant="outline"
                             size="sm"
-                            className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-50"
+                            className="border-red-500 text-red-600 transition-colors duration-200 hover:bg-red-600 hover:text-white"
                           >
                             <X className="mr-2 h-4 w-4" />
                             Reject

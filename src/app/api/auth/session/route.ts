@@ -1,23 +1,30 @@
 import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/utils/prisma/client";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user: supabaseUser },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error?.name === "AuthSessionMissingError" || !supabaseUser?.email) {
-    return Response.json({ user: null });
-  }
-
-  if (error) {
-    console.error("Unexpected auth error:", error);
-    return Response.json({ user: null });
-  }
-
   try {
+    const supabase = await createClient();
+    const {
+      data: { user: supabaseUser },
+      error: supabaseError,
+    } = await supabase.auth.getUser();
+
+    if (
+      supabaseError?.name === "AuthSessionMissingError" ||
+      !supabaseUser?.email
+    ) {
+      return NextResponse.json({ user: null }, { status: 200 });
+    }
+
+    if (supabaseError) {
+      console.error("Unexpected auth error:", supabaseError);
+      return NextResponse.json(
+        { error: "Authentication failed" },
+        { status: 401 },
+      );
+    }
+
     const user = await prisma.admin.findUnique({
       where: { email: supabaseUser.email },
       include: {
@@ -30,17 +37,23 @@ export async function GET() {
     });
 
     if (!user) {
-      return Response.json({ user: null });
+      return NextResponse.json({ user: null }, { status: 200 });
     }
 
-    return Response.json({
-      user: {
-        ...user,
-        role: user.isSuperadmin ? "superadmin" : "admin",
+    return NextResponse.json(
+      {
+        user: {
+          ...user,
+          role: user.isSuperadmin ? "superadmin" : "admin",
+        },
       },
-    });
+      { status: 200 },
+    );
   } catch (error) {
-    console.error("Database error:", error);
-    return Response.json({ user: null });
+    console.error("Server error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

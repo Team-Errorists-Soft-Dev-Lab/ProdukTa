@@ -14,7 +14,6 @@ import {
   Factory,
   ChevronLeft,
   ChevronRight,
-  Building2,
   UserCircle2,
   Store,
 } from "lucide-react";
@@ -32,31 +31,26 @@ const sidebarNavItems = [
     title: "Dashboard",
     href: "/superadmin",
     icon: LayoutDashboard,
-    description: "Overview and analytics",
   },
   {
     title: "Sectors",
     href: "/superadmin/sectors",
     icon: Factory,
-    description: "Manage business sectors",
   },
   {
     title: "Admins",
     href: "/superadmin/admins",
     icon: Users,
-    description: "Manage administrators",
   },
   {
     title: "MSMEs",
     href: "/superadmin/msme",
     icon: Store,
-    description: "Manage registered MSMEs",
   },
   {
     title: "Guest",
     href: "/guest",
     icon: UserCircle2,
-    description: "Guest portal access",
   },
 ];
 
@@ -82,26 +76,32 @@ export default function Sidebar() {
   return (
     <div
       className={cn(
-        "group/sidebar relative flex h-full flex-col border-r border-white/10 bg-gradient-to-b from-emerald-700 to-emerald-900 font-body text-white shadow-xl transition-all duration-500",
+        "group/sidebar relative flex h-full flex-col border-r border-white/10 bg-emerald-700 font-body text-white shadow-xl transition-all duration-500",
         isCollapsed ? "w-20" : "w-64",
       )}
     >
       {/* Logo and Toggle Section */}
       <div className="relative flex h-20 items-center justify-between border-b border-white/10 px-4 shadow-sm">
-        <div
-          className={cn(
-            "relative flex items-center transition-opacity duration-300",
-            isCollapsed ? "opacity-0" : "opacity-100",
-          )}
-        >
+        <div className="relative flex items-center gap-2">
           <Image
             src="/ProdukTa_Logo.png"
             alt="ProdukTa Logo"
-            className="h-12 w-auto drop-shadow-md transition-transform duration-300 hover:scale-105"
+            className={cn(
+              "w-auto drop-shadow-md transition-all duration-300",
+              isCollapsed ? "h-12" : "h-16",
+            )}
             width={500}
             height={500}
             priority
           />
+          <span
+            className={cn(
+              "text-2xl font-bold transition-opacity duration-300",
+              isCollapsed ? "opacity-0" : "opacity-100",
+            )}
+          >
+            ProdukTa
+          </span>
         </div>
         <Button
           variant="ghost"
@@ -155,16 +155,11 @@ export default function Sidebar() {
                         />
                         <span
                           className={cn(
-                            "inline-flex flex-col text-sm transition-all duration-300",
+                            "text-sm transition-all duration-300",
                             isCollapsed && "hidden",
                           )}
                         >
                           {item.title}
-                          {isActive && (
-                            <span className="text-xs font-normal text-white/60">
-                              {item.description}
-                            </span>
-                          )}
                         </span>
                         {isActive && (
                           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-white/10 to-transparent" />
@@ -175,12 +170,9 @@ export default function Sidebar() {
                   {isCollapsed && (
                     <TooltipContent
                       side="right"
-                      className="flex flex-col space-y-1 border-none bg-emerald-700 text-white shadow-xl"
+                      className="border-none bg-emerald-700 text-white shadow-xl"
                     >
                       <p className="font-medium">{item.title}</p>
-                      <p className="text-xs text-white/60">
-                        {item.description}
-                      </p>
                     </TooltipContent>
                   )}
                 </Tooltip>

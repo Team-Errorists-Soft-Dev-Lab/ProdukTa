@@ -19,4 +19,11 @@ export type MSME = {
   dti_number: number;
   sectorId: number;
   createdAt: Date;
+  // Additional properties used in modal
+  name: string;
+  description: string;
+  category: string;
+  address: string;
+  productGallery: string[];
+  majorProductLines: string[];
 };

@@ -18,7 +18,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-export default function MSMEModal({ MSME }: { MSME: MSME }) {
+interface MSMEModalProps {
+  MSME: MSME;
+}
+
+export default function MSMEModal({ MSME }: MSMEModalProps) {
+  // Combine address fields
+  const fullAddress = `${MSME.barangayAddress}, ${MSME.cityMunicipalityAddress}, ${MSME.provinceAddress}`;
+
   return (
     <DialogContent className="h-[90vh] p-0 sm:max-w-[600px]">
       <ScrollArea className="h-full">
@@ -32,11 +39,11 @@ export default function MSMEModal({ MSME }: { MSME: MSME }) {
           <div className="mt-4 grid gap-6">
             <Carousel className="mx-auto w-full max-w-xs">
               <CarouselContent>
-                {MSME.productGallery.length === 0 ? (
+                {!MSME.productGallery || MSME.productGallery.length === 0 ? (
                   <CarouselItem>
                     <div className="relative aspect-square">
                       <Image
-                        src="/placeholder.png"
+                        src={MSME.companyLogo || "/placeholder.png"}
                         alt={MSME.companyName}
                         fill
                         className="rounded-md object-cover"
@@ -44,7 +51,7 @@ export default function MSMEModal({ MSME }: { MSME: MSME }) {
                     </div>
                   </CarouselItem>
                 ) : (
-                  MSME.productGallery.map((image, index) => (
+                  MSME.productGallery.map((image: string, index: number) => (
                     <CarouselItem key={index}>
                       <div className="relative aspect-square">
                         <Image
@@ -64,7 +71,7 @@ export default function MSMEModal({ MSME }: { MSME: MSME }) {
 
             <div>
               <Badge variant="secondary" className="mb-2">
-                {MSME.sectorId}
+                {MSME.category || "Uncategorized"}
               </Badge>
               <p className="text-sm text-muted-foreground">
                 {MSME.companyDescription}
@@ -90,16 +97,18 @@ export default function MSMEModal({ MSME }: { MSME: MSME }) {
 
             <Separator />
 
-            <div>
-              <h3 className="mb-2 font-semibold">Major Product Lines</h3>
-              <div className="flex flex-wrap gap-2">
-                {MSME.majorProductLines.map((line, index) => (
-                  <Badge key={index} variant="outline">
-                    {line}
-                  </Badge>
-                ))}
+            {MSME.majorProductLines && MSME.majorProductLines.length > 0 && (
+              <div>
+                <h3 className="mb-2 font-semibold">Major Product Lines</h3>
+                <div className="flex flex-wrap gap-2">
+                  {MSME.majorProductLines.map((line: string, index: number) => (
+                    <Badge key={index} variant="outline">
+                      {line}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <Separator />
             <div className="flex justify-center space-x-4">
