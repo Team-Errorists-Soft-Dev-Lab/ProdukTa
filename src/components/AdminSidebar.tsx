@@ -32,7 +32,7 @@ export default function Sidebar() {
           const { sector }: { sector: { name: string } } =
             (await response.json()) as { sector: { name: string } };
           if (sector) {
-            setSectorPath(sector.name.toLowerCase());
+            setSectorPath(sector.name.toLowerCase().replace(/\s+/g, ""));
           }
         } catch (error) {
           console.error("Failed to fetch sector:", error);

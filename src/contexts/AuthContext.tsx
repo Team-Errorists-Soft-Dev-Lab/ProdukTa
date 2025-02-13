@@ -96,9 +96,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const adminWithSector = await fetch(`/api/admin/${authUser.id}/sector`);
       const { sector }: { sector: { name: string } } =
         (await adminWithSector.json()) as { sector: { name: string } };
-
       if (sector) {
-        router.push(`/admin/dashboard/${sector.name.toLowerCase()}`);
+        const formattedSectorName = sector.name
+          .toLowerCase()
+          .replace(/\s+/g, "");
+        router.push(`/admin/dashboard/${formattedSectorName}`);
       }
 
       return {};

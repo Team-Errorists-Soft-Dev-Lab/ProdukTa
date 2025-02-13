@@ -47,7 +47,9 @@ export function TopMunicipalitiesChart({ sectorName }: { sectorName: string }) {
 
   useEffect(() => {
     const sector = sectors.find(
-      (s) => s.name.toLowerCase() === sectorName.toLowerCase(),
+      (sector) =>
+        sector.name.toLowerCase().replace(/\s+/g, "") ===
+        sectorName.toLowerCase(),
     );
 
     if (sector) {
