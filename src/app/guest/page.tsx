@@ -118,7 +118,6 @@ export default function GuestPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  console.log("sectors: ", sectors);
   console.log("msmes: ", msmes);
 
   const msmesWithSectorNames = useMemo(() => {
@@ -479,7 +478,7 @@ export default function GuestPage() {
                   <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
                     <CardHeader className="p-0">
                       <Image
-                        src={`${msme.productGallery?.[0] ?? "/placeholder.jpg"}`}
+                        src={`/${msme.productGallery?.[0] ?? "/placeholder.jpg"}`}
                         alt={msme.companyName}
                         width={400}
                         height={200}

@@ -24,6 +24,8 @@ export async function GET() {
       provinceAddress: msme.provinceAddress,
       cityMunicipalityAddress: msme.cityMunicipalityAddress,
       barangayAddress: msme.barangayAddress,
+      latitude: msme.latitude,
+      longitude: msme.longitude,
       yearEstablished: msme.yearEstablished,
       dti_number: msme.dti_number,
       sectorId: msme.sectorId,

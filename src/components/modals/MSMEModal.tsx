@@ -17,19 +17,17 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import MapComponent from "@/components/map/MapComponent";
 
 interface MSMEModalProps {
   MSME: MSME;
   sectorName: string;
 }
 
-interface MSMEWithSectorNames extends MSME {
-  sectorName: string;
-}
-
 export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
   // Combine address fields
   const fullAddress = `${MSME.barangayAddress}, ${MSME.cityMunicipalityAddress}, ${MSME.provinceAddress}`;
+  console.log("MSME: ", MSME);
 
   return (
     <DialogContent className="h-[90vh] p-0 sm:max-w-[600px]">
@@ -76,8 +74,7 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
 
             <div>
               <Badge variant="secondary" className="mb-2">
-                {sectorName || "Uncategorized"}{" "}
-                {/* this is suppoesd to be sector name */}
+                {sectorName || "Uncategorized"}
               </Badge>
               <p className="text-sm text-muted-foreground">
                 {MSME.companyDescription}
@@ -86,18 +83,36 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
 
             <Separator />
 
-            <div className="grid gap-4 text-sm">
-              <div className="flex items-center">
-                <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{MSME.barangayAddress}</span>
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="grid flex-grow gap-2 text-sm">
+                <div className="flex items-center">
+                  <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>{MSME.barangayAddress}</span>
+                </div>
+                <div className="flex items-center">
+                  <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>{MSME.contactNumber}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="mr-2 text-muted-foreground">👤</span>
+                  <span>{MSME.contactPerson}</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{MSME.contactNumber}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="mr-2 text-muted-foreground">👤</span>
-                <span>{MSME.contactPerson}</span>
+              <div className="h-10 w-full md:h-40 md:w-40">
+                <MapComponent
+                  latitude={MSME.latitude}
+                  longitude={MSME.longitude}
+                />
+                <div>
+                  <a
+                    href={`https://www.google.com/maps?q=${MSME.latitude},${MSME.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-40 w-full md:w-40"
+                  >
+                    View in Google Maps
+                  </a>
+                </div>
               </div>
             </div>
 
