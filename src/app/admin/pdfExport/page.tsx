@@ -56,13 +56,33 @@ export default function ExportData() {
     msmeElement.style.width = `${actualMsmeWidth}mm`;
     msmeElement.style.height = `${actualMsmeHeight}mm`;
     msmeElement.style.overflow = "hidden";
-    msmeElement.innerHTML = `
+    msmeElement.style.position = "relative";
+    msmeElement.style.zIndex = "1";
+
+    // Add gradient background
+    const backgroundDiv = document.createElement("div");
+    backgroundDiv.style.position = "absolute";
+    backgroundDiv.style.top = "0";
+    backgroundDiv.style.left = "0";
+    backgroundDiv.style.width = "100%";
+    backgroundDiv.style.height = "100%";
+
+    backgroundDiv.style.zIndex = "-1";
+    msmeElement.appendChild(backgroundDiv);
+
+    // Content container with relative positioning
+    const contentDiv = document.createElement("div");
+    contentDiv.style.position = "relative";
+    contentDiv.style.zIndex = "2";
+    contentDiv.innerHTML = `
       <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">${msme.companyName}</h2>
-      <p style="font-size: 14px; margin: 6px 0;"><strong>Contact:</strong> ${msme.contactPerson}</p>
-      <p style="font-size: 14px; margin: 6px 0;"><strong>Phone:</strong> ${msme.contactNumber}</p>
-      <p style="font-size: 14px; margin: 6px 0;"><strong>Email:</strong> ${msme.email}</p>
-      <p style="font-size: 14px; margin: 6px 0;"><strong>Address:</strong> ${msme.cityMunicipalityAddress}</p>
+      <p style="font-size: 14px; margin: 6px 0;"><strong>Contact Person:</strong> ${msme.contactPerson}</p>
+      <p style="font-size: 14px; margin: 6px 0;">📞 ${msme.contactNumber}</p>
+      <p style="font-size: 14px; margin: 6px 0;">✉️ ${msme.email}</p>
+      <p style="font-size: 14px; margin: 6px 0;">📍 ${msme.cityMunicipalityAddress}</p>
     `;
+    msmeElement.appendChild(contentDiv);
+
     return msmeElement;
   };
 
@@ -94,6 +114,9 @@ export default function ExportData() {
       pageContent.style.display = "flex";
       pageContent.style.flexDirection = "column";
       pageContent.style.gap = "5mm";
+      pageContent.style.position = "relative";
+      // pageContent.style.background =
+      //   "linear-gradient(135deg, #e6f3ff 0%, #ffffff 50%, #ffebeb 100%)";
 
       // Add logo and text to the top of each page
       const headerContainer = document.createElement("div");
@@ -105,8 +128,8 @@ export default function ExportData() {
       headerContainer.style.gap = "10px";
 
       const logoContainer = document.createElement("div");
-      logoContainer.style.width = "70px";
-      logoContainer.style.height = "70px";
+      logoContainer.style.width = "100px";
+      logoContainer.style.height = "100px";
       const logo = logoImg.cloneNode(true) as HTMLImageElement;
       logo.style.width = "100%";
       logo.style.height = "100%";
