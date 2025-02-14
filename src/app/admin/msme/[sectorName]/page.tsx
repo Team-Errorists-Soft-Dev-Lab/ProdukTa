@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,7 +10,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
-  Plus,
   Search,
   LayoutGrid,
   TableIcon,
@@ -95,21 +94,21 @@ export default function MSMEPage({
 
   return (
     <div className="overflow-x-hidden">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 px-0 pb-4">
+      <CardHeader className="flex flex-col space-y-4 px-0 pb-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>
           <div className="flex items-center gap-2">
             <div className="rounded-lg bg-amber-50 p-3">
               <Store className="h-6 w-6 text-[#996439]" />
             </div>
-            <CardTitle className="text-3xl font-bold text-[#996439]">
+            <CardTitle className="text-2xl font-bold text-[#996439] sm:text-3xl">
               {sectorName.toLocaleUpperCase()}
             </CardTitle>
           </div>
-          <CardDescription className="mt-1 text-lg font-bold text-[#996439]">
+          <CardDescription className="mt-1 text-base font-bold text-[#996439] sm:text-lg">
             Total: {filteredMSMEs?.length ?? 0} MSMEs
           </CardDescription>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -178,8 +177,8 @@ export default function MSMEPage({
       </CardHeader>
       <CardContent className="px-0">
         <div className="mb-4">
-          <div className="relative flex items-center space-x-4">
-            <div className="relative w-64">
+          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
+            <div className="relative w-full sm:w-64">
               <Input
                 type="text"
                 placeholder="Search MSMEs..."
@@ -195,7 +194,7 @@ export default function MSMEPage({
                 size={20}
               />
             </div>
-            <div className="relative w-64">
+            <div className="relative w-full sm:w-64">
               <Input
                 type="text"
                 placeholder="Filter by Municipality..."
@@ -228,12 +227,12 @@ export default function MSMEPage({
         )}
 
         {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between border-t pt-4">
+          <div className="mt-4 flex flex-col items-center justify-between gap-4 border-t pt-4 sm:flex-row">
             <div className="text-sm text-gray-500">
               Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
               entries
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
