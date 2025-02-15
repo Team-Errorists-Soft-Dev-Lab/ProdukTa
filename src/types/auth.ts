@@ -1,6 +1,6 @@
 import { type Admin } from "@prisma/client";
 import { z } from "zod";
-import { AuthError } from "@supabase/supabase-js";
+import type { AuthError } from "@supabase/supabase-js";
 
 export interface AuthResponse {
   user: Admin | null;
