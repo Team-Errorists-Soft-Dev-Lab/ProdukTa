@@ -103,6 +103,10 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         dti_number: parseInt(dtiNumber),
         sectorId,
         createdAt: new Date(),
+        productGallery: [],
+        majorProductLines: [],
+        longitude: 0,
+        latitude: 0,
       });
 
       onClose();

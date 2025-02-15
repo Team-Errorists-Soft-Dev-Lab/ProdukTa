@@ -6,14 +6,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  MapPin,
-  Phone,
-  Facebook,
-  Instagram,
-  Youtube,
-} from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Facebook, Instagram } from "lucide-react";
 import type { MSME } from "@/types/MSME";
 import {
   Carousel,
@@ -24,14 +17,17 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import MapComponent from "@/components/map/MapComponent";
 
 interface MSMEModalProps {
   MSME: MSME;
+  sectorName: string;
 }
 
-export default function MSMEModal({ MSME }: MSMEModalProps) {
+export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
   // Combine address fields
   const fullAddress = `${MSME.barangayAddress}, ${MSME.cityMunicipalityAddress}, ${MSME.provinceAddress}`;
+  console.log("MSME: ", MSME);
 
   return (
     <DialogContent className="h-[90vh] p-0 sm:max-w-[600px]">
@@ -50,7 +46,7 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
                   <CarouselItem>
                     <div className="relative aspect-square">
                       <Image
-                        src={MSME.companyLogo || "/placeholder.png"}
+                        src={`${MSME.productGallery?.[0] ?? "/placeholder.jpg"}`}
                         alt={MSME.companyName}
                         fill
                         className="rounded-md object-cover"
@@ -62,7 +58,7 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
                     <CarouselItem key={index}>
                       <div className="relative aspect-square">
                         <Image
-                          src={image}
+                          src={`/${image}`}
                           alt={`${MSME.companyName} product ${index + 1}`}
                           fill
                           className="rounded-md object-cover"
@@ -78,7 +74,7 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
 
             <div>
               <Badge variant="secondary" className="mb-2">
-                {MSME.category || "Uncategorized"}
+                {sectorName || "Uncategorized"}
               </Badge>
               <p className="text-sm text-muted-foreground">
                 {MSME.companyDescription}
@@ -87,18 +83,36 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
 
             <Separator />
 
-            <div className="grid gap-4 text-sm">
-              <div className="flex items-center">
-                <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{fullAddress}</span>
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="grid flex-grow gap-2 text-sm">
+                <div className="flex items-center">
+                  <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>{MSME.barangayAddress}</span>
+                </div>
+                <div className="flex items-center">
+                  <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>{MSME.contactNumber}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="mr-2 text-muted-foreground">👤</span>
+                  <span>{MSME.contactPerson}</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>{MSME.contactNumber}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="mr-2 text-muted-foreground">👤</span>
-                <span>{MSME.contactPerson}</span>
+              <div className="h-10 w-full md:h-40 md:w-40">
+                <MapComponent
+                  latitude={MSME.latitude}
+                  longitude={MSME.longitude}
+                />
+                <div>
+                  <a
+                    href={`https://www.google.com/maps?q=${MSME.latitude},${MSME.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-40 w-full md:w-40"
+                  >
+                    View in Google Maps
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -118,17 +132,29 @@ export default function MSMEModal({ MSME }: MSMEModalProps) {
             )}
 
             <Separator />
-
             <div className="flex justify-center space-x-4">
-              <Button variant="outline" size="icon">
-                <Facebook className="h-4 w-4 text-blue-600" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Instagram className="h-4 w-4 text-pink-600" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <Youtube className="h-4 w-4 text-red-600" />
-              </Button>
+              {MSME.facebookPage && (
+                <Button variant="outline" size="icon" asChild>
+                  <a
+                    href={MSME.facebookPage}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Facebook className="h-4 w-4 text-blue-600" />
+                  </a>
+                </Button>
+              )}
+              {MSME.instagramPage && (
+                <Button variant="outline" size="icon" asChild>
+                  <a
+                    href={MSME.instagramPage}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Instagram className="h-4 w-4 text-pink-600" />
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
         </div>

@@ -110,6 +110,10 @@ export default function EditMSMEModal({
         yearEstablished: parseInt(yearEstablished),
         dti_number: parseInt(dtiNumber),
         sectorId,
+        productGallery: [],
+        majorProductLines: [],
+        longitude: 0,
+        latitude: 0,
       });
       onClose();
       setErrors({});
