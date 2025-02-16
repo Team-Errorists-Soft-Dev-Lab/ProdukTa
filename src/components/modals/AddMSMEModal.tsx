@@ -23,8 +23,8 @@ import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
-import { Map } from "@vis.gl/react-google-maps";
-
+// import { Map } from "@vis.gl/react-google-maps";
+import Map from "@/components/map/Map";
 interface AddMSMEModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -46,11 +46,6 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const [yearEstablished, setYearEstablished] = useState("");
   const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
-
-  // const [clickedPosition, setClickedPosition] = useState(null);
-  // const [markerKey, setMarkerKey] = useState(0);
-  // const [selectedPlace, setSelectedPlace] = useState(null);
-  // const [address, setAddress] = useState(null);
 
   // Generate years for select (from 1900 to current year)
   const currentYear = new Date().getFullYear();
@@ -134,10 +129,6 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const handleSectorChange = (value: string) => {
     setSectorId(Number(value));
   };
-
-  const position = { lat: 10.7202, lng: 122.5621 };
-
-  // const mapId = "mapbox/streets-v11";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -364,40 +355,9 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                 Pin Location <span className="text-red-500">*</span>
               </Label>
 
-              <Map
-                defaultCenter={position}
-                defaultZoom={10}
-                className="h-[450px]"
-              ></Map>
-              {/* <Map
-                mapId={mapId}
-                reuseMaps={true}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  border: "1px solid black",
-                  borderRadius: "15px",
-                  overflow: "hidden",
-                }}
-                defaultCenter={{
-                  lat: 10.730833,
-                  lng: 122.548056,
-                }}
-                defaultZoom={15}
-                gestureHandling={"greedy"}
-                disableDefaultUI={true}
-                onClick={(event) => {
-                  setClickedPosition(event.detail.latLng);
-                  setMarkerKey((prevKey) => prevKey + 1);
-                  setAddress(event.detail.latLng);
-                }}
-              >
-                <CustomMapControl
-                  controlPosition={ControlPosition.TOP_CENTER}
-                  onPlaceSelect={setSelectedPlace}
-                />
-                <MapHandler place={selectedPlace} />
-              </Map> */}
+              <div className="container mx-auto p-4">
+                <Map />
+              </div>
             </div>
           </div>
           <div className="flex items-center justify-end gap-4">

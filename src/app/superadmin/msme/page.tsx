@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/pagination";
 import { MSMEFilters } from "@/components/msme/MSMEFilters";
 import type { SortState, FilterState } from "@/types/table";
-import { APIProvider } from "@vis.gl/react-google-maps";
 
 export default function ManageMSME() {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
@@ -216,130 +215,128 @@ export default function ManageMSME() {
   }, [filters, searchTerm]);
 
   return (
-    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}>
-      <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
-        <div className="flex h-full flex-col">
-          <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
-            <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-emerald-50 p-2">
-                <Building2 className="h-6 w-6 text-emerald-600" />
-              </div>
-              <div>
-                <CardTitle className="text-3xl font-bold text-gray-800">
-                  Manage MSMEs
-                </CardTitle>
-                <CardDescription className="mt-1 text-lg font-bold text-gray-600">
-                  Total: {msmes?.length ?? 0} MSMEs
-                </CardDescription>
-              </div>
+    <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
+      <div className="flex h-full flex-col">
+        <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
+          <div className="flex items-center gap-2">
+            <div className="rounded-lg bg-emerald-50 p-2">
+              <Building2 className="h-6 w-6 text-emerald-600" />
             </div>
-          </CardHeader>
+            <div>
+              <CardTitle className="text-3xl font-bold text-gray-800">
+                Manage MSMEs
+              </CardTitle>
+              <CardDescription className="mt-1 text-lg font-bold text-gray-600">
+                Total: {msmes?.length ?? 0} MSMEs
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
 
-          <CardContent className="flex-1 overflow-visible px-0">
-            <div className="mb-4 flex-none">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative w-64">
-                    <Input
-                      type="text"
-                      placeholder="Search MSMEs..."
-                      value={searchTerm}
-                      onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      className="pl-10 focus-visible:outline-emerald-600"
-                    />
-                    <Search
-                      className="absolute left-3 top-2.5 text-gray-400"
-                      size={20}
-                    />
-                  </div>
-                  <MSMEFilters
-                    sectors={sectors}
-                    filters={filters}
-                    onFilterChange={setFilters}
+        <CardContent className="flex-1 overflow-visible px-0">
+          <div className="mb-4 flex-none">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative w-64">
+                  <Input
+                    type="text"
+                    placeholder="Search MSMEs..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="pl-10 focus-visible:outline-emerald-600"
+                  />
+                  <Search
+                    className="absolute left-3 top-2.5 text-gray-400"
+                    size={20}
                   />
                 </div>
-                <div className="flex justify-end">
-                  <Button
-                    onClick={() => setIsAddMSMEModalOpen(true)}
-                    className="bg-emerald-600 hover:bg-emerald-700"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add MSME
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="flex h-[calc(100%-4rem)] flex-col overflow-hidden">
-              <div className="flex-1 overflow-auto">
-                <MSMETableView
-                  msmes={paginatedMSMEs}
-                  isLoading={isLoading}
-                  onEdit={handleEdit}
-                  onDelete={handleDeleteMSME}
-                  getSectorName={getSectorName}
-                  sortState={sortState}
-                  onSort={handleSort}
+                <MSMEFilters
+                  sectors={sectors}
+                  filters={filters}
+                  onFilterChange={setFilters}
                 />
               </div>
-
-              {totalPages > 1 && (
-                <div className="flex-none border-t bg-white py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
-                      Showing {startIndex} to {endIndex} of{" "}
-                      {filteredMSMEs.length} entries
-                    </div>
-                    <Pagination>
-                      <PaginationContent className="gap-2">
-                        <PaginationItem>
-                          <PaginationPrevious
-                            onClick={() =>
-                              setCurrentPage((prev) => Math.max(prev - 1, 1))
-                            }
-                            className={cn(
-                              "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
-                              currentPage === 1 &&
-                                "pointer-events-none opacity-50",
-                            )}
-                          />
-                        </PaginationItem>
-                        {renderPaginationItems()}
-                        <PaginationItem>
-                          <PaginationNext
-                            onClick={() =>
-                              setCurrentPage((prev) =>
-                                Math.min(prev + 1, totalPages),
-                              )
-                            }
-                            className={cn(
-                              "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
-                              currentPage === totalPages &&
-                                "pointer-events-none opacity-50",
-                            )}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
-                  </div>
-                </div>
-              )}
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => setIsAddMSMEModalOpen(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add MSME
+                </Button>
+              </div>
             </div>
-          </CardContent>
-        </div>
+          </div>
+          <div className="flex h-[calc(100%-4rem)] flex-col overflow-hidden">
+            <div className="flex-1 overflow-auto">
+              <MSMETableView
+                msmes={paginatedMSMEs}
+                isLoading={isLoading}
+                onEdit={handleEdit}
+                onDelete={handleDeleteMSME}
+                getSectorName={getSectorName}
+                sortState={sortState}
+                onSort={handleSort}
+              />
+            </div>
 
-        <AddMSMEModal
-          isOpen={isAddMSMEModalOpen}
-          onClose={() => setIsAddMSMEModalOpen(false)}
-        />
-        <EditMSMEModal
-          isOpen={isEditMSMEModalOpen}
-          onClose={() => setIsEditMSMEModalOpen(false)}
-          msme={currentMSME}
-        />
+            {totalPages > 1 && (
+              <div className="flex-none border-t bg-white py-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-500">
+                    Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
+                    entries
+                  </div>
+                  <Pagination>
+                    <PaginationContent className="gap-2">
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() =>
+                            setCurrentPage((prev) => Math.max(prev - 1, 1))
+                          }
+                          className={cn(
+                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                            currentPage === 1 &&
+                              "pointer-events-none opacity-50",
+                          )}
+                        />
+                      </PaginationItem>
+                      {renderPaginationItems()}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages),
+                            )
+                          }
+                          className={cn(
+                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                            currentPage === totalPages &&
+                              "pointer-events-none opacity-50",
+                          )}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
       </div>
-    </APIProvider>
+
+      <AddMSMEModal
+        isOpen={isAddMSMEModalOpen}
+        onClose={() => setIsAddMSMEModalOpen(false)}
+      />
+      <EditMSMEModal
+        isOpen={isEditMSMEModalOpen}
+        onClose={() => setIsEditMSMEModalOpen(false)}
+        msme={currentMSME}
+      />
+    </div>
   );
 }
