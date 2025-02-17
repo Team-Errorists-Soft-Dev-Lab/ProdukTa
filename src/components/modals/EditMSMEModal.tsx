@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import type { MSME } from "@/types/superadmin";
+import type { MSME } from "@/types/MSME";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
 
@@ -110,6 +110,10 @@ export default function EditMSMEModal({
         yearEstablished: parseInt(yearEstablished),
         dti_number: parseInt(dtiNumber),
         sectorId,
+        productGallery: msme.productGallery || [],
+        majorProductLines: msme.majorProductLines || [],
+        longitude: msme.longitude || 0,
+        latitude: msme.latitude || 0,
       });
       onClose();
       setErrors({});
