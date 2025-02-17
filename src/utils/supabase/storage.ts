@@ -1,18 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto";
+import { compressImage } from "@/utils/imageUtils";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
-const generateRandomBit = () => {
-  return crypto.randomBytes(16).toString("hex");
-};
-
 export async function deleteImage(path: string): Promise<void> {
-  const { error } = await supabase.storage.from("msme-images").remove([path]);
-  if (error) throw error;
+  try {
+    const exists = await checkImageExists(path);
+    if (!exists) return;
+
+    const { error } = await supabase.storage.from("msme-images").remove([path]);
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    throw new Error("Failed to delete image");
+  }
 }
 
 export async function uploadImage(
@@ -20,10 +24,18 @@ export async function uploadImage(
   fileName: string,
 ): Promise<string> {
   try {
-    const randomBit = generateRandomBit();
+    // Compress image before upload
+    const compressedFile = await compressImage(file);
+
+    // Generate a unique file name with timestamp
+    const timestamp = Date.now();
+    const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const uniqueFileName = `${fileName}-${timestamp}.${extension}`;
+
+    // Upload to Supabase
     const { data, error } = await supabase.storage
       .from("msme-images")
-      .upload(`${fileName}-${randomBit}`, file);
+      .upload(uniqueFileName, compressedFile);
 
     if (error || !data) {
       throw new Error(error?.message || "Image upload failed");
@@ -40,6 +52,16 @@ export async function uploadImage(
     return urlData.publicUrl;
   } catch (error) {
     console.error("Image upload error:", error);
-    throw error;
+    throw new Error("Failed to upload image");
   }
 }
+
+// Add a function to check if an image exists
+export const checkImageExists = async (path: string): Promise<boolean> => {
+  try {
+    const { data } = await supabase.storage.from("msme-images").download(path);
+    return !!data;
+  } catch {
+    return false;
+  }
+};
