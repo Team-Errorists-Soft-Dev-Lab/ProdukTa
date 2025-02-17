@@ -118,7 +118,7 @@ export default function GuestPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  console.log("msmes: ", msmes);
+  // console.log("msmes: ", msmes);
 
   const msmesWithSectorNames = useMemo(() => {
     return msmes.map((msme) => ({
@@ -188,7 +188,7 @@ export default function GuestPage() {
     sectors,
   ]);
 
-  console.log("displayedMSME: ", displayedMSME);
+  // console.log("displayedMSME: ", displayedMSME);
 
   const totalPages = Math.ceil(
     (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
@@ -476,17 +476,28 @@ export default function GuestPage() {
               <Dialog key={msme.id}>
                 <DialogTrigger asChild>
                   <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
-                    <CardHeader className="p-0">
-                      <Image
-                        src={`${msme.productGallery?.[0] ?? "/placeholder.jpg"}`}
-                        alt={msme.companyName}
-                        width={400}
-                        height={200}
-                        className="h-48 w-full object-cover"
-                      />
+                    <CardHeader className="relative p-0">
+                      <div className="relative h-48 w-full">
+                        <Image
+                          src={msme.productGallery?.[0] ?? "/placeholder.jpg"}
+                          alt={msme.companyName}
+                          fill
+                          className="object-cover"
+                        />
+                        {msme.companyLogo && (
+                          <div className="absolute -bottom-6 left-4 h-16 w-16 overflow-hidden rounded-full border-2 border-white bg-white shadow-lg">
+                            <Image
+                              src={msme.companyLogo}
+                              alt={`${msme.companyName} logo`}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </CardHeader>
 
-                    <CardContent className="flex flex-1 flex-col p-4">
+                    <CardContent className="flex flex-1 flex-col pt-8">
                       <div className="flex-1">
                         <div className="mb-2 flex items-center justify-between">
                           <CardTitle className="text-lg font-semibold text-[#8B4513]">
