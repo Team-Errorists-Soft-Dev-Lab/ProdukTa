@@ -52,16 +52,14 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
         <div className="p-6">
           <DialogHeader>
             <div className="flex items-center gap-4">
-              {MSME.companyLogo && (
-                <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-gray-200">
-                  <Image
-                    src={MSME.companyLogo}
-                    alt={`${MSME.companyName} logo`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
+              <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-gray-200">
+                <Image
+                  src={MSME.companyLogo || "/no_image_placeholder.jpg"}
+                  alt={`${MSME.companyName} logo`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <div>
                 <DialogTitle className="flex items-center text-lg font-semibold">
                   {MSME.companyName}
@@ -128,7 +126,7 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
             ) : (
               <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                 <Image
-                  src="/placeholder.jpg"
+                  src="/no_image_placeholder.jpg"
                   alt={MSME.companyName}
                   fill
                   className="object-cover"

@@ -479,21 +479,24 @@ export default function GuestPage() {
                     <CardHeader className="relative p-0">
                       <div className="relative h-48 w-full">
                         <Image
-                          src={msme.productGallery?.[0] ?? "/placeholder.jpg"}
+                          src={
+                            msme.productGallery?.[0] ??
+                            "/no_image_placeholder.jpg"
+                          }
                           alt={msme.companyName}
                           fill
                           className="object-cover"
                         />
-                        {msme.companyLogo && (
-                          <div className="absolute -bottom-6 left-4 h-16 w-16 overflow-hidden rounded-full border-2 border-white bg-white shadow-lg">
-                            <Image
-                              src={msme.companyLogo}
-                              alt={`${msme.companyName} logo`}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
+                        <div className="absolute -bottom-6 left-4 h-16 w-16 overflow-hidden rounded-full border-2 border-white bg-white shadow-lg">
+                          <Image
+                            src={
+                              msme.companyLogo || "/no_image_placeholder.jpg"
+                            }
+                            alt={`${msme.companyName} logo`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                       </div>
                     </CardHeader>
 
