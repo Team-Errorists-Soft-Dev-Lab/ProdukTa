@@ -1,33 +1,45 @@
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
 
-const BUCKET_NAME = "msme-images";
+const generateRandomBit = () => {
+  return crypto.randomBytes(16).toString("hex");
+};
 
-export async function uploadMultipleImages(files: File[]) {
-  const uploadPromises = files.map(async (file) => {
-    const fileName = `${Date.now()}-${file.name}`;
-    const { data, error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .upload(fileName, file);
-
-    if (error) throw error;
-    return data.path;
-  });
-
-  return Promise.all(uploadPromises);
-}
-
-export async function deleteMultipleImages(paths: string[]) {
-  const { error } = await supabase.storage.from(BUCKET_NAME).remove(paths);
-
+export async function deleteImage(path: string): Promise<void> {
+  const { error } = await supabase.storage.from("msme-images").remove([path]);
   if (error) throw error;
 }
 
-export function getImageUrl(path: string) {
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
+export async function uploadImage(
+  file: File,
+  fileName: string,
+): Promise<string> {
+  try {
+    const randomBit = generateRandomBit();
+    const { data, error } = await supabase.storage
+      .from("msme-images")
+      .upload(`${fileName}-${randomBit}`, file);
 
-  return data.publicUrl;
+    if (error || !data) {
+      throw new Error(error?.message || "Image upload failed");
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("msme-images")
+      .getPublicUrl(data.path);
+
+    if (!urlData?.publicUrl) {
+      throw new Error("Failed to get image URL");
+    }
+
+    return urlData.publicUrl;
+  } catch (error) {
+    console.error("Image upload error:", error);
+    throw error;
+  }
 }
