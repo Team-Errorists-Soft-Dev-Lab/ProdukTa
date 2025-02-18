@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
+import type { MSME } from "@/types/MSME";
 
 // Define the shape of the AdminContext
 interface AdminContextType {
@@ -11,22 +12,6 @@ interface AdminContextType {
   addMSME: (msme: MSME) => void;
   updateMSME: (msme: MSME) => void;
   deleteMSME: (id: number) => void;
-}
-
-interface MSME {
-  id: number;
-  companyName: string;
-  companyDescription: string;
-  companyLogo: string;
-  contactPerson: string;
-  contactNumber: string;
-  email: string;
-  provinceAddress: string;
-  cityMunicipalityAddress: string;
-  barangayAddress: string;
-  yearEstablished: number;
-  dti_number: number;
-  sectorId: number;
 }
 
 interface MSMEResponse {

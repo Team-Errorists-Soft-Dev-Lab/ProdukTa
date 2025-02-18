@@ -3,23 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
-
-interface MSME {
-  id: number;
-  companyName: string;
-  companyDescription: string;
-  companyLogo: string;
-  contactPerson: string;
-  contactNumber: string;
-  email: string;
-  provinceAddress: string;
-  cityMunicipalityAddress: string;
-  barangayAddress: string;
-  yearEstablished: number;
-  dti_number: number;
-  sectorId: number;
-  createdAt: Date;
-}
+import type { MSME } from "@/types/MSME";
 
 type CreateMSME = Omit<MSME, "id">;
 

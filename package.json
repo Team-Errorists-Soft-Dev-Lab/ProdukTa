@@ -3,12 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "prisma": {
+    "seed": "node ./prisma/seed.js"
+  },
   "scripts": {
     "build": "next build",
     "db:generate": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
@@ -70,6 +74,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.2",
+    "react-leaflet": "^4.2.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "^2.13.3",
     "simple-icons": "^13.17.0",
@@ -95,10 +100,11 @@
     "@types/chromedriver": "^81.0.5",
     "@types/eslint": "^8.56.12",
     "@types/jest": "^29.5.14",
-    "@types/node": "^20.17.6",
+    "@types/node": "^20.17.17",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/react-leaflet": "^2.8.3",
     "@types/selenium-webdriver": "^4.1.27",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
@@ -120,7 +126,7 @@
     "tailwindcss": "^3.4.15",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.3"
   },
   "ct3aMetadata": {
     "initVersion": "7.37.0"
