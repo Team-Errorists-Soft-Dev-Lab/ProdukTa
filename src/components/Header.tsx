@@ -12,7 +12,7 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-gray-200 bg-white p-4 shadow-md">
+    <header className="bg-white p-4">
       <div className="flex items-center justify-between">
         <div
           className="flex cursor-pointer items-center space-x-2"

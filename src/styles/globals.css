@@ -72,3 +72,13 @@ h6 {
     @apply bg-background text-foreground;
   }
 }
+
+/* Pagination dots color */
+.swiper-pagination-bullet {
+  @apply bg-[#996439] opacity-70 !important;
+}
+
+/* Active pagination dot */
+.swiper-pagination-bullet-active {
+  @apply bg-[#704d2d] opacity-100 !important;
+}
