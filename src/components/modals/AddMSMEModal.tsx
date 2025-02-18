@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -144,11 +144,14 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
     setSectorId(Number(value));
   };
 
-  const defaultMapCenter = {
-    // Default latitude and longitude for Iloilo City, Philippines
-    lat: 10.7202,
-    lng: 122.5621,
-  };
+  const defaultMapCenter = useMemo(
+    () => ({
+      // Default latitude and longitude for Iloilo City, Philippines
+      lat: 10.7202,
+      lng: 122.5621,
+    }),
+    [],
+  );
 
   const handleMapClick = async (event: google.maps.MapMouseEvent) => {
     if (event.latLng) {
