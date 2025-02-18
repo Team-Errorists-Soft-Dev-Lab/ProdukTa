@@ -17,6 +17,8 @@ import {
   ChevronRight,
   Store,
   SquarePlus,
+  X,
+  Check,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
@@ -31,6 +33,20 @@ import {
 import { MSMETableView } from "@/components/msme/MSMETable";
 import { MSMECardView } from "@/components/admin/cardView";
 import { cn } from "@/lib/utils";
+import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type ViewMode = "card" | "table";
 
@@ -47,7 +63,7 @@ export default function MSMEPage({
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("card");
-  const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
+  const [municipalityFilter, setMunicipalityFilter] = useState<string[]>([]);
   const { sectorName } = params;
 
   const Sector = sectors.find(
@@ -68,10 +84,8 @@ export default function MSMEPage({
           msme.contactPerson
             .toLowerCase()
             .includes(searchTerm.toLowerCase())) &&
-        (!municipalityFilter ||
-          msme.cityMunicipalityAddress
-            .toLowerCase()
-            .includes(municipalityFilter.toLowerCase())),
+        (municipalityFilter.length === 0 ||
+          municipalityFilter.includes(msme.cityMunicipalityAddress)),
     );
 
   const paginatedMSMEs = filteredMSMEs.slice(
@@ -194,14 +208,64 @@ export default function MSMEPage({
                 size={20}
               />
             </div>
-            <div className="relative w-full sm:w-64">
-              <Input
-                type="text"
-                placeholder="Filter by Municipality..."
-                className="pl-10 focus:ring-emerald-600"
-                value={municipalityFilter}
-                onChange={(e) => setMunicipalityFilter(e.target.value)}
-              />
+            <div className="relative flex w-full items-center sm:w-64">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start hover:bg-[#996439] sm:w-[200px]"
+                  >
+                    {municipalityFilter.length > 0 ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        {municipalityFilter.length} selected
+                      </>
+                    ) : (
+                      "Select locations..."
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0" align="start">
+                  <Command>
+                    <CommandList>
+                      <CommandEmpty>No location found.</CommandEmpty>
+                      <CommandGroup>
+                        {ILOILO_LOCATIONS.map((location) => (
+                          <CommandItem
+                            key={location.name}
+                            onSelect={() => {
+                              setMunicipalityFilter((prev) =>
+                                prev.includes(location.name)
+                                  ? prev.filter(
+                                      (item) => item !== location.name,
+                                    )
+                                  : [...prev, location.name],
+                              );
+                            }}
+                          >
+                            <Checkbox
+                              checked={municipalityFilter.includes(
+                                location.name,
+                              )}
+                              className="mr-2"
+                            />
+                            {location.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMunicipalityFilter([])}
+                className="ml-2 h-8 border border-[#996439] px-8 hover:bg-[#996439] lg:px-3"
+              >
+                Reset filter
+                <X className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>

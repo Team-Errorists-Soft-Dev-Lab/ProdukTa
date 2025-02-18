@@ -5,9 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MSMECardView } from "@/components/admin/exportCardView";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import { Download, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, X, Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
+import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Badge } from "@/components/ui/badge";
 
 export default function ExportDataPage({
   params,
@@ -21,7 +35,7 @@ export default function ExportDataPage({
   const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
   const [startYear, setStartYear] = useState<string>("");
   const [endYear, setEndYear] = useState<string>("");
-  const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
+  const [locationFilters, setLocationFilters] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<number[]>([]);
   const { sectorName } = params;
   const sector = sectors.find(
@@ -29,6 +43,7 @@ export default function ExportDataPage({
       sector.name.toLowerCase().replace(/\s+/g, "") ===
       sectorName.toLowerCase(),
   );
+
   const filteredMSMEs = msmes
     .filter(
       (msme) =>
@@ -40,10 +55,8 @@ export default function ExportDataPage({
         (!endYear ||
           Number.parseInt(msme.yearEstablished.toString()) <=
             Number.parseInt(endYear)) &&
-        (!municipalityFilter ||
-          msme.cityMunicipalityAddress
-            .toLowerCase()
-            .includes(municipalityFilter.toLowerCase())),
+        (locationFilters.length === 0 ||
+          locationFilters.includes(msme.cityMunicipalityAddress)),
     )
     .sort(
       (a, b) =>
@@ -83,13 +96,21 @@ export default function ExportDataPage({
   const resetAllFilters = () => {
     setStartYear("");
     setEndYear("");
-    setMunicipalityFilter("");
+    setLocationFilters([]);
     setSearchTerm("");
+  };
+
+  const toggleLocation = (location: string) => {
+    setLocationFilters((current) =>
+      current.includes(location)
+        ? current.filter((l) => l !== location)
+        : [...current, location],
+    );
   };
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredMSMEs]);
+  }, [itemsPerPage, filteredMSMEs]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -151,13 +172,44 @@ export default function ExportDataPage({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Input
-            type="text"
-            placeholder="Filter by Municipality..."
-            className="w-full sm:w-48"
-            value={municipalityFilter}
-            onChange={(e) => setMunicipalityFilter(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start hover:bg-[#996439] sm:w-[200px]"
+              >
+                {locationFilters.length > 0 ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    {locationFilters.length} selected
+                  </>
+                ) : (
+                  "Filter locations..."
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0" align="start">
+              <Command>
+                <CommandList>
+                  <CommandEmpty>No locations found.</CommandEmpty>
+                  <CommandGroup>
+                    {ILOILO_LOCATIONS.map((location) => (
+                      <CommandItem
+                        key={location.name}
+                        onSelect={() => toggleLocation(location.name)}
+                      >
+                        <Checkbox
+                          checked={locationFilters.includes(location.name)}
+                          className="mr-2"
+                        />
+                        {location.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           <div className="flex items-center gap-2">
             <Input
               type="number"
@@ -182,13 +234,28 @@ export default function ExportDataPage({
               variant="outline"
               size="icon"
               onClick={resetAllFilters}
-              className="h-10 w-10"
+              className="w-13 font-weight-bold h-10 hover:bg-[#996439]"
             >
-              <X className="h-4 w-4" />
+              Reset filters
             </Button>
           </div>
         </div>
       </div>
+      {locationFilters.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {locationFilters.map((location) => (
+            <Badge
+              key={location}
+              variant="secondary"
+              className="cursor-pointer"
+              onClick={() => toggleLocation(location)}
+            >
+              {location}
+              <X className="ml-1 h-3 w-3" />
+            </Badge>
+          ))}
+        </div>
+      )}
       <MSMECardView
         msmes={currentMSMEs}
         isLoading={isLoading}
