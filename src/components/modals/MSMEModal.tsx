@@ -18,6 +18,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import MapComponent from "@/components/map/MapComponent";
+import { useState, useEffect } from "react";
+import type { CarouselApi } from "@/components/ui/carousel";
 
 interface MSMEModalProps {
   MSME: MSME;
@@ -25,52 +27,113 @@ interface MSMEModalProps {
 }
 
 export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
+
   // Combine address fields
   const fullAddress = `${MSME.barangayAddress}, ${MSME.cityMunicipalityAddress}, ${MSME.provinceAddress}`;
-  console.log("MSME: ", MSME);
+  //console.log("MSME: ", MSME);
 
   return (
-    <DialogContent className="h-[90vh] p-0 sm:max-w-[600px]">
+    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[900px]">
       <ScrollArea className="h-full">
         <div className="p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-lg font-semibold">
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              {MSME.companyName}
-            </DialogTitle>
+            <div className="flex items-center gap-4">
+              <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-gray-200">
+                <Image
+                  src={MSME.companyLogo || "/no_image_placeholder.jpg"}
+                  alt={`${MSME.companyName} logo`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <DialogTitle className="flex items-center text-lg font-semibold">
+                  {MSME.companyName}
+                </DialogTitle>
+                <p className="text-sm text-muted-foreground">
+                  {MSME.cityMunicipalityAddress}
+                </p>
+              </div>
+            </div>
           </DialogHeader>
+
           <div className="mt-4 grid gap-6">
-            <Carousel className="mx-auto w-full max-w-xs">
-              <CarouselContent>
-                {!MSME.productGallery || MSME.productGallery.length === 0 ? (
-                  <CarouselItem>
-                    <div className="relative aspect-square">
-                      <Image
-                        src={`${MSME.productGallery?.[0] ?? "/placeholder.jpg"}`}
-                        alt={MSME.companyName}
-                        fill
-                        className="rounded-md object-cover"
-                      />
-                    </div>
-                  </CarouselItem>
-                ) : (
-                  MSME.productGallery.map((image: string, index: number) => (
-                    <CarouselItem key={index}>
-                      <div className="relative aspect-square">
-                        <Image
-                          src={`/${image}`}
-                          alt={`${MSME.companyName} product ${index + 1}`}
-                          fill
-                          className="rounded-md object-cover"
-                        />
+            {MSME.productGallery && MSME.productGallery.length > 0 ? (
+              <div className="relative">
+                <Carousel
+                  setApi={setApi}
+                  className="w-full"
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                >
+                  <CarouselContent>
+                    {MSME.productGallery.map((image, index) => (
+                      <CarouselItem key={index} className="relative">
+                        <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
+                          <Image
+                            src={image}
+                            alt={`${MSME.companyName} product ${index + 1}`}
+                            fill
+                            className="object-contain"
+                            priority={index === 0}
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {MSME.productGallery.length > 1 && (
+                    <>
+                      <div className="absolute left-4 right-4 top-1/2 flex -translate-y-1/2 justify-between">
+                        <CarouselPrevious className="relative translate-y-0" />
+                        <CarouselNext className="relative translate-y-0" />
                       </div>
-                    </CarouselItem>
-                  ))
-                )}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
+                      <div className="mt-2 flex justify-center gap-2">
+                        {MSME.productGallery.map((_, index) => (
+                          <button
+                            key={index}
+                            className={`h-2 w-2 rounded-full transition-all ${
+                              current === index + 1
+                                ? "w-4 bg-primary"
+                                : "bg-muted"
+                            }`}
+                            onClick={() => api?.scrollTo(index)}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </Carousel>
+                <div className="mt-2 text-center text-sm text-muted-foreground">
+                  Image {current} of {count}
+                </div>
+              </div>
+            ) : (
+              <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                <Image
+                  src="/no_image_placeholder.jpg"
+                  alt={MSME.companyName}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+            )}
 
             <div>
               <Badge variant="secondary" className="mb-2">

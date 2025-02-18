@@ -9,30 +9,7 @@ export async function GET() {
       },
     });
 
-    const formattedMSMEs = msmes.map((msme) => ({
-      id: msme.id,
-      companyName: msme.companyName,
-      companyDescription: msme.companyDescription,
-      companyLogo: msme.companyLogo,
-      majorProductLines: msme.majorProductLines,
-      productGallery: msme.productGallery,
-      contactPerson: msme.contactPerson,
-      contactNumber: msme.contactNumber,
-      email: msme.email,
-      facebookPage: msme.facebookPage,
-      instagramPage: msme.instagramPage,
-      provinceAddress: msme.provinceAddress,
-      cityMunicipalityAddress: msme.cityMunicipalityAddress,
-      barangayAddress: msme.barangayAddress,
-      latitude: msme.latitude,
-      longitude: msme.longitude,
-      yearEstablished: msme.yearEstablished,
-      dti_number: msme.dti_number,
-      sectorId: msme.sectorId,
-      createdAt: msme.createdAt,
-    }));
-
-    return NextResponse.json({ msmes: formattedMSMEs });
+    return NextResponse.json({ msmes });
   } catch (error) {
     console.error("Error fetching MSMEs:", error);
     return NextResponse.json(

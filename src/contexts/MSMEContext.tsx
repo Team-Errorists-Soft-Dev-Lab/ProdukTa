@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import type { MSME } from "@/types/MSME";
+import { deleteImage } from "@/utils/supabase/storage";
 
 type CreateMSME = Omit<MSME, "id">;
 
@@ -80,7 +81,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch("/api/msme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(msme), // No need to include id
+        body: JSON.stringify(msme),
       });
 
       if (!response.ok) {
@@ -116,18 +117,39 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setMSMEs((prev) => prev.map((m) => (m.id === msme.id ? msme : m)));
-
       toast.success("MSME updated successfully");
     } catch (error) {
       console.error("Error updating MSME:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to update MSME",
       );
+      throw error;
     }
   };
 
   const handleDeleteMSME = async (msmeId: number) => {
     try {
+      // Get the MSME to delete
+      const msmeToDelete = msmes.find((msme) => msme.id === msmeId);
+      if (!msmeToDelete) throw new Error("MSME not found");
+
+      // Delete associated images
+      const imagesToDelete = [];
+      if (msmeToDelete.companyLogo) {
+        imagesToDelete.push(msmeToDelete.companyLogo);
+      }
+      if (
+        msmeToDelete.productGallery &&
+        msmeToDelete.productGallery.length > 0
+      ) {
+        imagesToDelete.push(...msmeToDelete.productGallery);
+      }
+
+      // Delete images from storage if they exist
+      if (imagesToDelete.length > 0) {
+        await Promise.all(imagesToDelete.map((path) => deleteImage(path)));
+      }
+
       const response = await fetch(`/api/msme/${msmeId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -139,7 +161,6 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setMSMEs((prev) => prev.filter((msme) => msme.id !== msmeId));
-
       toast.success("MSME deleted successfully");
     } catch (error) {
       console.error("Error deleting MSME:", error);
