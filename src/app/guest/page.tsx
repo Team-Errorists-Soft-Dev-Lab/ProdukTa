@@ -124,7 +124,7 @@ export default function GuestPage() {
     return msmes.map((msme) => ({
       ...msme,
       sectorName:
-        sectors.find((sector) => sector.id === msme.sectorId)?.name ||
+        sectors.find((sector) => sector.id === msme.sectorId)?.name ??
         "Unknown Sector",
     }));
   }, [msmes, sectors]);
@@ -478,7 +478,7 @@ export default function GuestPage() {
                   <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
                     <CardHeader className="p-0">
                       <Image
-                        src={`/${msme.productGallery?.[0] ?? "/placeholder.jpg"}`}
+                        src={`${msme.productGallery?.[0] ?? "/placeholder.jpg"}`}
                         alt={msme.companyName}
                         width={400}
                         height={200}

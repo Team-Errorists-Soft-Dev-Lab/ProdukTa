@@ -90,17 +90,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (authUser.isSuperadmin) {
         router.push("/superadmin");
-      } else {
-        const adminWithSector = await fetch(`/api/admin/${authUser.id}/sector`);
-        const { sector }: { sector: { name: string } } =
-          (await adminWithSector.json()) as { sector: { name: string } };
+        return {};
+      }
 
-        if (sector) {
-          const formattedSectorName = sector.name
-            .toLowerCase()
-            .replace(/\s+/g, "");
-          router.push(`/admin/dashboard/${formattedSectorName}`);
-        }
+      const adminWithSector = await fetch(`/api/admin/${authUser.id}/sector`);
+      const { sector }: { sector: { name: string } } =
+        (await adminWithSector.json()) as { sector: { name: string } };
+      if (sector) {
+        const formattedSectorName = sector.name
+          .toLowerCase()
+          .replace(/\s+/g, "");
+        router.push(`/admin/dashboard/${formattedSectorName}`);
       }
 
       return {};

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -21,7 +23,7 @@ import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
-
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 interface AddMSMEModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,6 +45,13 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const [yearEstablished, setYearEstablished] = useState("");
   const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [productGallery, setProductGallery] = useState<string[]>([]);
+  const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
 
   // Generate years for select (from 1900 to current year)
   const currentYear = new Date().getFullYear();
@@ -74,6 +83,10 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
     return Object.keys(newErrors).length === 0;
   };
 
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -95,6 +108,10 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         dti_number: parseInt(dtiNumber),
         sectorId,
         createdAt: new Date(),
+        productGallery,
+        majorProductLines,
+        longitude,
+        latitude,
       });
 
       onClose();
@@ -112,6 +129,10 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
       setDTINumber("");
       setSectorId(null);
       setErrors({});
+      setLatitude(null);
+      setLongitude(null);
+      setProductGallery(["sample.jpg"]);
+      setMajorProductLines(["sample.jpg"]);
     } catch (error) {
       console.error("Error adding MSME:", error);
     } finally {
@@ -123,9 +144,27 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
     setSectorId(Number(value));
   };
 
+  const defaultMapCenter = {
+    // Default latitude and longitude for Iloilo City, Philippines
+    lat: 10.7202,
+    lng: 122.5621,
+  };
+
+  const handleMapClick = async (event: google.maps.MapMouseEvent) => {
+    if (event.latLng) {
+      const newMarker = {
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+      };
+      setMarker(newMarker);
+      setLatitude(newMarker.lat);
+      setLongitude(newMarker.lng);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
+      <DialogContent className="max-h-[95vh] max-w-[90vw] overflow-y-auto sm:max-w-[800px]">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold">
@@ -340,6 +379,31 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          </div>
+          <div className="mt-6 space-y-6">
+            <div>
+              <Label htmlFor="companyName" className="text-sm font-medium">
+                Pin Location <span className="text-red-500">*</span>
+              </Label>
+
+              {!isLoaded ? (
+                <div>Loading...</div>
+              ) : (
+                <div className="container mx-auto p-4">
+                  <GoogleMap
+                    mapContainerStyle={{
+                      width: "100%",
+                      height: "400px",
+                    }}
+                    center={defaultMapCenter}
+                    zoom={12}
+                    onClick={handleMapClick}
+                  >
+                    {marker && <Marker position={marker} />}
+                  </GoogleMap>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center justify-end gap-4">

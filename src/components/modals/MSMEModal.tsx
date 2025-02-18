@@ -98,22 +98,24 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
                   <span>{MSME.contactPerson}</span>
                 </div>
               </div>
-              <div className="h-10 w-full md:h-40 md:w-40">
-                <MapComponent
-                  latitude={MSME.latitude}
-                  longitude={MSME.longitude}
-                />
-                <div>
-                  <a
-                    href={`https://www.google.com/maps?q=${MSME.latitude},${MSME.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-40 w-full md:w-40"
-                  >
-                    View in Google Maps
-                  </a>
+              {MSME.latitude && MSME.longitude && (
+                <div className="h-10 w-full md:h-40 md:w-40">
+                  <MapComponent
+                    latitude={MSME.latitude}
+                    longitude={MSME.longitude}
+                  />
+                  <div>
+                    <a
+                      href={`https://www.google.com/maps?q=${MSME.latitude},${MSME.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-40 w-full md:w-40"
+                    >
+                      View in Google Maps
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <Separator />

@@ -270,7 +270,6 @@ export default function ManageMSME() {
               </div>
             </div>
           </div>
-
           <div className="flex h-[calc(100%-4rem)] flex-col overflow-hidden">
             <div className="flex-1 overflow-auto">
               <MSMETableView

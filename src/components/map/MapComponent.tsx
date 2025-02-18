@@ -2,7 +2,8 @@
 
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { LatLngExpression, Icon } from "leaflet";
+import type { LatLngExpression } from "leaflet";
+import { Icon } from "leaflet";
 
 interface MapComponentProps {
   latitude: number;
