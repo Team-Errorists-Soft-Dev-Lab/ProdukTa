@@ -86,7 +86,7 @@ export function MSMECardView({
         return (
           <Card
             key={msme.id}
-            className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            className="group relative overflow-hidden border-[#996439] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             style={{ borderColor: sectorColor }}
           >
             <div
