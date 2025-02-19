@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,7 +10,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import {
-  Plus,
   Search,
   LayoutGrid,
   TableIcon,
@@ -18,6 +17,8 @@ import {
   ChevronRight,
   Store,
   SquarePlus,
+  X,
+  Check,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
@@ -32,6 +33,20 @@ import {
 import { MSMETableView } from "@/components/msme/MSMETable";
 import { MSMECardView } from "@/components/admin/cardView";
 import { cn } from "@/lib/utils";
+import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type ViewMode = "card" | "table";
 
@@ -48,7 +63,7 @@ export default function MSMEPage({
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("card");
-  const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
+  const [municipalityFilter, setMunicipalityFilter] = useState<string[]>([]);
   const { sectorName } = params;
 
   const Sector = sectors.find(
@@ -69,10 +84,8 @@ export default function MSMEPage({
           msme.contactPerson
             .toLowerCase()
             .includes(searchTerm.toLowerCase())) &&
-        (!municipalityFilter ||
-          msme.cityMunicipalityAddress
-            .toLowerCase()
-            .includes(municipalityFilter.toLowerCase())),
+        (municipalityFilter.length === 0 ||
+          municipalityFilter.includes(msme.cityMunicipalityAddress)),
     );
 
   const paginatedMSMEs = filteredMSMEs.slice(
@@ -95,21 +108,21 @@ export default function MSMEPage({
 
   return (
     <div className="overflow-x-hidden">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 px-0 pb-4">
+      <CardHeader className="flex flex-col space-y-4 px-0 pb-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>
           <div className="flex items-center gap-2">
             <div className="rounded-lg bg-amber-50 p-3">
               <Store className="h-6 w-6 text-[#996439]" />
             </div>
-            <CardTitle className="text-3xl font-bold text-[#996439]">
+            <CardTitle className="text-2xl font-bold text-[#996439] sm:text-3xl">
               {sectorName.toLocaleUpperCase()}
             </CardTitle>
           </div>
-          <CardDescription className="mt-1 text-lg font-bold text-[#996439]">
+          <CardDescription className="mt-1 text-base font-bold text-[#996439] sm:text-lg">
             Total: {filteredMSMEs?.length ?? 0} MSMEs
           </CardDescription>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -178,8 +191,8 @@ export default function MSMEPage({
       </CardHeader>
       <CardContent className="px-0">
         <div className="mb-4">
-          <div className="relative flex items-center space-x-4">
-            <div className="relative w-64">
+          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
+            <div className="relative w-full sm:w-64">
               <Input
                 type="text"
                 placeholder="Search MSMEs..."
@@ -195,14 +208,64 @@ export default function MSMEPage({
                 size={20}
               />
             </div>
-            <div className="relative w-64">
-              <Input
-                type="text"
-                placeholder="Filter by Municipality..."
-                className="pl-10 focus:ring-emerald-600"
-                value={municipalityFilter}
-                onChange={(e) => setMunicipalityFilter(e.target.value)}
-              />
+            <div className="relative flex w-full items-center sm:w-64">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start hover:bg-[#996439] sm:w-[200px]"
+                  >
+                    {municipalityFilter.length > 0 ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        {municipalityFilter.length} selected
+                      </>
+                    ) : (
+                      "Select locations..."
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0" align="start">
+                  <Command>
+                    <CommandList>
+                      <CommandEmpty>No location found.</CommandEmpty>
+                      <CommandGroup>
+                        {ILOILO_LOCATIONS.map((location) => (
+                          <CommandItem
+                            key={location.name}
+                            onSelect={() => {
+                              setMunicipalityFilter((prev) =>
+                                prev.includes(location.name)
+                                  ? prev.filter(
+                                      (item) => item !== location.name,
+                                    )
+                                  : [...prev, location.name],
+                              );
+                            }}
+                          >
+                            <Checkbox
+                              checked={municipalityFilter.includes(
+                                location.name,
+                              )}
+                              className="mr-2"
+                            />
+                            {location.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMunicipalityFilter([])}
+                className="ml-2 h-8 border border-[#996439] px-8 hover:bg-[#996439] lg:px-3"
+              >
+                Reset filter
+                <X className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
@@ -228,12 +291,12 @@ export default function MSMEPage({
         )}
 
         {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between border-t pt-4">
+          <div className="mt-4 flex flex-col items-center justify-between gap-4 border-t pt-4 sm:flex-row">
             <div className="text-sm text-gray-500">
               Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
               entries
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
               <Button
                 variant="outline"
                 size="sm"

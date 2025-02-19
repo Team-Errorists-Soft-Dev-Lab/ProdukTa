@@ -68,62 +68,64 @@ export default function MSMEPage({
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 flex gap-4">
-        <div className="w-1/3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="w-full">
           <TopMunicipalitiesChart sectorName={sectorName} />
         </div>
-        <div className="w-1/3">
+        <div className="w-full">
           <SectorPieChart sectors={sectorData} colors={colors} />
         </div>
-        <div className="flex w-1/3 flex-col justify-between">
-          <div>
-            <h1 className="mb-4 text-2xl font-bold text-[#996439]">
-              {sectorName.toUpperCase()} MSME DASHBOARD
-            </h1>
-            <p className="mb-4 text-lg text-[#996439]">
-              Total Registered MSMEs:
-            </p>
-            <div className="flex items-center justify-center">
-              <div>
-                <TotalSectorMSMEChart
-                  totalMSMEs={filteredMSMEs.length}
-                  sectorName={sectorName}
-                />
+        <div className="flex w-full flex-col justify-between sm:col-span-2 lg:col-span-1">
+          <div className="rounded-lg border border-[#996439] p-4">
+            <div>
+              <h1 className="mb-4 text-xl font-bold text-[#996439] sm:text-2xl">
+                {sectorName.toUpperCase()} MSME DASHBOARD
+              </h1>
+              <p className="mb-4 text-base text-[#996439] sm:text-lg">
+                Total Registered MSMEs:
+              </p>
+              <div className="flex items-center justify-center">
+                <div className="w-full max-w-[200px]">
+                  <TotalSectorMSMEChart
+                    totalMSMEs={filteredMSMEs.length}
+                    sectorName={sectorName}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="space-y-4">
-            <Link href={`/admin/export-data/${sectorName}`} className="block">
-              <Button className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]">
-                <Download className="mr-2 h-4 w-4" /> Export Data
+            <div className="mt-4 space-y-4">
+              <Link href={`/admin/export-data/${sectorName}`} className="block">
+                <Button className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]">
+                  <Download className="mr-2 h-4 w-4" /> Export Data
+                </Button>
+              </Link>
+              <Button
+                className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]"
+                onClick={() => {
+                  setCurrentPage(1);
+                  setItemsPerPage(itemsPerPage === 3 ? 99999999 : 3);
+                }}
+              >
+                {itemsPerPage === 3 ? "Display All" : "Display Less"}
               </Button>
-            </Link>
-            <Button
-              className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]"
-              onClick={() => {
-                setCurrentPage(1);
-                setItemsPerPage(itemsPerPage === 3 ? 99999999 : 3);
-              }}
-            >
-              {itemsPerPage === 3 ? "Display All" : "Display Less"}
-            </Button>
-            <Input
-              type="text"
-              placeholder="Search MSMEs..."
-              className="w-full"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-            <Input
-              type="text"
-              placeholder="Filter by Municipality..."
-              className="w-full"
-              value={municipalityFilter}
-              onChange={(e) => setMunicipalityFilter(e.target.value)}
-            />
+              <Input
+                type="text"
+                placeholder="Search MSMEs..."
+                className="w-full"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+              <Input
+                type="text"
+                placeholder="Filter by Municipality..."
+                className="w-full"
+                value={municipalityFilter}
+                onChange={(e) => setMunicipalityFilter(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -133,13 +135,12 @@ export default function MSMEPage({
         isLoading={isLoading}
         getSectorName={getSectorName}
       />
-
       {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between border-t pt-4">
-          <p className="text-sm text-gray-500">
+        <div className="mt-4 flex flex-col items-center justify-between border-t pt-4 sm:flex-row">
+          <p className="mb-2 text-sm text-gray-500 sm:mb-0">
             Page {currentPage} of {totalPages}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <Button
               variant="outline"
               size="sm"

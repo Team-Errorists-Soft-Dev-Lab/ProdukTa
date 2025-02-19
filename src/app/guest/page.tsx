@@ -476,6 +476,7 @@ export default function GuestPage() {
               <Dialog key={msme.id}>
                 <DialogTrigger asChild>
                   <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
+
                     <CardHeader className="relative p-0">
                       <div className="relative h-48 w-full">
                         <Image

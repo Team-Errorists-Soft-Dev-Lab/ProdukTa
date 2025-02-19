@@ -72,6 +72,7 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
           </DialogHeader>
 
           <div className="mt-4 grid gap-6">
+
             {MSME.productGallery && MSME.productGallery.length > 0 ? (
               <div className="relative">
                 <Carousel
@@ -102,6 +103,7 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
                       <div className="absolute left-4 right-4 top-1/2 flex -translate-y-1/2 justify-between">
                         <CarouselPrevious className="relative translate-y-0" />
                         <CarouselNext className="relative translate-y-0" />
+
                       </div>
                       <div className="mt-2 flex justify-center gap-2">
                         {MSME.productGallery.map((_, index) => (
@@ -150,7 +152,7 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
               <div className="grid flex-grow gap-2 text-sm">
                 <div className="flex items-center">
                   <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <span>{MSME.barangayAddress}</span>
+                  <span>{fullAddress}</span>
                 </div>
                 <div className="flex items-center">
                   <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -199,15 +201,17 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
             <Separator />
             <div className="flex justify-center space-x-4">
               {MSME.facebookPage && (
-                <Button variant="outline" size="icon" asChild>
-                  <a
-                    href={MSME.facebookPage}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Facebook className="h-4 w-4 text-blue-600" />
-                  </a>
-                </Button>
+                <div>
+                  <Button variant="outline" size="icon" asChild>
+                    <a
+                      href={MSME.facebookPage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Facebook className="h-4 w-4 text-blue-600" />
+                    </a>
+                  </Button>
+                </div>
               )}
               {MSME.instagramPage && (
                 <Button variant="outline" size="icon" asChild>
