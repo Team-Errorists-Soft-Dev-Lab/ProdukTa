@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -19,10 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
+import { uploadImage } from "@/utils/supabase/storage";
+import { toast } from "sonner";
+import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 interface AddMSMEModalProps {
   isOpen: boolean;
@@ -45,13 +49,16 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const [yearEstablished, setYearEstablished] = useState("");
   const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(
     null,
   );
-  const [productGallery, setProductGallery] = useState<string[]>([]);
-  const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
 
   // Generate years for select (from 1900 to current year)
   const currentYear = new Date().getFullYear();
@@ -83,21 +90,47 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleLogoUpload = async (croppedFile: File) => {
+    try {
+      const fileName = `logo-${Date.now()}`;
+      const url = await uploadImage(croppedFile, fileName);
+      setCompanyLogo(url);
+      setLogoUrl(url);
+      setLogoFile(croppedFile);
+    } catch (error) {
+      toast.error("Failed to upload logo");
+    }
+  };
+
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
-    if (!sectorId) return;
+    if (!validateForm() || !sectorId) return;
 
     setIsSubmitting(true);
     try {
+      // Upload logo if selected
+      let logoUrl = companyLogo;
+      if (logoFile) {
+        const fileName = `logo-${Date.now()}`;
+        logoUrl = await uploadImage(logoFile, fileName);
+      }
+
+      // Handle product images upload
+      const imageUrls = await Promise.all(
+        selectedFiles.map((file, index) =>
+          uploadImage(file, `product-${Date.now()}-${index}`),
+        ),
+      );
+
       await handleAddMSME({
         companyName,
         companyDescription,
-        companyLogo,
+        companyLogo: logoUrl,
+        productGallery: imageUrls,
         contactPerson,
         contactNumber,
         email,
@@ -108,8 +141,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         dti_number: parseInt(dtiNumber),
         sectorId,
         createdAt: new Date(),
-        productGallery,
-        majorProductLines,
+        majorProductLines: [],
         longitude,
         latitude,
       });
@@ -128,13 +160,14 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
       setYearEstablished("");
       setDTINumber("");
       setSectorId(null);
+      setSelectedFiles([]);
       setErrors({});
+      setLogoFile(null);
       setLatitude(null);
       setLongitude(null);
-      setProductGallery(["sample.jpg"]);
-      setMajorProductLines(["sample.jpg"]);
     } catch (error) {
       console.error("Error adding MSME:", error);
+      toast.error("Failed to add MSME");
     } finally {
       setIsSubmitting(false);
     }
@@ -144,11 +177,41 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
     setSectorId(Number(value));
   };
 
-  const defaultMapCenter = {
-    // Default latitude and longitude for Iloilo City, Philippines
-    lat: 10.7202,
-    lng: 122.5621,
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
+      setSelectedFiles(files);
+
+      // Create preview URLs
+      const urls = files.map((file) => URL.createObjectURL(file));
+      setPreviewUrls(urls);
+    }
   };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const clearImageSelection = () => {
+    setSelectedFiles([]);
+    setPreviewUrls([]);
+  };
+
+  const clearLogoSelection = () => {
+    setCompanyLogo("");
+    setLogoUrl("");
+    setLogoFile(null);
+  };
+
+  const defaultMapCenter = useMemo(
+    () => ({
+      // Default latitude and longitude for Iloilo City, Philippines
+      lat: 10.7202,
+      lng: 122.5621,
+    }),
+    [],
+  );
 
   const handleMapClick = async (event: google.maps.MapMouseEvent) => {
     if (event.latLng) {
@@ -219,18 +282,36 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                 />
               </div>
               <div>
-                <Label htmlFor="companyLogo">Company Logo URL</Label>
-                <Input
-                  id="companyLogo"
-                  value={companyLogo}
-                  onChange={(e) => setCompanyLogo(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="Enter logo URL"
-                  required
-                />
-                <p className="mt-1 text-sm text-gray-500">
-                  Provide a URL to the company logo image
-                </p>
+                <Label htmlFor="companyLogo">Company Logo</Label>
+                <div className="mt-1.5 flex items-center gap-4">
+                  {logoUrl && (
+                    <div className="relative">
+                      <Image
+                        src={logoUrl}
+                        alt="Company logo"
+                        className="h-16 w-16 rounded-md object-cover"
+                        width={64}
+                        height={64}
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
+                        onClick={clearLogoSelection}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCropModalOpen(true)}
+                  >
+                    {companyLogo ? "Change Logo" : "Upload Logo"}
+                  </Button>
+                </div>
               </div>
               <div>
                 <Label htmlFor="contactPerson">Contact Person</Label>
@@ -379,6 +460,57 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="images">Product Images</Label>
+                  {previewUrls.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={clearImageSelection}
+                    >
+                      Clear Selection
+                    </Button>
+                  )}
+                </div>
+                <Input
+                  id="images"
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="mt-1.5"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Upload up to 5 images of your products or business
+                </p>
+
+                {previewUrls.length > 0 && (
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    {previewUrls.map((url, index) => (
+                      <div key={index} className="group relative">
+                        <Image
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className="h-24 w-full rounded-md object-cover"
+                          width={200}
+                          height={96}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1 h-6 w-6 rounded-full bg-red-500/80 p-1 hover:bg-red-500"
+                          onClick={() => removeFile(index)}
+                        >
+                          <X className="h-4 w-4 text-white" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="mt-6 space-y-6">
@@ -432,6 +564,13 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
           </div>
         </form>
       </DialogContent>
+
+      <ImageCropModal
+        isOpen={isCropModalOpen}
+        onClose={() => setIsCropModalOpen(false)}
+        onCropComplete={handleLogoUpload}
+        aspect={1} // Square aspect ratio
+      />
     </Dialog>
   );
 }
