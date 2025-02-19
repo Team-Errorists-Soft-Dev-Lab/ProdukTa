@@ -1,9 +1,7 @@
 "use client";
 
-// import { Card, CardHeader, CardContent } from "@mui/material";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Bar,
   BarChart,
   CartesianGrid,
   Legend,
@@ -11,7 +9,9 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Bar,
 } from "recharts";
+import { SECTOR_COLORS } from "@/lib/sector-colors";
 
 interface BarChart2Props {
   data: Array<{
@@ -19,46 +19,62 @@ interface BarChart2Props {
     uv: number;
   }>;
   label: string;
-  color?: string;
 }
 
-const BarChart2: React.FC<BarChart2Props> = ({
-  data,
-  label,
-  color = "#8B4513",
-}) => {
+const sectorMapping: Record<string, string> = {
+  "High Value Coco Product": "Coconut",
+  "Homestyles and Wearables": "Wearables and Homestyles",
+  "IT-BPM": "IT - BPM",
+};
+
+const BarChart2: React.FC<BarChart2Props> = ({ data, label }) => {
+  const normalizedLabel = sectorMapping[label] || label;
+  const color = SECTOR_COLORS[normalizedLabel] || "#8B4513";
+
   return (
-    <Card className="border-emerald-600">
-      <CardHeader className="rounded-md bg-[#996439]">
-        <CardTitle className="text-white">
-          Top 5 Municipalities for {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              width={500}
-              height={300}
-              data={data}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="uv" name={label} fill={color} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col items-center justify-center space-y-4 py-6 pb-2">
+      <Card className="w-full max-w-md border border-gray-300 shadow-lg">
+        <CardHeader
+          className="rounded-t-lg py-4 text-center"
+          style={{ backgroundColor: color }}
+        >
+          <CardTitle className="text-lg font-semibold text-white">
+            Top 5 Municipalities for {label}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="flex h-[300px] w-full justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                width={400}
+                height={300}
+                data={data}
+                margin={{
+                  top: 5,
+                  right: 20,
+                  left: 5,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip cursor={{ fill: "#f5f5f5" }} />
+                <Legend />
+                <Bar
+                  dataKey="uv"
+                  name={label}
+                  fill={color}
+                  radius={[5, 5, 0, 0]}
+                  animationDuration={1500}
+                  animationEasing="ease-out"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

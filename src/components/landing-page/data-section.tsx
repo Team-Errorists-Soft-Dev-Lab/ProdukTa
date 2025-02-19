@@ -1,119 +1,134 @@
 "use client";
 
+import { motion, useInView } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { LandingPagePieChart } from "./PieChart";
+  UsersRound,
+  Package,
+  Coffee,
+  Leaf,
+  Shirt,
+  MonitorSmartphone,
+  Utensils,
+  Droplets,
+} from "lucide-react";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
-import dynamic from "next/dynamic";
 
-const DynamicHorizontalBarChart = dynamic(
-  () => import("./HorizontalBarChart"),
-  { ssr: false },
-);
+const MSMEPerSector = [
+  { name: "Bamboo", value: 295, icon: Leaf, color: SECTOR_COLORS.Bamboo },
+  { name: "Coffee", value: 245, icon: Coffee, color: SECTOR_COLORS.Coffee },
+  { name: "Cacao", value: 215, icon: Package, color: SECTOR_COLORS.Cacao },
+  {
+    name: "High Value Coco Product",
+    value: 205,
+    icon: Droplets,
+    color: SECTOR_COLORS.Coconut,
+  },
+  {
+    name: "Homestyles and Wearables",
+    value: 195,
+    icon: Shirt,
+    color: SECTOR_COLORS["Wearables and Homestyles"],
+  },
+  {
+    name: "Processed Foods",
+    value: 130,
+    icon: Utensils,
+    color: SECTOR_COLORS["Processed Foods"],
+  },
+  {
+    name: "IT-BPM",
+    value: 85,
+    icon: MonitorSmartphone,
+    color: SECTOR_COLORS["IT - BPM"],
+  },
+];
 
-export default function DataSection() {
-  const MSMEPerSector = [
-    {
-      name: "Bamboo",
-      value: 295,
-      color: SECTOR_COLORS.Bamboo,
-    },
-    {
-      name: "Cacao",
-      value: 215,
-      color: SECTOR_COLORS.Cacao,
-    },
-    {
-      name: "Coffee",
-      value: 245,
-      color: SECTOR_COLORS.Coffee,
-    },
-    {
-      name: "High Value Coco Products",
-      value: 205,
-      color: SECTOR_COLORS.Coconut,
-    },
-    {
-      name: "Homestyles and Wearables",
-      value: 195,
-      color: SECTOR_COLORS["Wearables and Homestyles"],
-    },
-    {
-      name: "IT-BPM",
-      value: 85,
-      color: SECTOR_COLORS["IT - BPM"],
-    },
-    {
-      name: "Processed Foods",
-      value: 130,
-      color: SECTOR_COLORS["Processed Foods"],
-    },
-  ];
+const totalMSMEs = MSMEPerSector.reduce((sum, sector) => sum + sector.value, 0);
 
-  const totalMSMEs = MSMEPerSector.reduce(
-    (sum, sector) => sum + sector.value,
-    0,
-  );
+function RollingNumber({ value }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: false });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (isInView) {
+      setCount(0);
+      const interval = setInterval(() => {
+        setCount((prev) => (prev < value ? prev + 1 : value));
+      }, 10);
+      return () => clearInterval(interval);
+    }
+  }, [isInView, value]);
 
   return (
-    <section className="space-y-8 py-20">
-      <div className="container max-w-full bg-[#8B4513]">
-        <div className="w-full text-center">
-          <Card>
-            <CardHeader className="bg-[#996439]">
-              <CardTitle className="text-3xl font-bold text-white">
-                Open Data
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
-      <div className="container mx-auto px-4">
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="space-y-8">
-            <Card className="border-[#DEB887] shadow-lg">
-              <CardHeader className="rounded-t-lg bg-[#996439]">
-                <CardTitle className="text-2xl font-semibold text-white">
-                  Total Registered MSMEs
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <span className="text-4xl font-bold text-[#8B4513]">
-                    {totalMSMEs}
-                  </span>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Total registered MSMEs across all sectors
-                  </p>
+    <span ref={ref} className="text-3xl font-bold">
+      {count}
+    </span>
+  );
+}
+
+export default function DataSection() {
+  return (
+    <section className="flex justify-center bg-[#f9f8f4] py-20 pb-2">
+      <div className="w-full max-w-6xl space-y-12 px-6">
+        <motion.h2
+          className="-mt-8 text-3xl font-bold text-[#8B4513]"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ type: "spring", stiffness: 100 }}
+          viewport={{ once: false }}
+        >
+          MSME Overview
+        </motion.h2>
+
+        <motion.div
+          className="rounded-lg bg-white p-6 shadow-md"
+          whileHover={{ scale: 1.0 }}
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ type: "spring", stiffness: 100 }}
+          viewport={{ once: false }}
+        >
+          <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-3 lg:grid-cols-7">
+            {MSMEPerSector.map((sector, index) => (
+              <motion.div
+                key={index}
+                className="flex flex-col items-center space-y-2"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 100 }}
+              >
+                <div className="h-10 w-10" style={{ color: sector.color }}>
+                  <sector.icon className="h-full w-full" />
                 </div>
-              </CardContent>
-            </Card>
-            <DynamicHorizontalBarChart data={MSMEPerSector} />
+                <RollingNumber value={sector.value} />
+                <p className="text-sm text-[#120f0c]/80">{sector.name}</p>
+              </motion.div>
+            ))}
           </div>
-          <div className="space-y-4">
-            <Card className="border-[#DEB887] shadow-lg">
-              <CardHeader className="rounded-t-lg bg-[#996439]">
-                <CardTitle className="text-2xl font-semibold text-white">
-                  Sector Distribution
-                </CardTitle>
-                <CardDescription className="text-white/80">
-                  Current MSME Distribution
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6">
-                <LandingPagePieChart
-                  sectors={MSMEPerSector}
-                  colors={MSMEPerSector.map((sector) => sector.color)}
-                />
-              </CardContent>
-            </Card>
+        </motion.div>
+
+        <motion.div
+          className="flex flex-col items-start justify-center rounded-lg bg-white p-6 shadow-md"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: false }}
+        >
+          <div className="flex items-center space-x-4">
+            <motion.div whileHover={{ scale: 1.2 }}>
+              <UsersRound className="h-20 w-20 text-[#a17544]" />
+            </motion.div>
+            <motion.span
+              className="text-7xl font-bold text-[#120f0c]"
+              whileHover={{ scale: 1.2 }}
+            >
+              {totalMSMEs}
+            </motion.span>
           </div>
-        </div>
+          <p className="mt-4 text-xl text-[#120f0c]/80">
+            Total registered MSMEs across all sectors
+          </p>
+        </motion.div>
       </div>
     </section>
   );
