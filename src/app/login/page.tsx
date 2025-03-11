@@ -4,8 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
-
+import { EyeIcon, EyeOffIcon, Loader2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -67,22 +66,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#f5f0eb] to-[#e8e0d8]">
       <div className="mx-auto flex w-full max-w-6xl items-center p-4 md:p-8">
         <motion.div
-          className="w-full rounded-2xl bg-white p-8 shadow-lg md:w-1/2 lg:p-12"
+          className="w-full overflow-hidden rounded-3xl bg-white p-8 shadow-2xl md:w-1/2 lg:p-12"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
+          <div className="mb-8 flex justify-center md:justify-start">
+            <Image
+              src="/ProdukTa_Logo.png"
+              alt="ProdukTa Logo"
+              width={80}
+              height={80}
+              className="h-auto w-auto"
+            />
+          </div>
           <motion.h1
-            className="mb-6 text-3xl font-bold text-gray-800 md:text-4xl"
+            className="mb-3 text-3xl font-bold text-gray-800 md:text-4xl"
             variants={itemVariants}
           >
             Welcome back!
           </motion.h1>
           <motion.p className="mb-8 text-gray-600" variants={itemVariants}>
-            Please enter your details to log in.
+            Please enter your details to log in to your account.
           </motion.p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <motion.div variants={itemVariants}>
@@ -93,7 +101,7 @@ export default function LoginPage() {
                 Email
               </label>
               <input
-                className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition duration-150 ease-in-out focus:border-[#b08968] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
+                className="w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition duration-150 ease-in-out focus:border-[#b08968] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
                 id="email"
                 type="email"
                 placeholder="Enter your email"
@@ -103,18 +111,20 @@ export default function LoginPage() {
               />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <label
-                className="mb-2 block text-sm font-medium text-gray-700"
-                htmlFor="password"
-              >
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                  htmlFor="password"
+                >
+                  Password
+                </label>
+              </div>
               <div className="relative">
                 <input
-                  className="w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition duration-150 ease-in-out focus:border-[#b08968] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
+                  className="w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition duration-150 ease-in-out focus:border-[#b08968] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-opacity-50"
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -134,33 +144,37 @@ export default function LoginPage() {
               </div>
             </motion.div>
             {error && (
-              <motion.p
-                className="text-sm text-red-600"
+              <motion.div
+                className="rounded-lg bg-red-50 p-3 text-sm text-red-600"
                 role="alert"
                 variants={itemVariants}
               >
-                {error}
-              </motion.p>
+                <p>{error}</p>
+              </motion.div>
             )}
             <motion.div variants={itemVariants}>
               <button
-                className="flex w-full items-center justify-center rounded-lg bg-[#b08968] px-5 py-3 font-semibold text-white transition duration-150 ease-in-out hover:bg-[#9a7b5f] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-offset-2 disabled:opacity-50"
+                className="group flex w-full items-center justify-center rounded-lg bg-[#b08968] px-5 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-[#9a7b5f] focus:outline-none focus:ring-2 focus:ring-[#b08968] focus:ring-offset-2 disabled:opacity-70"
                 type="submit"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Logging in...
                   </>
                 ) : (
-                  "Login"
+                  <>
+                    Login
+                    <ArrowRight className="ml-2 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" />
+                  </>
                 )}
               </button>
             </motion.div>
           </form>
+
           <motion.p
-            className="mt-6 text-center text-sm text-gray-600"
+            className="mt-8 text-center text-sm text-gray-600"
             variants={itemVariants}
           >
             Don&apos;t have an account?{" "}
@@ -184,13 +198,19 @@ export default function LoginPage() {
             damping: 10,
           }}
         >
-          <Image
-            src="/ProdukTa_Logo.png"
-            alt="ProdukTa Logo"
-            width={400}
-            height={400}
-            className="h-auto max-w-full"
-          />
+          <div className="relative h-full w-full">
+            <div className="absolute -left-4 top-1/2 h-3/4 w-3/4 -translate-y-1/2 rounded-3xl opacity-20"></div>
+            <div className="absolute -right-4 top-1/2 h-3/4 w-3/4 -translate-y-1/2 rounded-3xl opacity-20"></div>
+            <div className="relative flex h-full w-full items-center justify-center">
+              <Image
+                src="/Produkta1.png"
+                alt="ProdukTa Logo"
+                width={400}
+                height={400}
+                className="h-auto max-w-full scale-110"
+              />
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
