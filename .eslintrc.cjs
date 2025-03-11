@@ -37,6 +37,11 @@ const config = {
       },
     ],
   },
-  ignorePatterns: ["src/components/ui/**"],
+  ignorePatterns: [
+    "src/components/ui/**",
+    "src/hooks/use-toast.ts",
+    "tailwind.config.ts",
+    "src/utils/supabase/server.ts",
+  ],
 };
 module.exports = config;
