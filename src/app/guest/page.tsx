@@ -7,7 +7,7 @@ import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-
+import Link from "next/link";
 import { Search, ArrowRight, X, Filter } from "lucide-react";
 
 import Image from "next/image";
@@ -118,8 +118,6 @@ export default function GuestPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  console.log("msmes: ", msmes);
-
   const msmesWithSectorNames = useMemo(() => {
     return msmes.map((msme) => ({
       ...msme,
@@ -187,8 +185,6 @@ export default function GuestPage() {
     msmes,
     sectors,
   ]);
-
-  console.log("displayedMSME: ", displayedMSME);
 
   const totalPages = Math.ceil(
     (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
@@ -474,51 +470,52 @@ export default function GuestPage() {
           {displayedMSME.length > 0 ? (
             displayedMSME.map((msme) => (
               <Dialog key={msme.id}>
-                <DialogTrigger asChild>
-                  <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
-                    <CardHeader className="p-0">
-                      <Image
-                        src={`${msme.productGallery?.[0] ?? "/placeholder.png"}`}
-                        alt={msme.companyName}
-                        width={400}
-                        height={200}
-                        className="h-48 w-full object-cover"
-                      />
-                    </CardHeader>
+                <Link href={`/msme/${msme.id}`} passHref>
+                  <DialogTrigger asChild>
+                    <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
+                      <CardHeader className="p-0">
+                        <Image
+                          src={`${msme.productGallery?.[0] ?? "/placeholder.png"}`}
+                          alt={msme.companyName}
+                          width={400}
+                          height={200}
+                          className="h-48 w-full object-cover"
+                        />
+                      </CardHeader>
 
-                    <CardContent className="flex flex-1 flex-col p-4">
-                      <div className="flex-1">
-                        <div className="mb-2 flex items-center justify-between">
-                          <CardTitle className="text-lg font-semibold text-[#8B4513]">
-                            {msme.companyName}
-                          </CardTitle>
-                          <Badge
-                            variant="secondary"
-                            className="text-xs font-normal"
-                          >
-                            {msme.sectorName}
-                          </Badge>
+                      <CardContent className="flex flex-1 flex-col p-4">
+                        <div className="flex-1">
+                          <div className="mb-2 flex items-center justify-between">
+                            <CardTitle className="text-lg font-semibold text-[#8B4513]">
+                              {msme.companyName}
+                            </CardTitle>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs font-normal"
+                            >
+                              {msme.sectorName}
+                            </Badge>
+                          </div>
+                          <p className="mb-4 line-clamp-2 text-sm text-gray-600">
+                            {msme.companyDescription}
+                          </p>
                         </div>
-                        <p className="mb-4 line-clamp-2 text-sm text-gray-600">
-                          {msme.companyDescription}
-                        </p>
-                      </div>
-                      <div className="mt-auto flex items-center justify-between text-sm">
-                        <span className="max-w-[150px] truncate text-gray-500">
-                          {msme.cityMunicipalityAddress}
-                        </span>
-                        <Button
-                          variant="link"
-                          className="h-auto p-0 font-normal text-[#8B4513]"
-                        >
-                          View Details
-                          <ArrowRight className="ml-1 h-3 w-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </DialogTrigger>
-                <MSMEModal MSME={msme} sectorName={msme.sectorName} />
+                        <div className="mt-auto flex items-center justify-between text-sm">
+                          <span className="max-w-[150px] truncate text-gray-500">
+                            {msme.cityMunicipalityAddress}
+                          </span>
+                          <Button
+                            variant="link"
+                            className="h-auto p-0 font-normal text-[#8B4513]"
+                          >
+                            View Details
+                            <ArrowRight className="ml-1 h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </DialogTrigger>
+                </Link>
               </Dialog>
             ))
           ) : (
@@ -564,3 +561,6 @@ export default function GuestPage() {
     </div>
   );
 }
+
+// note: make a MSME card to display MSME
+// note: Make MSME Modal to page

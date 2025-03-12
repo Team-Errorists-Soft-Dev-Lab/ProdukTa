@@ -40,3 +40,34 @@ export async function DELETE(
     );
   }
 }
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } },
+) {
+  try {
+    const msme = await prisma.mSME.findUnique({
+      where: { id: Number(params.id) },
+      include: {
+        sectors: true,
+      },
+    });
+
+    if (!msme) {
+      return NextResponse.json({ error: "MSME not found" }, { status: 404 });
+    }
+
+    const response = {
+      ...msme,
+      sectorName: msme.sectors.name,
+    };
+
+    return NextResponse.json(response);
+  } catch (error) {
+    console.error("Error fetching MSME:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch MSME" },
+      { status: 500 },
+    );
+  }
+}
