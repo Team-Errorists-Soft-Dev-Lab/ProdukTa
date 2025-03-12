@@ -117,7 +117,6 @@ export default function GuestPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const msmesWithSectorNames = useMemo(() => {
     return msmes.map((msme) => ({
       ...msme,
