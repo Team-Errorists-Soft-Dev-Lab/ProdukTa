@@ -16,6 +16,7 @@ import {
   ChevronRight,
   UserCircle2,
   Store,
+  Download,
 } from "lucide-react";
 import {
   Tooltip,
@@ -51,6 +52,11 @@ const sidebarNavItems = [
     title: "Guest",
     href: "/guest",
     icon: UserCircle2,
+  },
+  {
+    title: "Export",
+    href: "/superadmin/exportdata",
+    icon: Download,
   },
 ];
 
