@@ -1,36 +1,30 @@
 "use client";
-// TODO: REMOVE ALL MOCKS AND REPLACE WITH ACTUAL DATA AND API CALLS ONCE THEY ARE IMPLEMENTED
-import { useState, useEffect, useMemo } from "react";
-import { Search, Mail, MapPin, Phone, User } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { useEffect, useMemo } from "react";
+import { Users, Download, Factory, Store } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
-
 import { ExportsLineChart } from "@/components/dashboard/ExportsLineChart";
 import { SectorPieChart } from "@/components/dashboard/SectorPieChart";
-import { getSectorIcon } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
-import { formatDistanceToNow } from "date-fns";
-
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
-import { cn } from "@/lib/utils";
-
-const ITEMS_PER_PAGE = 4;
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Dashboard() {
   const { sectors, msmes, isLoading, error } = useMSMEContext();
   const { activeAdmins } = useSuperAdminContext();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (error) {
@@ -85,336 +79,140 @@ export default function Dashboard() {
     [sectorChartData],
   );
 
-  const filteredMSMEs = useMemo(() => {
-    if (!msmes || isLoading) return [];
+  // Calculate total MSMEs
+  const totalMSMEs = msmes?.length || 0;
 
-    return msmes
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .filter((msme) => {
-        if (!msme) return false;
-
-        const name = msme.companyName?.toLowerCase() ?? "";
-        const email = msme.email?.toLowerCase() ?? "";
-        const description = msme.companyDescription?.toLowerCase() ?? "";
-        const contactNumber = msme.contactNumber?.toLowerCase() ?? "";
-        const contactPerson = msme.contactPerson?.toLowerCase() ?? "";
-        const address =
-          `${msme.barangayAddress} ${msme.cityMunicipalityAddress} ${msme.provinceAddress}`.toLowerCase();
-
-        const searchTermLower = searchTerm.toLowerCase();
-
-        return (
-          name.includes(searchTermLower) ||
-          email.includes(searchTermLower) ||
-          description.includes(searchTermLower) ||
-          contactNumber.includes(searchTermLower) ||
-          contactPerson.includes(searchTermLower) ||
-          address.includes(searchTermLower)
-        );
-      });
-  }, [msmes, isLoading, searchTerm]);
-
-  const totalPages = Math.ceil(filteredMSMEs.length / ITEMS_PER_PAGE);
-  const paginatedMSMEs = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredMSMEs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredMSMEs, currentPage]);
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  const renderPaginationItems = () => {
-    const items = [];
-    const maxVisible = 2; // Show 2 pages on each side of current page
-
-    // Helper function to add page number
-    const addPageNumber = (pageNum: number) => {
-      items.push(
-        <PaginationItem key={pageNum}>
-          <PaginationLink
-            onClick={() => handlePageChange(pageNum)}
-            isActive={currentPage === pageNum}
-            className={cn(
-              "min-w-9 rounded-md",
-              currentPage === pageNum
-                ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                : "text-emerald-600 hover:bg-emerald-50",
-            )}
-          >
-            {pageNum}
-          </PaginationLink>
-        </PaginationItem>,
-      );
-    };
-
-    // Always show first page
-    addPageNumber(1);
-
-    if (totalPages <= 5) {
-      // If 5 or fewer pages, show all
-      for (let i = 2; i <= totalPages; i++) {
-        addPageNumber(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        // Near start
-        for (let i = 2; i <= 4; i++) {
-          addPageNumber(i);
-        }
-        items.push(
-          <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
-          </PaginationItem>,
-        );
-      } else if (currentPage >= totalPages - 2) {
-        // Near end
-        items.push(
-          <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
-          </PaginationItem>,
-        );
-        for (let i = totalPages - 3; i < totalPages; i++) {
-          addPageNumber(i);
-        }
-      } else {
-        // In middle
-        items.push(
-          <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
-          </PaginationItem>,
-        );
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          addPageNumber(i);
-        }
-        items.push(
-          <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
-          </PaginationItem>,
-        );
-      }
-
-      // Always show last page
-      if (totalPages > 1) {
-        addPageNumber(totalPages);
-      }
-    }
-
-    return items;
-  };
+  // Loading states
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-emerald-400 border-t-transparent"></div>
+          <p className="mt-4 text-lg font-medium text-emerald-600">
+            Loading dashboard data...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="mb-6">
-        <h2 className="text-center text-3xl font-bold text-gray-800">
-          Dashboard
+    <div className="bg-gray-50 p-4 md:p-6">
+      <div className="mb-6 rounded-xl border border-emerald-100 bg-white p-4 shadow-sm">
+        <h2 className="text-center text-2xl font-bold text-gray-800">
+          MSME Dashboard
         </h2>
-        <p className="mt-1 text-center text-lg font-bold text-gray-600">
+        <p className="mt-1 text-center text-base text-gray-600">
           Overview of MSMEs in Iloilo
         </p>
       </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-emerald-600">
-          <CardHeader>
-            <CardTitle className="text-center">Total Sectors</CardTitle>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-emerald-100 shadow-sm transition-all duration-200 hover:border-emerald-300 hover:shadow-md">
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-lg text-emerald-800">
+              Total MSMEs
+            </CardTitle>
+            <CardDescription>Registered businesses</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-center text-3xl font-bold text-emerald-600">
-              {sectors?.length ?? 0}
-            </p>
+            <div className="flex items-end justify-between">
+              <p className="text-3xl font-bold text-emerald-600">
+                {totalMSMEs}
+              </p>
+              <div className="rounded-full bg-emerald-100 p-2 text-emerald-600">
+                <Store size={25} />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="border-emerald-600">
-          <CardHeader>
-            <CardTitle className="text-center">Active Admins</CardTitle>
+        <Card className="border-emerald-100 shadow-sm transition-all duration-200 hover:border-emerald-300 hover:shadow-md">
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-lg text-emerald-800">Sectors</CardTitle>
+            <CardDescription>Business categories</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-center text-3xl font-bold text-emerald-600">
-              {activeAdmins?.length ?? 0}
-            </p>
-            <p className="mt-1 text-center text-sm text-gray-500">
-              Across {sectors?.length ?? 0} sectors
-            </p>
+            <div className="flex items-end justify-between">
+              <p className="text-3xl font-bold text-emerald-600">
+                {sectors?.length ?? 0}
+              </p>
+              <div className="rounded-full bg-blue-100 p-2 text-blue-600">
+                <Factory size={25} />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="border-emerald-600">
-          <CardHeader>
-            <CardTitle className="text-center">Data Exports</CardTitle>
+        <Card className="border-emerald-100 shadow-sm transition-all duration-200 hover:border-emerald-300 hover:shadow-md">
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-lg text-emerald-800">
+              Active Admins
+            </CardTitle>
+            <CardDescription>Managing the platform</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-center text-3xl font-bold text-emerald-600">
-              {totalExports}
-            </p>
-            <p className="mt-1 text-center text-sm text-gray-500">
-              Total exports this year
-            </p>
+            <div className="flex items-end justify-between">
+              <p className="text-3xl font-bold text-emerald-600">
+                {activeAdmins?.length ?? 0}
+              </p>
+              <div className="rounded-full bg-purple-100 p-2 text-purple-600">
+                <Users size={25} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-emerald-100 shadow-sm transition-all duration-200 hover:border-emerald-300 hover:shadow-md">
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-lg text-emerald-800">
+              Data Exports
+            </CardTitle>
+            <CardDescription>Downloaded reports</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <p className="text-3xl font-bold text-emerald-600">
+                {totalExports}
+              </p>
+              <div className="rounded-full bg-amber-100 p-2 text-amber-600">
+                <Download size={25} />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <ExportsLineChart data={lineChartData} totalExports={totalExports} />
-        <SectorPieChart sectors={sectorChartData} colors={sectorColors} />
-      </div>
-
-      <div className="mt-6">
-        <Card className="border-emerald-600">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-xl font-bold">
-                  Recent MSMEs
-                </CardTitle>
-                <p className="mt-1 text-sm text-gray-500">
-                  Latest registered MSMEs across all sectors
-                </p>
-              </div>
-              <div className="relative w-72">
-                <input
-                  type="text"
-                  placeholder="Search MSMEs..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-                />
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              </div>
-            </div>
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <Card className="border-emerald-100 shadow-sm transition-all hover:shadow-md">
+          <CardHeader className="py-3">
+            <CardTitle className="flex items-center justify-between text-lg">
+              <span>Export Statistics</span>
+              <Select defaultValue="6months">
+                <SelectTrigger className="w-36 border-emerald-200 text-sm">
+                  <SelectValue placeholder="Time period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="6months">Last 6 months</SelectItem>
+                  <SelectItem value="year">Last year</SelectItem>
+                  <SelectItem value="all">All time</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardTitle>
+            <CardDescription>Monthly data export trends</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {paginatedMSMEs.map((msme) => {
-                const sectorName =
-                  sectors.find((s) => s.id === msme.sectorId)?.name ??
-                  "Unknown";
-                const Icon = getSectorIcon(sectorName);
-                const sectorColor =
-                  SECTOR_COLORS[sectorName as keyof typeof SECTOR_COLORS] ??
-                  "#4B5563";
-                return (
-                  <div
-                    key={msme.id}
-                    className="group relative overflow-hidden rounded-lg border bg-white p-4 transition-all duration-300 hover:shadow-md"
-                    style={{ borderColor: `${sectorColor}40` }}
-                  >
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="rounded-full p-2"
-                            style={{
-                              backgroundColor: `${sectorColor}20`,
-                              color: sectorColor,
-                            }}
-                          >
-                            <Icon size={20} />
-                          </div>
-                          <div>
-                            <h3 className="font-medium">{msme.companyName}</h3>
-                            <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
-                              <Badge
-                                variant="secondary"
-                                style={{
-                                  backgroundColor: `${sectorColor}20`,
-                                  color: sectorColor,
-                                  borderColor: `${sectorColor}40`,
-                                }}
-                              >
-                                {sectorName}
-                              </Badge>
-                              <span>•</span>
-                              <span className="text-sm text-gray-500">
-                                Added{" "}
-                                {formatDistanceToNow(new Date(msme.createdAt))}{" "}
-                                ago
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 pl-11 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-400" />
-                          <span>{msme.contactPerson}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-gray-400" />
-                          <span>{msme.contactNumber}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={`mailto:${msme.email}`}
-                            className="flex items-center gap-2 text-gray-600 hover:text-emerald-600"
-                          >
-                            <Mail className="h-4 w-4 text-gray-400" />
-                            {msme.email}
-                          </a>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <MapPin className="mt-1 h-4 w-4 text-gray-400" />
-                          <span className="leading-relaxed">
-                            {msme.barangayAddress},{" "}
-                            {msme.cityMunicipalityAddress},{" "}
-                            {msme.provinceAddress}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+          <CardContent className="pb-4">
+            <ExportsLineChart
+              data={lineChartData}
+              totalExports={totalExports}
+            />
+          </CardContent>
+        </Card>
 
-              {totalPages > 1 && (
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
-                    {Math.min(
-                      currentPage * ITEMS_PER_PAGE,
-                      filteredMSMEs.length,
-                    )}{" "}
-                    of {filteredMSMEs.length} entries
-                  </div>
-                  <Pagination>
-                    <PaginationContent className="gap-2">
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() =>
-                            handlePageChange(Math.max(1, currentPage - 1))
-                          }
-                          className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-600",
-                            currentPage === 1 &&
-                              "pointer-events-none opacity-50",
-                          )}
-                        />
-                      </PaginationItem>
-                      {renderPaginationItems()}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() =>
-                            handlePageChange(
-                              Math.min(totalPages, currentPage + 1),
-                            )
-                          }
-                          className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-600",
-                            currentPage === totalPages &&
-                              "pointer-events-none opacity-50",
-                          )}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
-            </div>
+        <Card className="border-emerald-100 shadow-sm transition-all hover:shadow-md">
+          <CardHeader className="py-3">
+            <CardTitle className="flex items-center justify-between text-lg">
+              <span>Sector Distribution</span>
+            </CardTitle>
+            <CardDescription>MSME sector breakdown</CardDescription>
+          </CardHeader>
+          <CardContent className="pb-4">
+            <SectorPieChart sectors={sectorChartData} colors={sectorColors} />
           </CardContent>
         </Card>
       </div>
