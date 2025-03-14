@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Search, Building2 } from "lucide-react";
+import { Search, Building2, Download } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { MSMETableView } from "@/components/exportdata/MsmeTable";
 import { cn } from "@/lib/utils";
@@ -26,10 +26,10 @@ import { MSMEFilters } from "@/components/msme/MSMEFilters";
 import type { SortState, FilterState } from "@/types/table";
 
 export default function ManageMSME() {
-  const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
+  const { msmes, sectors, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8);
+  const [itemsPerPage] = useState(5);
   const [sortState, setSortState] = useState<SortState>({
     column: "",
     direction: "default",
@@ -139,9 +139,9 @@ export default function ManageMSME() {
     }
   };
 
-  const handlePrint = () => {
+  const handleExport = () => {
     if (selectedMSMEs.length === 0) {
-      alert("Please select at least one MSME to print");
+      alert("Please select at least one MSME to export");
       return;
     }
     const queryParams = new URLSearchParams();
@@ -233,121 +233,119 @@ export default function ManageMSME() {
   }, [filters, searchTerm]);
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
-      <div className="flex h-full flex-col">
-        <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-emerald-50 p-2">
-              <Building2 className="h-6 w-6 text-emerald-600" />
-            </div>
-            <div>
-              <CardTitle className="text-3xl font-bold text-gray-800">
-                Manage MSMEs
-              </CardTitle>
-              <CardDescription className="mt-1 text-lg font-bold text-gray-600">
-                Total: {msmes?.length ?? 0} MSMEs
-              </CardDescription>
-            </div>
+    <div className="relative flex h-screen max-h-screen flex-col overflow-hidden p-4 md:p-6">
+      <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
+        <div className="flex items-center gap-2">
+          <div className="rounded-lg bg-emerald-50 p-2">
+            <Building2 className="h-6 w-6 text-emerald-600" />
           </div>
-        </CardHeader>
+          <div>
+            <CardTitle className="text-xl font-bold text-gray-800 sm:text-2xl md:text-3xl">
+              Manage MSMEs
+            </CardTitle>
+            <CardDescription className="mt-1 text-base font-bold text-gray-600 md:text-lg">
+              Total: {msmes?.length ?? 0} MSMEs
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
 
-        <CardContent className="flex-1 overflow-visible px-0">
-          <div className="mb-4 flex-none">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="relative w-64">
-                  <Input
-                    type="text"
-                    placeholder="Search MSMEs..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="pl-10 focus-visible:outline-emerald-600"
-                  />
-                  <Search
-                    className="absolute left-3 top-2.5 text-gray-400"
-                    size={20}
-                  />
-                </div>
-                <MSMEFilters
-                  sectors={sectors}
-                  filters={filters}
-                  onFilterChange={setFilters}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex h-[calc(100%-4rem)] flex-col overflow-hidden">
-            <div className="flex-1 overflow-auto">
-              <MSMETableView
-                msmes={paginatedMSMEs}
-                isLoading={isLoading}
-                getSectorName={getSectorName}
-                sortState={sortState}
-                onSort={handleSort}
-                selectedMSMEs={selectedMSMEs}
-                onSelectMSME={handleSelectMSME}
-                selectAll={selectAll}
-                onSelectAll={handleSelectAll}
+      <CardContent className="flex-1 overflow-visible px-0">
+        <div className="mb-4 flex-none">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative w-full sm:w-64">
+              <Input
+                type="text"
+                placeholder="Search MSMEs..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 focus-visible:outline-emerald-600"
+              />
+              <Search
+                className="absolute left-3 top-2.5 text-gray-400"
+                size={20}
               />
             </div>
-
-            {totalPages > 1 && (
-              <div className="flex-none border-t bg-white py-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
-                    entries
-                  </div>
-                  <Pagination>
-                    <PaginationContent className="gap-2">
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() =>
-                            setCurrentPage((prev) => Math.max(prev - 1, 1))
-                          }
-                          className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
-                            currentPage === 1 &&
-                              "pointer-events-none opacity-50",
-                          )}
-                        />
-                      </PaginationItem>
-                      {renderPaginationItems()}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() =>
-                            setCurrentPage((prev) =>
-                              Math.min(prev + 1, totalPages),
-                            )
-                          }
-                          className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
-                            currentPage === totalPages &&
-                              "pointer-events-none opacity-50",
-                          )}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              </div>
-            )}
+            <div className="flex flex-1 items-center gap-4">
+              <MSMEFilters
+                sectors={sectors}
+                filters={filters}
+                onFilterChange={setFilters}
+              />
+              <Button
+                onClick={handleExport}
+                className={cn(
+                  "whitespace-nowrap bg-emerald-600 hover:bg-[#85f683]",
+                  selectedMSMEs.length === 0 && "opacity-50",
+                )}
+                disabled={selectedMSMEs.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export Data ({selectedMSMEs.length})
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </div>
-      {selectedMSMEs.length > 0 && (
-        <div className="mt-4 flex justify-end">
-          <Button
-            onClick={handlePrint}
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            Print Selected ({selectedMSMEs.length})
-          </Button>
         </div>
-      )}
+        <div className="flex h-[calc(100%-4rem)] flex-col overflow-hidden">
+          <div className="flex-1 overflow-auto">
+            <MSMETableView
+              msmes={paginatedMSMEs}
+              isLoading={isLoading}
+              getSectorName={getSectorName}
+              sortState={sortState}
+              onSort={handleSort}
+              selectedMSMEs={selectedMSMEs}
+              onSelectMSME={handleSelectMSME}
+              selectAll={selectAll}
+              onSelectAll={handleSelectAll}
+            />
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex-none border-t bg-white py-4">
+              <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                <div className="text-sm text-gray-500">
+                  Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
+                  entries
+                </div>
+                <Pagination>
+                  <PaginationContent className="gap-1 sm:gap-2">
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        className={cn(
+                          "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                          currentPage === 1 && "pointer-events-none opacity-50",
+                        )}
+                      />
+                    </PaginationItem>
+                    {renderPaginationItems()}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages),
+                          )
+                        }
+                        className={cn(
+                          "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                          currentPage === totalPages &&
+                            "pointer-events-none opacity-50",
+                        )}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
     </div>
   );
 }
