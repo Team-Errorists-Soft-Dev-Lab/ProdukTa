@@ -53,11 +53,6 @@ const sidebarNavItems = [
     href: "/guest",
     icon: UserCircle2,
   },
-  {
-    title: "Export",
-    href: "/superadmin/exportdata",
-    icon: Download,
-  },
 ];
 
 export default function Sidebar() {
