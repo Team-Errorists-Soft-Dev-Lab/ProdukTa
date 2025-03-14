@@ -5,13 +5,14 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
+import type { Swiper as SwiperInstance } from "swiper/types";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState, useRef } from "react";
 
 export default function OurStory() {
   const [bgColor, setBgColor] = useState("#f9f8f4");
-  const swiperRef = useRef(null);
+  const swiperRef = useRef<SwiperInstance | null>(null);
 
   const slides = [
     {
@@ -52,7 +53,7 @@ export default function OurStory() {
       className="relative -mt-12 py-16"
       style={{ backgroundColor: bgColor }}
     >
-      <div className="relative mx-auto max-w-6xl px-8">
+      <div className="relative mx-auto max-w-5xl px-8">
         <Swiper
           modules={[Navigation, Pagination]}
           spaceBetween={30}
@@ -60,7 +61,7 @@ export default function OurStory() {
           pagination={{ clickable: true }}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
           onSlideChange={(swiper) =>
-            setBgColor(slides[swiper.activeIndex].color)
+            setBgColor(slides[swiper.activeIndex]?.color || bgColor)
           }
           className="swiper-custom relative"
         >
@@ -71,6 +72,7 @@ export default function OurStory() {
                 initial={{ opacity: 0, x: -100 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
+                viewport={{ once: true }}
               >
                 <motion.div
                   className="relative"
@@ -78,6 +80,7 @@ export default function OurStory() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: 1.1 }}
                   transition={{ duration: 0.5 }}
+                  viewport={{ once: true }}
                 >
                   <Image
                     src={slide.image}
@@ -92,12 +95,14 @@ export default function OurStory() {
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
+                  viewport={{ once: true }}
                 >
                   <motion.h2
                     className="text-3xl font-semibold text-[#8B4513]"
                     initial={{ opacity: 0, x: -100 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
+                    viewport={{ once: true }}
                   >
                     {slide.subheading}
                   </motion.h2>
@@ -106,6 +111,7 @@ export default function OurStory() {
                     initial={{ opacity: 0, x: -100 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
+                    viewport={{ once: true }}
                   >
                     {slide.text}
                   </motion.p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function CallToAction() {
@@ -9,7 +10,7 @@ export default function CallToAction() {
   return (
     <section className="-mt-20 bg-muted/50 py-20 pb-1">
       <motion.div
-        className="mx-auto flex max-w-6xl items-center justify-between px-3"
+        className="mx-auto flex max-w-6xl flex-col items-center justify-between px-3 text-center md:flex-row md:text-left"
         whileInView={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
         viewport={{ once: true }}
@@ -21,7 +22,7 @@ export default function CallToAction() {
             initial={{ x: -100, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
           >
             Ready to Explore Iloilo&apos;s MSMEs?
           </motion.h2>
@@ -31,7 +32,7 @@ export default function CallToAction() {
             initial={{ x: -100, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
           >
             Discover the businesses driving our economy and connect with local
             entrepreneurs today!
@@ -51,17 +52,19 @@ export default function CallToAction() {
 
         {/* Right Column: Image */}
         <motion.div
-          className="w-1/2"
+          className="mt-8 w-full md:mt-0 md:w-1/2"
           initial={{ x: 100, opacity: 0 }}
           whileInView={{ x: 0, opacity: 1 }}
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: false }}
         >
-          <img
-            src="explore.png"
+          <Image
+            src="/explore.png"
             alt="Explore MSMEs"
-            className="h-auto w-full rounded-lg"
+            width={500}
+            height={500}
+            className="h-auto w-full max-w-md rounded-lg md:max-w-full"
           />
         </motion.div>
       </motion.div>

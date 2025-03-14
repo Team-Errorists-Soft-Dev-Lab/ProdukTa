@@ -4,24 +4,24 @@ import { motion, useInView } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import {
   UsersRound,
-  Package,
+  Candy,
   Coffee,
-  Leaf,
+  Sprout,
   Shirt,
-  MonitorSmartphone,
+  Monitor,
   Utensils,
-  Droplets,
+  Palmtree,
 } from "lucide-react";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 
 const MSMEPerSector = [
-  { name: "Bamboo", value: 295, icon: Leaf, color: SECTOR_COLORS.Bamboo },
+  { name: "Bamboo", value: 295, icon: Sprout, color: SECTOR_COLORS.Bamboo },
   { name: "Coffee", value: 245, icon: Coffee, color: SECTOR_COLORS.Coffee },
-  { name: "Cacao", value: 215, icon: Package, color: SECTOR_COLORS.Cacao },
+  { name: "Cacao", value: 215, icon: Candy, color: SECTOR_COLORS.Cacao },
   {
     name: "High Value Coco Product",
     value: 205,
-    icon: Droplets,
+    icon: Palmtree,
     color: SECTOR_COLORS.Coconut,
   },
   {
@@ -39,16 +39,16 @@ const MSMEPerSector = [
   {
     name: "IT-BPM",
     value: 85,
-    icon: MonitorSmartphone,
+    icon: Monitor,
     color: SECTOR_COLORS["IT - BPM"],
   },
 ];
 
 const totalMSMEs = MSMEPerSector.reduce((sum, sector) => sum + sector.value, 0);
 
-function RollingNumber({ value }) {
+function RollingNumber({ value }: { value: number }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false });
+  const isInView = useInView(ref, { once: true });
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -70,14 +70,14 @@ function RollingNumber({ value }) {
 
 export default function DataSection() {
   return (
-    <section className="flex justify-center bg-[#f9f8f4] py-20 pb-2">
+    <section className="mt-2 flex justify-center bg-[#f9f8f4] py-20 pb-2">
       <div className="w-full max-w-6xl space-y-12 px-6">
         <motion.h2
           className="-mt-8 text-3xl font-bold text-[#8B4513]"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ type: "spring", stiffness: 100 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
           MSME Overview
         </motion.h2>
@@ -88,7 +88,7 @@ export default function DataSection() {
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ type: "spring", stiffness: 100 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
           <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-3 lg:grid-cols-7">
             {MSMEPerSector.map((sector, index) => (
@@ -112,7 +112,7 @@ export default function DataSection() {
           className="flex flex-col items-start justify-center rounded-lg bg-white p-6 shadow-md"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
           <div className="flex items-center space-x-4">
             <motion.div whileHover={{ scale: 1.2 }}>
