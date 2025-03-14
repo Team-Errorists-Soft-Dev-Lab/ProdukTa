@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/pagination";
 import { MSMEFilters } from "@/components/msme/MSMEFilters";
 import type { SortState, FilterState } from "@/types/table";
+import Link from "next/link";
 
 export default function ManageMSME() {
   const { msmes, sectors, isLoading } = useMSMEContext();
@@ -139,15 +140,10 @@ export default function ManageMSME() {
     }
   };
 
-  const handleExport = () => {
-    if (selectedMSMEs.length === 0) {
-      alert("Please select at least one MSME to export");
-      return;
-    }
-    const queryParams = new URLSearchParams();
-    queryParams.set("selectedId", JSON.stringify(selectedMSMEs));
-    window.open(`/superadmin/pdfExport?${queryParams.toString()}`, "_blank");
-  };
+  // Add this useEffect to reset to page 1 when filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchTerm]);
 
   const renderPaginationItems = () => {
     const items = [];
@@ -227,11 +223,6 @@ export default function ManageMSME() {
     return items;
   };
 
-  // Add this useEffect to reset to page 1 when filters/search change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, searchTerm]);
-
   return (
     <div className="relative flex h-screen max-h-screen flex-col overflow-hidden p-4 md:p-6">
       <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
@@ -275,17 +266,26 @@ export default function ManageMSME() {
                 filters={filters}
                 onFilterChange={setFilters}
               />
-              <Button
-                onClick={handleExport}
-                className={cn(
-                  "whitespace-nowrap bg-emerald-600 hover:bg-[#85f683]",
-                  selectedMSMEs.length === 0 && "opacity-50",
-                )}
-                disabled={selectedMSMEs.length === 0}
+              <Link
+                href={{
+                  pathname: "/superadmin/pdfExport",
+                  query: { selectedId: JSON.stringify(selectedMSMEs) },
+                }}
               >
-                <Download className="mr-2 h-4 w-4" />
-                Export Data ({selectedMSMEs.length})
-              </Button>
+                <Button
+                  className={cn(
+                    "bg-emerald-600 font-bold hover:bg-[#51d14a]",
+                    selectedMSMEs.length === 0 &&
+                      "pointer-events-none opacity-50",
+                  )}
+                  disabled={selectedMSMEs.length === 0}
+                >
+                  <Download className="mr-2 h-4 w-4" /> Export Data
+                  <span className="ml-2 text-xl font-bold text-white">
+                    [{selectedMSMEs.length}]
+                  </span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
