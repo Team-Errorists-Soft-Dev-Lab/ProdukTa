@@ -8,7 +8,7 @@ import Image from "next/image";
 
 export default function ImageCarousel() {
   return (
-    <div className="flex w-full max-w-[90%] justify-center px-4 md:max-w-full md:px-0">
+    <div className="mt-18 flex w-full max-w-[90%] justify-center px-4 md:max-w-full md:px-0">
       <Swiper
         modules={[Navigation, Autoplay]}
         navigation

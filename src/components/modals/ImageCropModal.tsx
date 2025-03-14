@@ -62,45 +62,46 @@ export default function ImageCropModal({
 
   const getCroppedImg = useCallback((): Promise<File> => {
     return new Promise((resolve, reject) => {
-      if (imageRef && crop && crop.width && crop.height) {
-        const canvas = document.createElement("canvas");
-        const scaleX = imageRef.naturalWidth / imageRef.width;
-        const scaleY = imageRef.naturalHeight / imageRef.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-        const ctx = canvas.getContext("2d");
-
-        if (ctx) {
-          ctx.drawImage(
-            imageRef,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
-            0,
-            0,
-            crop.width,
-            crop.height,
-          );
-
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                const file = new File([blob], "cropped-image.jpg", {
-                  type: "image/jpeg",
-                  lastModified: Date.now(),
-                });
-                resolve(file);
-              } else {
-                reject(new Error("Failed to create blob"));
-              }
-            },
-            "image/jpeg",
-            0.9,
-          );
-        }
-      } else {
+      if (!imageRef?.width || !crop?.width || !crop?.height) {
         reject(new Error("No image or crop data available"));
+        return;
+      }
+
+      const canvas = document.createElement("canvas");
+      const scaleX = imageRef.naturalWidth / imageRef.width;
+      const scaleY = imageRef.naturalHeight / imageRef.height;
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        ctx.drawImage(
+          imageRef,
+          crop.x * scaleX,
+          crop.y * scaleY,
+          crop.width * scaleX,
+          crop.height * scaleY,
+          0,
+          0,
+          crop.width,
+          crop.height,
+        );
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const file = new File([blob], "cropped-image.jpg", {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              resolve(file);
+            } else {
+              reject(new Error("Failed to create blob"));
+            }
+          },
+          "image/jpeg",
+          0.9,
+        );
       }
     });
   }, [crop, imageRef]);

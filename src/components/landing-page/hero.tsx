@@ -2,44 +2,48 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Hero() {
   const router = useRouter();
   return (
-    <section className="-mt-20 bg-[#f9f8f4] py-10">
+    <section className="-py-4 mx-auto flex max-w-5xl flex-col items-center justify-between bg-[#f9f8f4] px-3 md:flex-row">
       {/* Supporting Local Section */}
       <motion.div
-        className="mx-auto flex max-w-6xl items-center justify-between px-3"
+        className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-5 md:grid-cols-2 md:items-center"
         whileInView={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
         viewport={{ once: true }}
       >
-        {/* Image moved to the left */}
+        {/* Image Section (Always on Top in Small Screens) */}
         <motion.div
-          className="w-1/2"
+          className="order-1 h-auto w-full"
           initial={{ x: -100, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1 }}
-          whileHover={{ scale: 1.1 }}
+          whileInView={{ scale: 1.25, x: 0, opacity: 1 }}
+          whileHover={{ scale: 1.3 }}
           transition={{ duration: 0.6 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
-          <img
-            src="landing-bg.png"
+          <Image
+            src="/landing-bg.png"
             alt="landing-bg"
-            className="h-auto w-full rounded-lg"
+            className="w-full rounded-lg"
+            layout="responsive"
+            width={1000}
+            height={950}
           />
         </motion.div>
 
-        {/* Text Content */}
-        <div className="w-1/2 space-y-6 pl-10">
+        {/* Text Content (Below Image in Small Screens) */}
+        <div className="order-2 w-full space-y-4 text-center md:text-left">
           <motion.h2
             className="text-3xl font-bold text-[#8B4513]"
             initial={{ x: 100, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
           >
-            Discover, Connect, and Support Local MSMEs
+            Discover and Support Local MSMEs
           </motion.h2>
 
           <motion.p
@@ -47,7 +51,7 @@ export default function Hero() {
             initial={{ x: 100, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
           >
             Discover and support local enterprises that drive Iloilo’s economy.
             Explore the MSME directory to find businesses, learn their stories,
@@ -59,7 +63,7 @@ export default function Hero() {
             initial={{ x: 100, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
             onClick={() => router.push("/guest")}
           >
             Search Directory Now

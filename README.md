@@ -60,4 +60,5 @@ In the project directory, you can run the following scripts:
 - **`npm run db:push`**: Pushes the Prisma schema to the database.
 - **`npm run db:studio`**: Opens Prisma Studio for database management.
 - **`npm run lint`**: Runs the linter to check for code quality issues.
+- **`npm run lint:all`**: Same as npm run lint but shows the amount of errors/warnings
 - **`npm run start`**: Starts the application in production mode.

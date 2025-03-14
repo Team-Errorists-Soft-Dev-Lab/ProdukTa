@@ -1,4 +1,7 @@
+"use client";
+
 import SupportingLocal from "@/components/about-us/SupportingLocal";
+import HowItWorks from "@/components/about-us/HowItWorks";
 import AboutUs from "@/components/about-us/AboutUs";
 import OurStory from "@/components/about-us/OurStory";
 import Partners from "@/components/about-us/Partners";
@@ -11,6 +14,7 @@ export default function Page() {
       <Header />
       <main>
         <SupportingLocal />
+        <HowItWorks />
         <AboutUs />
         <OurStory />
         <Partners />

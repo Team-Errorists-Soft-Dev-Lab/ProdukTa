@@ -69,6 +69,6 @@ export const compressImage = async (
         );
       };
     };
-    reader.onerror = (error: ProgressEvent<FileReader>) => reject(error);
+    reader.onerror = () => reject(new Error("Failed to read image file"));
   });
 };
