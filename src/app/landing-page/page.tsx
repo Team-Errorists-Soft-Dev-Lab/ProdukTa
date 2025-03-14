@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import Hero from "@/components/landing-page/hero";
-import Features from "@/components/landing-page/Features";
 import DataSection from "@/components/landing-page/data-section";
 import CallToAction from "@/components/landing-page/Call-to-Action";
 import Header from "@/components/Header";
@@ -103,7 +102,6 @@ export default function LandingPage() {
       <Header />
       <main>
         <Hero />
-        <Features />
         <DataSection />
         <div className="grid grid-cols-1 gap-6 p-12 md:grid-cols-1 lg:grid-cols-2">
           {barChartData.map((chartData, index) => (

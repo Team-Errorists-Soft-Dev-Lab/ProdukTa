@@ -13,23 +13,35 @@ import {
 } from "recharts";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 
-interface BarChart2Props {
-  data: Array<{
-    name: string;
-    uv: number;
-  }>;
-  label: string;
-}
+const MSMEPerSector = [
+  { name: "Bamboo", color: SECTOR_COLORS.Bamboo },
+  { name: "Coffee", color: SECTOR_COLORS.Coffee },
+  { name: "Cacao", color: SECTOR_COLORS.Cacao },
+  { name: "High Value Coco Product", color: SECTOR_COLORS.Coconut },
+  {
+    name: "Homestyles and Wearables",
+    color: SECTOR_COLORS["Wearables and Homestyles"],
+  },
+  { name: "Processed Foods", color: SECTOR_COLORS["Processed Foods"] },
+  { name: "IT-BPM", color: SECTOR_COLORS["IT - BPM"] },
+];
 
-const sectorMapping: Record<string, string> = {
-  "High Value Coco Product": "Coconut",
-  "Homestyles and Wearables": "Wearables and Homestyles",
-  "IT-BPM": "IT - BPM",
+const getSectorInfo = (sectorName: string) => {
+  return (
+    MSMEPerSector.find((sector) => sector.name === sectorName) ?? {
+      color: "#93191d",
+    }
+  );
 };
 
+interface BarChart2Props {
+  data: Array<{ name: string; uv: number }>;
+  label: string;
+  color?: string;
+}
+
 const BarChart2: React.FC<BarChart2Props> = ({ data, label }) => {
-  const normalizedLabel = sectorMapping[label] || label;
-  const color = SECTOR_COLORS[normalizedLabel] || "#8B4513";
+  const { color } = getSectorInfo(label);
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4 py-6 pb-2">

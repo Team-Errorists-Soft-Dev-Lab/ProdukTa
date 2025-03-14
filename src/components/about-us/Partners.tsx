@@ -15,7 +15,7 @@ const Partners = () => {
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 100 }}
-      viewport={{ once: false }}
+      viewport={{ once: true }}
     >
       {/* Left Column - Text & Logos */}
       <motion.div
@@ -23,14 +23,14 @@ const Partners = () => {
         initial={{ opacity: 0, x: -50 }}
         whileInView={{ opacity: 1, x: 0 }}
         transition={{ type: "spring", stiffness: 100 }}
-        viewport={{ once: false }}
+        viewport={{ once: true }}
       >
         <motion.h2
           className="mb-6 text-3xl font-bold text-[#8B4513]"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ type: "spring", stiffness: 100 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
           Partnership & Collaboration
         </motion.h2>
@@ -39,7 +39,7 @@ const Partners = () => {
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
           Produkta is a collaboration between DTI Iloilo and the Software
           Engineering Department of Central Philippine University College of
@@ -52,7 +52,7 @@ const Partners = () => {
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
           Together, we can turn ideas into reality.
         </motion.p>
@@ -72,7 +72,7 @@ const Partners = () => {
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ type: "spring", stiffness: 100, delay: 0.3 }}
-          viewport={{ once: false }}
+          viewport={{ once: true }}
         >
           {["DTI_logo.png", "cpu-logo.png", "eng-logo.png", "se-logo.png"].map(
             (logo, index) => (
@@ -99,7 +99,7 @@ const Partners = () => {
         initial={{ opacity: 0, x: 50 }}
         whileInView={{ opacity: 1, x: 0 }}
         transition={{ type: "spring", stiffness: 100 }}
-        viewport={{ once: false }}
+        viewport={{ once: true }}
       >
         <ImageCarousel />
       </motion.div>

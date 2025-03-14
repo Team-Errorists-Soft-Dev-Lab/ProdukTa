@@ -9,56 +9,9 @@ import {
 } from "@/components/ui/card";
 import { useSuperAdminContext } from "@/contexts/SuperAdminContext";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import {
-  Coffee,
-  Candy,
-  Palmtree,
-  Factory,
-  Monitor,
-  Shirt,
-  Utensils,
-  Sprout,
-  Store,
-  type LucideIcon,
-} from "lucide-react";
+import { Factory } from "lucide-react";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
-
-// Map sector names to icons
-const sectorIcons: Record<string, LucideIcon> = {
-  Coffee: Coffee,
-  Cacao: Candy,
-  Coconut: Palmtree,
-  Bamboo: Sprout,
-  "IT - BPM": Monitor,
-  "Processed Foods": Utensils,
-  "Wearables and Homestyles": Shirt,
-};
-
-// Get icon for a sector, with fallback
-function getSectorIcon(sectorName: string): LucideIcon {
-  // Split the sector name in case it contains multiple sectors
-  const parts = sectorName.split(/[&,]/);
-
-  // Try to find a matching icon for any part
-  for (const part of parts) {
-    const trimmedPart = part.trim();
-    // Check for exact match first
-    const icon = sectorIcons[trimmedPart];
-    if (icon) {
-      return icon;
-    }
-    // Then check for partial match
-    const matchingSector = Object.keys(sectorIcons).find((key) =>
-      trimmedPart.toLowerCase().includes(key.toLowerCase()),
-    );
-    if (matchingSector && sectorIcons[matchingSector]) {
-      return sectorIcons[matchingSector];
-    }
-  }
-
-  // Return default icon if no match found
-  return Store;
-}
+import { getSectorIcon } from "@/lib/utils";
 
 export default function ManageSectors() {
   const { sectors } = useSuperAdminContext();
