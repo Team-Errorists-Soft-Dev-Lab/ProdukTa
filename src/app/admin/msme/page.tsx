@@ -18,8 +18,8 @@ import {
   Table as TableIcon,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import AddMSMEModal from "@/components/modals/AddMSMEModal";
-import EditMSMEModal from "@/components/modals/EditMSMEModal";
+import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
+import AdminEditMSMEModal from "@/components/modals/AdminEditMSMEModal";
 import type { MSME } from "@/types/superadmin";
 import {
   Tooltip,
@@ -321,11 +321,11 @@ export default function ManageMSME() {
         </CardContent>
       </Card>
 
-      <AddMSMEModal
+      <AdminAddMSMEModal
         isOpen={isAddMSMEModalOpen}
         onClose={() => setIsAddMSMEModalOpen(false)}
       />
-      <EditMSMEModal
+      <AdminEditMSMEModal
         isOpen={isEditMSMEModalOpen}
         onClose={() => setIsEditMSMEModalOpen(false)}
         msme={currentMSME}
