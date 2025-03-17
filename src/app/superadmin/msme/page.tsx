@@ -13,7 +13,7 @@ import { Plus, Search, Building2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AddMSMEModal from "@/components/modals/AddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
-import type { MSME } from "@/types/superadmin";
+import type { MSME } from "@/types/MSME";
 import { MSMETableView } from "@/components/msme/MSMETable";
 import { cn } from "@/lib/utils";
 import {
