@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MSMECardView } from "@/components/admin/DashboardCardView";
@@ -10,6 +10,8 @@ import Link from "next/link";
 import { TopMunicipalitiesChart } from "@/components/admin/municipalityChart";
 import { SectorPieChart } from "@/components/admin/sectorPieChart";
 import { TotalSectorMSMEChart } from "@/components/admin/totalSectorMSMEChart";
+import { VisitorCountView } from "@/components/admin/visitorCountView";
+import { ExportCountView } from "@/components/admin/exportCountView";
 
 export default function MSMEPage({
   params,
@@ -20,12 +22,15 @@ export default function MSMEPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [visitorCount, setVisitorCount] = useState(0);
   const { sectorName } = params;
+
   const sector = sectors.find(
     (sector) =>
       sector.name.toLowerCase().replace(/\s+/g, "") ===
       sectorName.toLowerCase(),
   );
+
   const [municipalityFilter, setMunicipalityFilter] = useState<string>("");
   const filteredMSMEs = msmes.filter(
     (msme) =>
@@ -55,6 +60,21 @@ export default function MSMEPage({
     }));
   }, [sectors, msmes]);
 
+  useEffect(() => {
+    const fetchVisitorCount = async () => {
+      const res = await fetch("/api/admin/visitors", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      setVisitorCount(data.visitorCount);
+    };
+
+    fetchVisitorCount();
+  }, []);
+
   const colors = [
     "#FF6384",
     "#36A2EB",
@@ -69,6 +89,14 @@ export default function MSMEPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="sm:col-span-2 lg:col-span-3">
+          {sector && (
+            <div>
+              <VisitorCountView sectorId={sector.id} />
+              <ExportCountView sectorId={sector.id} />
+            </div>
+          )}
+        </div>
         <div className="w-full">
           <TopMunicipalitiesChart sectorName={sectorName} />
         </div>
@@ -135,50 +163,6 @@ export default function MSMEPage({
         isLoading={isLoading}
         getSectorName={getSectorName}
       />
-      {totalPages > 1 && (
-        <div className="mt-4 flex flex-col items-center justify-between border-t pt-4 sm:flex-row">
-          <p className="mb-2 text-sm text-gray-500 sm:mb-0">
-            Page {currentPage} of {totalPages}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCurrentPage(page)}
-                  className={
-                    currentPage === page
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : ""
-                  }
-                >
-                  {page}
-                </Button>
-              ),
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

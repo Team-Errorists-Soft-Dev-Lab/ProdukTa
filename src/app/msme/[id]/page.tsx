@@ -37,6 +37,26 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  const addVisitorCount = async () => {
+    const msmeId = MSME?.id;
+    console.log("MSME id: ", msmeId);
+    if (!msmeId) return;
+    const response = await fetch("/api/admin/visitors", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ msmeId }),
+    });
+    console.log("Response: ", response);
+  };
+
+  useEffect(() => {
+    if (MSME?.id) {
+      addVisitorCount();
+    }
+  }, [MSME]);
+
   useEffect(() => {
     const fetchMSME = async () => {
       setIsLoading(true);
@@ -54,6 +74,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
     };
 
     fetchMSME();
+    addVisitorCount();
   }, [params.id, router]);
 
   useEffect(() => {

@@ -8,7 +8,7 @@ generator client {
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
+    // directUrl = env("DIRECT_URL")
 }
 
 model Admin {
@@ -63,5 +63,24 @@ model MSME {
     createdAt               DateTime @default(now())
     updatedAt               DateTime @updatedAt
     sectors                 Sector @relation(fields: [sectorId], references: [id])
+    visitors                Visitor[]
+    ExportLogs              ExportLog[]
     sectorId                Int
+}
+
+model Visitor {
+  id          String   @id @default(uuid())
+  ip          String
+  lastVisited DateTime
+  msmeId      Int
+  MSME        MSME     @relation(fields: [msmeId], references: [id])
+
+  @@unique([ip, msmeId])
+}
+
+model ExportLog {
+  id          Int      @id @default(autoincrement())
+  msmeId      Int
+  exportedAt  DateTime @default(now())
+  MSME        MSME     @relation(fields: [msmeId], references: [id])
 }

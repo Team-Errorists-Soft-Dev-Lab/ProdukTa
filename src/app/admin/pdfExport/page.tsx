@@ -86,7 +86,23 @@ export default function ExportData() {
     return msmeElement;
   };
 
+  const recordExport = async (msmeId: string) => {
+    try {
+      await fetch("/api/admin/export", {
+        method: "POST",
+        body: JSON.stringify({ msmeId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("Error recording export:", error);
+    }
+  };
+
   const exportToPDF = async () => {
+    // note: call analytics api here to trigger increase in export count
+
     if (!contentRef.current) return;
 
     const pdf = new jsPDF("p", "mm", "a4");
@@ -180,6 +196,13 @@ export default function ExportData() {
     }
 
     pdf.save("msme_data.pdf");
+
+    for (let i = 0; i < selectedId.length; i++) {
+      const id = selectedId[i];
+      if (id !== undefined) {
+        await recordExport(id);
+      }
+    }
   };
 
   return (
