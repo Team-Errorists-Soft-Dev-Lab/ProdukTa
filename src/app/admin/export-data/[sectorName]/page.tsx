@@ -121,12 +121,25 @@ export default function ExportDataPage({
         <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto">
           <Link
             href={{
+              pathname: "/admin/csv-export",
+              query: { selectedId: JSON.stringify(selectedId) },
+            }}
+          >
+            <Button className="w-full bg-[#996439] font-bold hover:bg-[#ce9261] sm:w-auto">
+              <Download className="mr-2 h-4 w-4" /> Export to CSV
+              <span className="ml-2 text-xl font-bold text-white">
+                [{selectedMSMEs.length}]
+              </span>
+            </Button>
+          </Link>
+          <Link
+            href={{
               pathname: "/admin/pdfExport",
               query: { selectedId: JSON.stringify(selectedId) },
             }}
           >
             <Button className="w-full bg-[#996439] font-bold hover:bg-[#ce9261] sm:w-auto">
-              <Download className="mr-2 h-4 w-4" /> Export Data
+              <Download className="mr-2 h-4 w-4" /> Export to PDF
               <span className="ml-2 text-xl font-bold text-white">
                 [{selectedMSMEs.length}]
               </span>
