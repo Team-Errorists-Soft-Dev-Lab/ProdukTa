@@ -16,6 +16,7 @@ import {
   ChevronRight,
   UserCircle2,
   Store,
+  Download,
 } from "lucide-react";
 import {
   Tooltip,

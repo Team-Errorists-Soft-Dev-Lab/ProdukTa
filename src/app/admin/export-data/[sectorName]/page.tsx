@@ -121,7 +121,7 @@ export default function ExportDataPage({
         <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto">
           <Link
             href={{
-              pathname: "/admin/pdfExport",
+              pathname: "/admin/pdf-export",
               query: { selectedId: JSON.stringify(selectedId) },
             }}
           >
