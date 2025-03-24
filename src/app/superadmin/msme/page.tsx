@@ -29,6 +29,12 @@ import { MSMEFilters } from "@/components/msme/MSMEFilters";
 import type { SortState, FilterState } from "@/types/table";
 import Link from "next/link";
 import { toast } from "sonner";
+import { CSVLink } from "react-csv";
+
+// Add interface extension for local use
+interface MSMEWithProducts extends MSME {
+  products: string[];
+}
 
 export default function ManageMSME() {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
@@ -37,7 +43,7 @@ export default function ManageMSME() {
   const [itemsPerPage] = useState(8);
   const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
-  const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
+  const [currentMSME, setCurrentMSME] = useState<MSMEWithProducts | null>(null);
   const [sortState, setSortState] = useState<SortState>({
     column: "",
     direction: "default",
@@ -100,6 +106,25 @@ export default function ManageMSME() {
       });
       return;
     }
+  };
+
+  const csvHeaders = [
+    { label: "Company Name", key: "companyName" },
+    { label: "Contact Person", key: "contactPerson" },
+    { label: "Contact Number", key: "contactNumber" },
+    { label: "Email", key: "email" },
+    { label: "Address", key: "cityMunicipalityAddress" },
+    { label: "Sector", key: "sector" },
+  ];
+
+  const getCsvData = () => {
+    return filteredMSMEs
+      .filter((msme) => selectedMSMEs.includes(msme.id))
+      .map((msme) => ({
+        ...msme,
+        sector: getSectorName(msme.sectorId),
+        products: (msme as MSMEWithProducts).products?.join(", ") || "",
+      }));
   };
 
   const filteredMSMEs = msmes
@@ -166,7 +191,7 @@ export default function ManageMSME() {
   const endIndex = Math.min(currentPage * itemsPerPage, filteredMSMEs.length);
 
   const handleEdit = (msme: MSME) => {
-    setCurrentMSME(msme);
+    setCurrentMSME(msme as MSMEWithProducts);
     setIsEditMSMEModalOpen(true);
   };
 
@@ -302,19 +327,32 @@ export default function ManageMSME() {
                 {isExportMode ? (
                   <>
                     {selectedMSMEs.length > 0 ? (
-                      <Link
-                        href={{
-                          pathname: "/superadmin/pdf-export",
-                          query: { selectedId: JSON.stringify(selectedMSMEs) },
-                        }}
-                      >
-                        <Button className="bg-emerald-600 font-bold hover:bg-[#51d14a]">
-                          <Download className="mr-2 h-4 w-4" /> Export Data
-                          <span className="ml-2 text-xl font-bold text-white">
-                            [{selectedMSMEs.length}]
-                          </span>
-                        </Button>
-                      </Link>
+                      <div className="flex space-x-2">
+                        <CSVLink
+                          data={getCsvData()}
+                          headers={csvHeaders}
+                          filename="msme-data.csv"
+                          className="inline-flex"
+                        >
+                          <Button className="bg-emerald-600 hover:bg-[#51d14a]">
+                            <Download className="mr-2 h-4 w-4" />
+                            Export CSV
+                          </Button>
+                        </CSVLink>
+                        <Link
+                          href={{
+                            pathname: "/superadmin/pdf-export",
+                            query: {
+                              selectedId: JSON.stringify(selectedMSMEs),
+                            },
+                          }}
+                        >
+                          <Button className="bg-emerald-600 hover:bg-[#51d14a]">
+                            <Download className="mr-2 h-4 w-4" />
+                            Export PDF
+                          </Button>
+                        </Link>
+                      </div>
                     ) : (
                       <Button
                         className="bg-emerald-600 font-bold opacity-50"
