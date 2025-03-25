@@ -301,7 +301,7 @@ export default function MSMEPage({
                     {selectedMSMEs.length > 0 ? (
                       <Link
                         href={{
-                          pathname: "/admin/export-data",
+                          pathname: "/admin/pdf-export",
                           query: { selectedId: JSON.stringify(selectedMSMEs) },
                         }}
                       >
