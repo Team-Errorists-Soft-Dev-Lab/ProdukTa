@@ -43,7 +43,7 @@ export default function ExportData() {
     if (selectedId.length > 0) {
       void fetchMsmeData();
     }
-  }, []);
+  }, [selectedId]);
 
   const generatePDFContent = (
     msme: MSME,
@@ -197,8 +197,7 @@ export default function ExportData() {
 
     pdf.save("msme_data.pdf");
 
-    for (let i = 0; i < selectedId.length; i++) {
-      const id = selectedId[i];
+    for (const id of selectedId) {
       if (id !== undefined) {
         await recordExport(id);
       }

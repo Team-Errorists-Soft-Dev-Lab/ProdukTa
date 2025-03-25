@@ -1,11 +1,11 @@
-import { NextApiResponse } from "next";
-import { NextRequest } from "next/server";
+import type { NextApiResponse } from "next";
+import type { NextRequest } from "next/server";
 import { prisma } from "@/utils/prisma/client";
 
-export async function POST(req: NextRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest, _: NextApiResponse) {
   const ip = req.headers.get("x-forwarded-for");
-  const { msmeId } = await req.json();
-  const msmeIdToInt = parseInt(msmeId);
+  const { msmeId } = (await req.json()) as { msmeId: string };
+  const msmeIdToInt: number = parseInt(msmeId);
 
   if (!ip) {
     return Response.json({ error: "Could not determine IP" });
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
         },
       },
       update: { lastVisited: new Date() },
-      create: { ip, msmeId, lastVisited: new Date() },
+      create: { ip, msmeId: msmeIdToInt, lastVisited: new Date() },
     });
 
     return Response.json({ success: true });
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
   }
 }
 
-export async function GET(req: NextRequest, res: NextApiResponse) {
+export async function GET() {
   try {
     const topMSMEs = await prisma.visitor.groupBy({
       by: ["msmeId"],

@@ -19,14 +19,15 @@ export function ExportCountView({ sectorId }: { sectorId: number }) {
   useEffect(() => {
     const fetchVisitorData = async () => {
       const response = await fetch(`/api/admin/export/${sectorId}`);
-      const data = await response.json();
-      console.log("data: ", data);
+      const data = (await response.json()) as { results: ExportData };
       if (data.results) {
         setExportData(data.results);
       }
     };
-    fetchVisitorData();
-  }, []);
+    fetchVisitorData().catch((error) =>
+      console.error("Error fetching export data:", error),
+    );
+  }, [sectorId]);
 
   return (
     <div className="flex bg-gray-50">

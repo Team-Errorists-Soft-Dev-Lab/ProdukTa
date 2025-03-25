@@ -19,13 +19,15 @@ export function VisitorCountView({ sectorId }: { sectorId: number }) {
   useEffect(() => {
     const fetchVisitorData = async () => {
       const response = await fetch(`/api/admin/visitors/${sectorId}`);
-      const data = await response.json();
+      const data = (await response.json()) as { results: VisitorData[] };
       if (data.results) {
         setVisitorData(data.results);
       }
     };
 
-    fetchVisitorData();
+    fetchVisitorData().catch((error) =>
+      console.error("Error fetching visitor data:", error),
+    );
   }, [sectorId]);
 
   useEffect(() => {

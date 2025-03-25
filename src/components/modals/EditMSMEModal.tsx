@@ -115,7 +115,7 @@ export default function EditMSMEModal({
       const path = await uploadImage(croppedFile, fileName);
       setCompanyLogo(path);
       setLogoFile(croppedFile);
-    } catch (error) {
+    } catch {
       toast.error("Failed to upload logo");
     }
   };
@@ -219,7 +219,7 @@ export default function EditMSMEModal({
           productGallery: updatedGallery,
         });
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete image");
     }
   };
@@ -240,7 +240,7 @@ export default function EditMSMEModal({
         setCompanyLogo("");
         setLogoUrl("");
         setLogoFile(null);
-      } catch (error) {
+      } catch {
         toast.error("Failed to remove logo");
       }
     } else {

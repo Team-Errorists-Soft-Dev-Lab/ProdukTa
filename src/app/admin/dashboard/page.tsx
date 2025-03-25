@@ -18,7 +18,6 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
-import { SECTOR_COLORS } from "@/lib/sector-colors";
 
 const sectorName = "coffee";
 
@@ -53,7 +52,6 @@ export default function MSMEPage() {
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisible = 2;
 
     const addPageNumber = (pageNum: number) => {
       items.push(

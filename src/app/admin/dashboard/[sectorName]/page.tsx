@@ -41,8 +41,6 @@ export default function MSMEPage({
           .includes(municipalityFilter.toLowerCase())),
   );
 
-  const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
-
   const currentMSMEs = filteredMSMEs.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,

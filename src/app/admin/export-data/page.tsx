@@ -23,12 +23,6 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
 
 const allMSMEs = [
   ...bambooMSMEs,
@@ -102,7 +96,6 @@ export default function AllMSMEs() {
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisible = 2; // Show 2 pages on each side of current page
 
     // Helper function to add page number
     const addPageNumber = (pageNum: number) => {

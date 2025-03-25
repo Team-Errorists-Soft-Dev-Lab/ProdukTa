@@ -97,7 +97,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
       setCompanyLogo(url);
       setLogoUrl(url);
       setLogoFile(croppedFile);
-    } catch (error) {
+    } catch {
       toast.error("Failed to upload logo");
     }
   };

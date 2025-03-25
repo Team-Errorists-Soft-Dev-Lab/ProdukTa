@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import "react-image-crop/dist/ReactCrop.css";
 import { validateImage, compressImage } from "@/utils/imageUtils";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface ImageCropModalProps {
   isOpen: boolean;
@@ -157,12 +158,18 @@ export default function ImageCropModal({
               minWidth={200}
               minHeight={200}
             >
-              <img
+              <Image
+                src={imageSrc}
+                alt="Crop preview"
+                width={400}
+                height={400}
+              />
+              {/* <img
                 ref={(img) => setImageRef(img)}
                 src={imageSrc}
                 alt="Crop preview"
                 className="max-h-[400px] w-full object-contain"
-              />
+              /> */}
             </ReactCrop>
           )}
         </div>

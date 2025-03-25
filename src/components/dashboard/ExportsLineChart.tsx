@@ -18,7 +18,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -26,13 +26,9 @@ import {
 
 interface ExportsLineChartProps {
   data: { month: string; exports: number }[];
-  totalExports: number;
 }
 
-export function ExportsLineChart({
-  data,
-  totalExports,
-}: ExportsLineChartProps) {
+export function ExportsLineChart({ data }: ExportsLineChartProps) {
   // Chart configuration for exports
   const exportChartConfig = {
     exports: {
