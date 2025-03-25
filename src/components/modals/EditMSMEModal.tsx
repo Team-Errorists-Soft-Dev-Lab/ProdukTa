@@ -594,7 +594,6 @@ export default function EditMSMEModal({
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
-        aspect={1} // Square aspect ratio
       />
     </Dialog>
   );
