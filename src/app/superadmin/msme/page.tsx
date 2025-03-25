@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,7 +9,15 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Plus, Search, Building2, Download } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Building2,
+  Download,
+  X,
+  Check,
+  FileDown,
+} from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AddMSMEModal from "@/components/modals/AddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
@@ -27,14 +35,26 @@ import {
 } from "@/components/ui/pagination";
 import { MSMEFilters } from "@/components/msme/MSMEFilters";
 import type { SortState, FilterState } from "@/types/table";
-import Link from "next/link";
 import { toast } from "sonner";
 import { CSVLink } from "react-csv";
-
-// Add interface extension for local use
-interface MSMEWithProducts extends MSME {
-  products: string[];
-}
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import {
+  csvHeaders,
+  getSectorName as getSectorNameUtil,
+  handleSort as handleSortUtil,
+  getCsvData,
+  filterMSMEs,
+  sortMSMEs,
+} from "@/lib/msme-utils";
+import type { MSMEWithProducts } from "@/lib/msme-utils";
+import Link from "next/link";
 
 export default function ManageMSME() {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
@@ -55,23 +75,13 @@ export default function ManageMSME() {
   const [isExportMode, setIsExportMode] = useState(false);
   const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
-  const getSectorName = (sectorId: number) => {
-    return sectors.find((s) => s.id === sectorId)?.name ?? "Unknown";
-  };
+  const getSectorName = (sectorId: number) =>
+    getSectorNameUtil(sectors, sectorId);
 
   const handleSort = (column: string) => {
-    setSortState((prev) => ({
-      column,
-      direction:
-        prev.column === column
-          ? prev.direction === "default"
-            ? "asc"
-            : prev.direction === "asc"
-              ? "desc"
-              : "default"
-          : "asc",
-    }));
+    setSortState((prev) => handleSortUtil(prev, column));
   };
 
   const handleSelectMSME = (id: number, isSelected: boolean) => {
@@ -99,87 +109,16 @@ export default function ManageMSME() {
     }
   };
 
-  const handleExport = () => {
-    if (selectedMSMEs.length === 0) {
-      toast.error("Please select at least one MSME to export", {
-        position: "top-center",
-      });
-      return;
-    }
+  const handleEdit = (msme: MSME) => {
+    setCurrentMSME(msme as MSMEWithProducts);
+    setIsEditMSMEModalOpen(true);
   };
 
-  const csvHeaders = [
-    { label: "Company Name", key: "companyName" },
-    { label: "Contact Person", key: "contactPerson" },
-    { label: "Contact Number", key: "contactNumber" },
-    { label: "Email", key: "email" },
-    { label: "Address", key: "cityMunicipalityAddress" },
-    { label: "Sector", key: "sector" },
-  ];
-
-  const getCsvData = () => {
-    return filteredMSMEs
-      .filter((msme) => selectedMSMEs.includes(msme.id))
-      .map((msme) => ({
-        ...msme,
-        sector: getSectorName(msme.sectorId),
-        products: (msme as MSMEWithProducts).products?.join(", ") || "",
-      }));
-  };
-
-  const filteredMSMEs = msmes
-    .filter((msme) => {
-      if (
-        filters.sectors.length > 0 &&
-        !filters.sectors.includes(msme.sectorId)
-      )
-        return false;
-      if (
-        filters.cities.length > 0 &&
-        !filters.cities.includes(msme.cityMunicipalityAddress)
-      )
-        return false;
-      return (
-        msme.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msme.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msme.companyDescription
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        msme.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    })
-    .sort((a, b) => {
-      if (sortState.direction === "default") return 0;
-
-      const direction = sortState.direction === "asc" ? 1 : -1;
-      const column = sortState.column;
-
-      switch (column) {
-        case "companyName":
-          return direction * a.companyName.localeCompare(b.companyName);
-        case "sector":
-          return (
-            direction *
-            getSectorName(a.sectorId).localeCompare(getSectorName(b.sectorId))
-          );
-        case "contact":
-          return (
-            direction *
-            (a.contactPerson || "").localeCompare(b.contactPerson || "")
-          );
-        case "location":
-          return (
-            direction *
-            (a.cityMunicipalityAddress || "").localeCompare(
-              b.cityMunicipalityAddress || "",
-            )
-          );
-        case "dti":
-          return direction * ((a.dti_number || 0) - (b.dti_number || 0));
-        default:
-          return 0;
-      }
-    });
+  const filteredMSMEs = sortMSMEs(
+    filterMSMEs(msmes, searchTerm, filters),
+    sortState,
+    getSectorName,
+  );
 
   const paginatedMSMEs = filteredMSMEs.slice(
     (currentPage - 1) * itemsPerPage,
@@ -189,16 +128,6 @@ export default function ManageMSME() {
   const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredMSMEs.length);
-
-  const handleEdit = (msme: MSME) => {
-    setCurrentMSME(msme as MSMEWithProducts);
-    setIsEditMSMEModalOpen(true);
-  };
-
-  // Add this useEffect to reset to page 1 when filters/search change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, searchTerm]);
 
   const renderPaginationItems = () => {
     const items = [];
@@ -326,61 +255,119 @@ export default function ManageMSME() {
               <div className="flex items-center gap-4">
                 {isExportMode ? (
                   <>
-                    {selectedMSMEs.length > 0 ? (
-                      <div className="flex space-x-2">
+                    <div className="flex items-center gap-4">
+                      <Badge
+                        variant="outline"
+                        className="h-8 border-2 border-emerald-600 bg-emerald-50 px-3 py-1.5"
+                      >
+                        <Check className="mr-1 h-4 w-4 text-emerald-600" />
+                        <span className="text-sm font-medium text-emerald-700">
+                          {selectedMSMEs.length} MSMEs selected
+                        </span>
+                      </Badge>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            className={cn(
+                              "bg-emerald-600 text-white hover:bg-emerald-700",
+                              selectedMSMEs.length === 0 &&
+                                "cursor-not-allowed opacity-50",
+                            )}
+                            disabled={selectedMSMEs.length === 0}
+                          >
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Export Selected
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            disabled={selectedMSMEs.length === 0 || isExporting}
+                            onClick={async () => {
+                              if (selectedMSMEs.length === 0) {
+                                toast.error(
+                                  "Please select at least one MSME to export",
+                                );
+                                return;
+                              }
+                              setIsExporting(true);
+                              try {
+                                document
+                                  .querySelector<HTMLAnchorElement>(
+                                    ".csv-download-link",
+                                  )
+                                  ?.click();
+                              } finally {
+                                setIsExporting(false);
+                              }
+                            }}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Export as CSV
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            disabled={selectedMSMEs.length === 0 || isExporting}
+                            asChild
+                          >
+                            <Link
+                              href={`/superadmin/pdf-export?selectedId=${JSON.stringify(selectedMSMEs)}`}
+                              onClick={(e) => {
+                                if (selectedMSMEs.length === 0) {
+                                  e.preventDefault();
+                                  toast.error(
+                                    "Please select at least one MSME to export",
+                                  );
+                                  return;
+                                }
+                                setIsExporting(true);
+                              }}
+                            >
+                              <Download
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  isExporting && "animate-spin",
+                                )}
+                              />
+                              {isExporting
+                                ? "Preparing PDF..."
+                                : "Export as PDF"}
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* Hidden CSVLink component */}
+                      <div className="hidden">
                         <CSVLink
-                          data={getCsvData()}
+                          data={getCsvData(msmes, selectedMSMEs, getSectorName)}
                           headers={csvHeaders}
                           filename="msme-data.csv"
-                          className="inline-flex"
-                        >
-                          <Button className="bg-emerald-600 hover:bg-[#51d14a]">
-                            <Download className="mr-2 h-4 w-4" />
-                            Export CSV
-                          </Button>
-                        </CSVLink>
-                        <Link
-                          href={{
-                            pathname: "/superadmin/pdf-export",
-                            query: {
-                              selectedId: JSON.stringify(selectedMSMEs),
-                            },
-                          }}
-                        >
-                          <Button className="bg-emerald-600 hover:bg-[#51d14a]">
-                            <Download className="mr-2 h-4 w-4" />
-                            Export PDF
-                          </Button>
-                        </Link>
+                          className="csv-download-link"
+                        />
                       </div>
-                    ) : (
+
                       <Button
-                        className="bg-emerald-600 font-bold opacity-50"
-                        onClick={handleExport}
+                        variant="outline"
+                        onClick={handleExportModeToggle}
+                        className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
                       >
-                        <Download className="mr-2 h-4 w-4" /> Export Data
-                        <span className="ml-2 text-xl font-bold text-white">
-                          [0]
-                        </span>
+                        <X className="mr-2 h-4 w-4" />
+                        Cancel Selection
                       </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      onClick={handleExportModeToggle}
-                      className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
-                    >
-                      Cancel
-                    </Button>
+                    </div>
                   </>
                 ) : (
                   <>
                     <Button
                       onClick={handleExportModeToggle}
                       variant="outline"
-                      className="border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-emerald-50"
+                      className="border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Export Data
+                      Select & Export
                     </Button>
                     <Button
                       onClick={() => setIsAddMSMEModalOpen(true)}

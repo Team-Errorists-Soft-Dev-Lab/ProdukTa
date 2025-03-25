@@ -1,5 +1,4 @@
 import { prisma } from "@/utils/prisma/client";
-import { z } from "zod";
 
 export async function GET() {
   try {
