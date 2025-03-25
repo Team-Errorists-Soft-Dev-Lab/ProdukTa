@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Plus, Search, Building2 } from "lucide-react";
+import { Plus, Search, Building2, Download } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AddMSMEModal from "@/components/modals/AddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
@@ -27,6 +27,14 @@ import {
 } from "@/components/ui/pagination";
 import { MSMEFilters } from "@/components/msme/MSMEFilters";
 import type { SortState, FilterState } from "@/types/table";
+import Link from "next/link";
+import { toast } from "sonner";
+import { CSVLink } from "react-csv";
+
+// Add interface extension for local use
+interface MSMEWithProducts extends MSME {
+  products: string[];
+}
 
 export default function ManageMSME() {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
@@ -35,7 +43,7 @@ export default function ManageMSME() {
   const [itemsPerPage] = useState(8);
   const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
-  const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
+  const [currentMSME, setCurrentMSME] = useState<MSMEWithProducts | null>(null);
   const [sortState, setSortState] = useState<SortState>({
     column: "",
     direction: "default",
@@ -44,6 +52,9 @@ export default function ManageMSME() {
     sectors: [],
     cities: [],
   });
+  const [isExportMode, setIsExportMode] = useState(false);
+  const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   const getSectorName = (sectorId: number) => {
     return sectors.find((s) => s.id === sectorId)?.name ?? "Unknown";
@@ -61,6 +72,59 @@ export default function ManageMSME() {
               : "default"
           : "asc",
     }));
+  };
+
+  const handleSelectMSME = (id: number, isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedMSMEs((prev) => [...prev, id]);
+    } else {
+      setSelectedMSMEs((prev) => prev.filter((msmeId) => msmeId !== id));
+    }
+  };
+
+  const handleSelectAll = (isSelected: boolean) => {
+    setSelectAll(isSelected);
+    if (isSelected) {
+      setSelectedMSMEs(filteredMSMEs.map((msme) => msme.id));
+    } else {
+      setSelectedMSMEs([]);
+    }
+  };
+
+  const handleExportModeToggle = () => {
+    setIsExportMode((prev) => !prev);
+    if (isExportMode) {
+      setSelectedMSMEs([]);
+      setSelectAll(false);
+    }
+  };
+
+  const handleExport = () => {
+    if (selectedMSMEs.length === 0) {
+      toast.error("Please select at least one MSME to export", {
+        position: "top-center",
+      });
+      return;
+    }
+  };
+
+  const csvHeaders = [
+    { label: "Company Name", key: "companyName" },
+    { label: "Contact Person", key: "contactPerson" },
+    { label: "Contact Number", key: "contactNumber" },
+    { label: "Email", key: "email" },
+    { label: "Address", key: "cityMunicipalityAddress" },
+    { label: "Sector", key: "sector" },
+  ];
+
+  const getCsvData = () => {
+    return filteredMSMEs
+      .filter((msme) => selectedMSMEs.includes(msme.id))
+      .map((msme) => ({
+        ...msme,
+        sector: getSectorName(msme.sectorId),
+        products: (msme as MSMEWithProducts).products?.join(", ") || "",
+      }));
   };
 
   const filteredMSMEs = msmes
@@ -127,9 +191,14 @@ export default function ManageMSME() {
   const endIndex = Math.min(currentPage * itemsPerPage, filteredMSMEs.length);
 
   const handleEdit = (msme: MSME) => {
-    setCurrentMSME(msme);
+    setCurrentMSME(msme as MSMEWithProducts);
     setIsEditMSMEModalOpen(true);
   };
+
+  // Add this useEffect to reset to page 1 when filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchTerm]);
 
   const renderPaginationItems = () => {
     const items = [];
@@ -209,11 +278,6 @@ export default function ManageMSME() {
     return items;
   };
 
-  // Add this useEffect to reset to page 1 when filters/search change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, searchTerm]);
-
   return (
     <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
       <div className="flex h-full flex-col">
@@ -259,14 +323,74 @@ export default function ManageMSME() {
                   onFilterChange={setFilters}
                 />
               </div>
-              <div className="flex justify-end">
-                <Button
-                  onClick={() => setIsAddMSMEModalOpen(true)}
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add MSME
-                </Button>
+              <div className="flex items-center gap-4">
+                {isExportMode ? (
+                  <>
+                    {selectedMSMEs.length > 0 ? (
+                      <div className="flex space-x-2">
+                        <CSVLink
+                          data={getCsvData()}
+                          headers={csvHeaders}
+                          filename="msme-data.csv"
+                          className="inline-flex"
+                        >
+                          <Button className="bg-emerald-600 hover:bg-[#51d14a]">
+                            <Download className="mr-2 h-4 w-4" />
+                            Export CSV
+                          </Button>
+                        </CSVLink>
+                        <Link
+                          href={{
+                            pathname: "/superadmin/pdf-export",
+                            query: {
+                              selectedId: JSON.stringify(selectedMSMEs),
+                            },
+                          }}
+                        >
+                          <Button className="bg-emerald-600 hover:bg-[#51d14a]">
+                            <Download className="mr-2 h-4 w-4" />
+                            Export PDF
+                          </Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <Button
+                        className="bg-emerald-600 font-bold opacity-50"
+                        onClick={handleExport}
+                      >
+                        <Download className="mr-2 h-4 w-4" /> Export Data
+                        <span className="ml-2 text-xl font-bold text-white">
+                          [0]
+                        </span>
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={handleExportModeToggle}
+                      className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      onClick={handleExportModeToggle}
+                      variant="outline"
+                      className="border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-emerald-50"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Export Data
+                    </Button>
+                    <Button
+                      onClick={() => setIsAddMSMEModalOpen(true)}
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add MSME
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -280,6 +404,11 @@ export default function ManageMSME() {
                 getSectorName={getSectorName}
                 sortState={sortState}
                 onSort={handleSort}
+                isExportMode={isExportMode}
+                selectedMSMEs={selectedMSMEs}
+                onSelectMSME={handleSelectMSME}
+                selectAll={selectAll}
+                onSelectAll={handleSelectAll}
               />
             </div>
 
