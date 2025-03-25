@@ -97,7 +97,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
       setCompanyLogo(url);
       setLogoUrl(url);
       setLogoFile(croppedFile);
-    } catch (error) {
+    } catch {
       toast.error("Failed to upload logo");
     }
   };
@@ -108,7 +108,8 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm() || !sectorId) return;
+    if (!validateForm() || !sectorId || latitude === null || longitude === null)
+      return;
 
     setIsSubmitting(true);
     try {
