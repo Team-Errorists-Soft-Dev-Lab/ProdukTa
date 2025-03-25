@@ -17,12 +17,16 @@ export function ExportCountView({ sectorId }: { sectorId: number }) {
   const [exportData, setExportData] = useState<ExportData>();
 
   useEffect(() => {
-    fetch(`/api/admin/export/${sectorId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setExportData(data);
-      });
-  }, [sectorId]);
+    const fetchVisitorData = async () => {
+      const response = await fetch(`/api/admin/export/${sectorId}`);
+      const data = await response.json();
+      console.log("data: ", data);
+      if (data.results) {
+        setExportData(data.results);
+      }
+    };
+    fetchVisitorData();
+  }, []);
 
   return (
     <div className="flex bg-gray-50">

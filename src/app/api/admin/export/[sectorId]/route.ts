@@ -31,7 +31,11 @@ export async function GET(
     });
 
     if (mostExportedMSME.length === 0 || mostExportedMSME[0] === undefined) {
-      return { message: "No exports found for this sector." };
+      // return { message: "No exports found for this sector." };
+      return new Response(
+        JSON.stringify({ message: "No exports found for this sector." }),
+        { headers: { "Content-Type": "application/json" } },
+      );
     }
 
     // Fetch detailed MSME data

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MSMECardView } from "@/components/admin/DashboardCardView";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import { Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { Download } from "lucide-react";
 import Link from "next/link";
 import { TopMunicipalitiesChart } from "@/components/admin/municipalityChart";
 import { SectorPieChart } from "@/components/admin/sectorPieChart";
@@ -22,7 +22,6 @@ export default function MSMEPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(3);
-  const [visitorCount, setVisitorCount] = useState(0);
   const { sectorName } = params;
 
   const sector = sectors.find(
@@ -59,21 +58,6 @@ export default function MSMEPage({
       value: msmes.filter((msme) => msme.sectorId === sector.id).length,
     }));
   }, [sectors, msmes]);
-
-  useEffect(() => {
-    const fetchVisitorCount = async () => {
-      const res = await fetch("/api/admin/visitors", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      setVisitorCount(data.visitorCount);
-    };
-
-    fetchVisitorCount();
-  }, []);
 
   const colors = [
     "#FF6384",

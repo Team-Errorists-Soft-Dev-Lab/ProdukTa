@@ -6,7 +6,6 @@ export async function GET(
 ) {
   try {
     const msmeSector = parseInt(params.sectorId);
-    // Fetch MSMEs that belong to the specified sector
     const msmesInSector = await prisma.mSME.findMany({
       where: { sectorId: msmeSector },
       select: { id: true },
@@ -14,7 +13,6 @@ export async function GET(
 
     const msmeIds = msmesInSector.map((msme) => msme.id);
 
-    // Group visitors by MSME ID and filter by the specified sector
     const topMSMEs = await prisma.visitor.groupBy({
       by: ["msmeId"],
       where: { msmeId: { in: msmeIds } },

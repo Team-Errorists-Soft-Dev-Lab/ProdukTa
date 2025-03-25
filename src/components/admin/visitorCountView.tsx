@@ -17,11 +17,15 @@ export function VisitorCountView({ sectorId }: { sectorId: number }) {
   const [mostVisitedMSME, setMostVisitedMSME] = useState("");
 
   useEffect(() => {
-    fetch(`/api/admin/visitors/${sectorId}`)
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchVisitorData = async () => {
+      const response = await fetch(`/api/admin/visitors/${sectorId}`);
+      const data = await response.json();
+      if (data.results) {
         setVisitorData(data.results);
-      });
+      }
+    };
+
+    fetchVisitorData();
   }, [sectorId]);
 
   useEffect(() => {
@@ -43,7 +47,10 @@ export function VisitorCountView({ sectorId }: { sectorId: number }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
           <StatCard title="Total Visits" value={visitorCount} />
-          <StatCard title="Most Visited MSME" value={mostVisitedMSME} />
+          <StatCard
+            title="Most Visited MSME"
+            value={mostVisitedMSME || "////////"}
+          />
         </div>
       </div>
     </div>
@@ -52,11 +59,13 @@ export function VisitorCountView({ sectorId }: { sectorId: number }) {
 
 function StatCard({ title, value }: { title: string; value: number | string }) {
   return (
-    <Card className="border-2">
-      <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-        <span className="text-4xl font-bold text-[#a67c52]">{value}</span>
-        <p className="mt-2 text-sm text-gray-600">{title}</p>
-      </CardContent>
-    </Card>
+    <div>
+      <Card className="border-2">
+        <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+          <span className="text-4xl font-bold text-[#a67c52]">{value}</span>
+          <p className="mt-2 text-sm text-gray-600">{title}</p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
