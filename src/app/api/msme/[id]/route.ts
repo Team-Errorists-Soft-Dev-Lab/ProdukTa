@@ -1,12 +1,13 @@
 import { prisma } from "@/utils/prisma/client";
 import { NextResponse } from "next/server";
+import type { MSME } from "@/types/MSME";
 
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } },
 ) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as MSME;
     const updatedMSME = await prisma.mSME.update({
       where: { id: Number(params.id) },
       data: body,
