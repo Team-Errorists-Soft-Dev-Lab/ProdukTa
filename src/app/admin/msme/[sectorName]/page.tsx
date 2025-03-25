@@ -37,7 +37,7 @@ export default function MSMEPage({
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(4);
+  const [itemsPerPage] = useState(5);
   const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
@@ -251,7 +251,7 @@ export default function MSMEPage({
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
+    <div className="h-screen max-h-screen overflow-hidden">
       <div className="flex h-full flex-col">
         <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
           <div className="flex items-center gap-2">
