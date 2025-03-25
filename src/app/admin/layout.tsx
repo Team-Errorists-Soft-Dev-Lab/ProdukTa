@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import type React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { redirect } from "next/navigation";
 import { AdminProvider } from "@/contexts/AdminContext";
@@ -24,11 +24,9 @@ export default function AdminLayout({
       <MSMEProvider>
         <div className="flex h-screen overflow-hidden bg-gray-100">
           <Sidebar />
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex flex-1 flex-col overflow-y-auto">
             <Navbar />
-            <main className="flex-1 overflow-hidden overflow-y-auto overflow-x-hidden bg-gray-100 p-2">
-              {children}
-            </main>
+            <main className="bg-gray-100 p-2">{children}</main>
           </div>
         </div>
       </MSMEProvider>
