@@ -58,7 +58,9 @@ export function MSMETableView({
   onDelete,
   getSectorName,
   sortState = { column: "", direction: "default" },
-  onSort = () => {},
+  onSort = (column: string) => {
+    console.log(`Sorting by ${column}`);
+  },
   isExportMode = false,
   selectedMSMEs = [],
   onSelectMSME,
