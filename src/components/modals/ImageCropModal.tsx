@@ -70,7 +70,9 @@ export default function ImageCropModal({
     setCrop(undefined); // Reset crop between images
     const reader = new FileReader();
     reader.addEventListener("load", () => {
-      setImageSrc(reader.result?.toString() || "");
+      if (typeof reader.result === "string") {
+        setImageSrc(reader.result);
+      }
     });
     reader.readAsDataURL(file);
   };
