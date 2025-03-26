@@ -20,14 +20,22 @@ export async function GET() {
       },
     });
 
-    const formattedAdmins = pendingAdmins.map((admin) => ({
-      id: admin.id,
-      name: admin.name,
-      email: admin.email,
-      sector: admin.sectors[0]?.sector.name ?? "Unknown",
-      dateApplied: admin.createdAt.toLocaleDateString(),
-      status: "pending" as const,
-    }));
+    const formattedAdmins = pendingAdmins.map(
+      (admin: {
+        id: number;
+        name: string;
+        email: string;
+        createdAt: Date;
+        sectors: Array<{ sector: { name: string } }>;
+      }) => ({
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        sector: admin.sectors[0]?.sector.name ?? "Unknown",
+        dateApplied: admin.createdAt.toLocaleDateString(),
+        status: "pending" as const,
+      }),
+    );
 
     return NextResponse.json({
       pendingAdmins: formattedAdmins,
