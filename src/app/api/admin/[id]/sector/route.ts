@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma/client";
 
-interface Props {
-  params: {
-    id: string;
-  };
-}
-
-export async function GET(request: Request, { params }: Props) {
+export async function GET({ params }: { params: { id: string } }) {
   try {
     const adminId = parseInt(params.id);
-
-    if (isNaN(adminId)) {
-      return NextResponse.json({ error: "Invalid admin ID" }, { status: 400 });
-    }
 
     const adminSector = await prisma.adminSectors.findFirst({
       where: {
