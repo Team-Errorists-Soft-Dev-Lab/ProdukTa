@@ -42,6 +42,7 @@ const config = {
     "src/hooks/use-toast.ts",
     "tailwind.config.ts",
     "src/utils/supabase/server.ts",
+    "lint-staged.config.cjs",
   ],
 };
 module.exports = config;

@@ -1,9 +1,9 @@
 "use client";
 
 // import { msmeLines, sectors } from "mock_data/dummyData";
+import { useCallback } from "react";
 import type { MSME } from "@/types/MSME";
 import { useState, useMemo } from "react";
-import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useMSMEContext } from "@/contexts/MSMEContext";
@@ -113,7 +113,6 @@ export default function GuestPage() {
     string[]
   >([]);
   const [sort, setSort] = useState<string>("name");
-  const [searchResult, setSearchResult] = useState<MSME[]>(msmes);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -126,11 +125,14 @@ export default function GuestPage() {
     }));
   }, [msmes, sectors]);
 
-  const searchMSME = (query: string) => {
-    return msmesWithSectorNames.filter((msme) =>
-      msme.companyName.toLowerCase().includes(query.toLowerCase()),
-    );
-  };
+  const searchMSME = useCallback(
+    (query: string) => {
+      return msmesWithSectorNames.filter((msme) =>
+        msme.companyName.toLowerCase().includes(query.toLowerCase()),
+      );
+    },
+    [msmesWithSectorNames],
+  );
 
   const sortMSMEs = (msmes: MSMEWithSectorNames[], sortType: string) => {
     switch (sortType) {
@@ -181,19 +183,13 @@ export default function GuestPage() {
     selectedSector,
     selectedMunicipalities,
     currentPage,
-    msmes,
-    sectors,
+    searchMSME,
   ]);
 
   const totalPages = Math.ceil(
     (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
       itemsPerPage,
   );
-
-  const handleSortChange = (sortType: string) => {
-    setSort(sortType);
-    setCurrentPage(1);
-  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -206,13 +202,11 @@ export default function GuestPage() {
       setSelectedSector(sector);
     }
     setSearchQuery("");
-    setSearchResult(msmes);
     setCurrentPage(1);
   };
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisible = 2; // Show 2 pages on each side of current page
 
     // Helper function to add page number
     const addPageNumber = (pageNum: number) => {
@@ -293,7 +287,6 @@ export default function GuestPage() {
     setSelectedSector(null);
     setSelectedMunicipalities([]);
     setSearchQuery("");
-    setSearchResult(msmes);
     setCurrentPage(1);
     setIsFilterOpen(false);
   };

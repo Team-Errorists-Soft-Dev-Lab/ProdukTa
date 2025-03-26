@@ -1,14 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  MapPin,
-  Phone,
-  Facebook,
-  Instagram,
-  Router,
-} from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Facebook, Instagram } from "lucide-react";
 import type { MSME } from "@/types/MSME";
 import {
   Carousel,
@@ -43,7 +36,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
       try {
         const msmeResponse = await fetch(`/api/msme/${params.id}`);
         if (!msmeResponse.ok) throw new Error("Failed to fetch MSME");
-        const msmeData = await msmeResponse.json();
+        const msmeData = (await msmeResponse.json()) as MSMEWithSectorName;
         setMSME(msmeData);
       } catch {
         console.error("Failed to fetch MSME");
@@ -53,7 +46,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchMSME();
+    fetchMSME().catch(() => router.push("Failed to fetch MSME"));
   }, [params.id, router]);
 
   useEffect(() => {
