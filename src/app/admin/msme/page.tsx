@@ -27,7 +27,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MSMETableView } from "@/components/msme/MSMETable";
 import { MSMECardView } from "@/components/admin/cardView";
 import {
   Pagination,
@@ -260,27 +259,17 @@ export default function ManageMSME() {
               />
             </div>
           </div>
-
-          {viewMode === "table" ? (
-            <MSMETableView
+          ( ) : (
+          <div className="">
+            <MSMECardView
               msmes={paginatedMSMEs}
               isLoading={isLoading}
               onEdit={handleEdit}
               onDelete={handleDeleteMSME}
               getSectorName={getSectorName}
             />
-          ) : (
-            <div className="">
-              <MSMECardView
-                msmes={paginatedMSMEs}
-                isLoading={isLoading}
-                onEdit={handleEdit}
-                onDelete={handleDeleteMSME}
-                getSectorName={getSectorName}
-              />
-            </div>
-          )}
-
+          </div>
+          )
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between border-t pt-4">
               <div className="text-sm text-gray-500">
