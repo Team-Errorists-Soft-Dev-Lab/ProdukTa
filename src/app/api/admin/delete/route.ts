@@ -1,12 +1,14 @@
 import { prisma } from "@/utils/prisma/client";
 import { createClient } from "@/utils/supabase/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { z } from "zod";
 
 const RequestSchema = z.object({
   adminId: z.number(),
 });
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
     const body = (await request.json()) as unknown;
     const { adminId } = RequestSchema.parse(body);
@@ -17,7 +19,7 @@ export async function DELETE(request: Request) {
     });
 
     if (!admin) {
-      return Response.json({ error: "Admin not found" }, { status: 404 });
+      return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
     // Delete admin from database
@@ -29,12 +31,26 @@ export async function DELETE(request: Request) {
     const supabase = await createClient();
     await supabase.auth.admin.deleteUser(admin.email);
 
-    return Response.json({ success: true });
+    return NextResponse.json(
+      { success: true },
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
   } catch (error) {
     console.error("Error deleting admin:", error);
     if (error instanceof z.ZodError) {
-      return Response.json({ error: "Invalid request data" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request data" },
+        { status: 400 },
+      );
     }
-    return Response.json({ error: "Failed to delete admin" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete admin" },
+      { status: 500 },
+    );
   }
 }
