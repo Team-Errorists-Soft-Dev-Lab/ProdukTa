@@ -189,11 +189,6 @@ export default function GuestPage() {
       itemsPerPage,
   );
 
-  const handleSortChange = (sortType: string) => {
-    setSort(sortType);
-    setCurrentPage(1);
-  };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -210,7 +205,6 @@ export default function GuestPage() {
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisible = 2; // Show 2 pages on each side of current page
 
     // Helper function to add page number
     const addPageNumber = (pageNum: number) => {
