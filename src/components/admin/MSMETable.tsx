@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import {
   Table,
   TableBody,
@@ -40,8 +42,8 @@ interface MSMETableViewProps {
   onEdit?: (msme: MSME) => void;
   onDelete?: (id: number) => void;
   getSectorName: (id: number) => string;
-  sortState: SortState;
-  onSort: (column: string) => void;
+  sortState?: SortState;
+  onSort?: (column: string) => void;
   isExportMode?: boolean;
   selectedMSMEs?: number[];
   onSelectMSME?: (id: number, isSelected: boolean) => void;
@@ -55,8 +57,8 @@ export function MSMETableView({
   onEdit,
   onDelete,
   getSectorName,
-  sortState,
-  onSort,
+  sortState = { column: "", direction: "default" },
+  onSort = () => {},
   isExportMode = false,
   selectedMSMEs = [],
   onSelectMSME,
@@ -97,10 +99,10 @@ export function MSMETableView({
     <TableHead className={columnWidths[column as keyof typeof columnWidths]}>
       <button
         className={cn(
-          "inline-flex items-center whitespace-nowrap hover:text-emerald-600",
+          "inline-flex items-center whitespace-nowrap hover:text-[#996439]",
           sortState.column === column &&
             sortState.direction !== "default" &&
-            "font-medium text-emerald-600",
+            "font-medium text-[#996439]",
         )}
         onClick={() => onSort(column)}
       >
@@ -112,10 +114,10 @@ export function MSMETableView({
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-emerald-100 shadow-sm">
+      <div className="rounded-lg border border-[#996439]/20 shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-emerald-50/50">
+            <TableRow className="bg-amber-50/50">
               {isExportMode && <TableHead className="w-[50px]" />}
               <TableHead className="w-[250px]">Company Name</TableHead>
               <TableHead>Sector</TableHead>
@@ -131,24 +133,24 @@ export function MSMETableView({
               <TableRow key={index}>
                 {isExportMode && (
                   <TableCell>
-                    <Skeleton className="h-4 w-4 bg-emerald-100/10" />
+                    <Skeleton className="h-4 w-4 bg-amber-100/10" />
                   </TableCell>
                 )}
                 <TableCell>
-                  <Skeleton className="h-6 w-[200px] bg-emerald-100/10" />
+                  <Skeleton className="h-6 w-[200px] bg-amber-100/10" />
                 </TableCell>
                 <TableCell>
-                  <Skeleton className="h-6 w-[150px] bg-emerald-100/10" />
+                  <Skeleton className="h-6 w-[150px] bg-amber-100/10" />
                 </TableCell>
                 <TableCell>
-                  <Skeleton className="h-6 w-[180px] bg-emerald-100/10" />
+                  <Skeleton className="h-6 w-[180px] bg-amber-100/10" />
                 </TableCell>
                 <TableCell>
-                  <Skeleton className="h-6 w-[200px] bg-emerald-100/10" />
+                  <Skeleton className="h-6 w-[200px] bg-amber-100/10" />
                 </TableCell>
                 {!isExportMode && (
                   <TableCell>
-                    <Skeleton className="h-6 w-[80px] bg-emerald-100/10" />
+                    <Skeleton className="h-6 w-[80px] bg-amber-100/10" />
                   </TableCell>
                 )}
               </TableRow>
@@ -161,8 +163,8 @@ export function MSMETableView({
 
   if (msmes.length === 0) {
     return (
-      <div className="flex h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-emerald-200 text-center">
-        <p className="text-lg text-emerald-600">No MSMEs found</p>
+      <div className="flex h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#996439]/20 text-center">
+        <p className="text-lg text-[#996439]">No MSMEs found</p>
       </div>
     );
   }
@@ -178,6 +180,7 @@ export function MSMETableView({
                   checked={selectAll}
                   onCheckedChange={(checked) => onSelectAll?.(checked === true)}
                   aria-label="Select all"
+                  className="border-[#996439] data-[state=checked]:bg-[#996439] data-[state=checked]:text-white"
                 />
               </TableHead>
             )}
@@ -198,7 +201,7 @@ export function MSMETableView({
             const sectorName = getSectorName(msme.sectorId);
             const sectorColor =
               SECTOR_COLORS[sectorName as keyof typeof SECTOR_COLORS] ??
-              "#4B5563";
+              "#996439";
             return (
               <TableRow key={msme.id}>
                 {isExportMode && (
@@ -209,6 +212,7 @@ export function MSMETableView({
                         onSelectMSME?.(msme.id, checked === true)
                       }
                       aria-label={`Select ${msme.companyName}`}
+                      className="border-[#996439] data-[state=checked]:bg-[#996439] data-[state=checked]:text-white"
                     />
                   </TableCell>
                 )}
@@ -234,14 +238,15 @@ export function MSMETableView({
                     <div className="text-sm">{msme.contactPerson}</div>
                     <a
                       href={`mailto:${msme.email}`}
-                      className="text-sm text-emerald-600 hover:text-emerald-700"
+                      className="text-sm text-[#996439] hover:text-[#ce9261]"
                     >
                       {msme.email}
                     </a>
                   </div>
                 </TableCell>
                 <TableCell>
-                  {msme.cityMunicipalityAddress}, {msme.provinceAddress}
+                  {msme.cityMunicipalityAddress}
+                  {msme.provinceAddress && `, ${msme.provinceAddress}`}
                 </TableCell>
                 <TableCell>{msme.dti_number}</TableCell>
                 {!isExportMode && (
@@ -253,10 +258,10 @@ export function MSMETableView({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-emerald-200"
+                              className="h-8 w-8 hover:bg-amber-100"
                               onClick={() => onEdit?.(msme)}
                             >
-                              <Edit className="h-4 w-4 text-emerald-600" />
+                              <Edit className="h-4 w-4 text-[#996439]" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Edit MSME</TooltipContent>
@@ -282,7 +287,7 @@ export function MSMETableView({
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
                                     Are you sure you want to delete{" "}
-                                    <span className="font-medium text-emerald-600">
+                                    <span className="font-medium text-[#996439]">
                                       {msme.companyName}
                                     </span>
                                     ? This action cannot be undone.

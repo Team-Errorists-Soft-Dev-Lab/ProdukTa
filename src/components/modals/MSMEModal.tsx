@@ -6,7 +6,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Phone, Facebook, Instagram } from "lucide-react";
+import { MapPin, Phone, Facebook, Instagram } from "lucide-react";
 import type { MSME } from "@/types/MSME";
 import {
   Carousel,
@@ -72,7 +72,6 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
           </DialogHeader>
 
           <div className="mt-4 grid gap-6">
-
             {MSME.productGallery && MSME.productGallery.length > 0 ? (
               <div className="relative">
                 <Carousel
@@ -103,7 +102,6 @@ export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
                       <div className="absolute left-4 right-4 top-1/2 flex -translate-y-1/2 justify-between">
                         <CarouselPrevious className="relative translate-y-0" />
                         <CarouselNext className="relative translate-y-0" />
-
                       </div>
                       <div className="mt-2 flex justify-center gap-2">
                         {MSME.productGallery.map((_, index) => (

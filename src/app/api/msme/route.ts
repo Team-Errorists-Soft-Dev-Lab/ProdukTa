@@ -1,5 +1,6 @@
 import { prisma } from "@/utils/prisma/client";
 import { NextResponse } from "next/server";
+import type { MSME } from "@/types/MSME";
 
 export async function GET() {
   try {
@@ -21,7 +22,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as MSME;
     const newMSME = await prisma.mSME.create({
       data: body,
     });

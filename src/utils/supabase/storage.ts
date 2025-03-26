@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { compressImage } from "@/utils/imageUtils";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,9 +23,6 @@ export async function uploadImage(
   fileName: string,
 ): Promise<string> {
   try {
-    // Compress image before upload
-    const compressedFile = await compressImage(file);
-
     // Generate a unique file name with timestamp
     const timestamp = Date.now();
     const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
@@ -35,7 +31,7 @@ export async function uploadImage(
     // Upload to Supabase
     const { data, error } = await supabase.storage
       .from("msme-images")
-      .upload(uniqueFileName, compressedFile);
+      .upload(uniqueFileName, file);
 
     if (error || !data) {
       throw new Error(error?.message || "Image upload failed");
