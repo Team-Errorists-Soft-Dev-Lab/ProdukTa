@@ -17,7 +17,13 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ admins });
+    // Transform the response to flatten the sectors data
+    const transformedAdmins = admins.map((admin) => ({
+      ...admin,
+      sectors: admin.sectors.map((s) => s.sector),
+    }));
+
+    return NextResponse.json({ admins: transformedAdmins });
   } catch (error) {
     console.error("Error fetching active admins:", error);
     return NextResponse.json(
