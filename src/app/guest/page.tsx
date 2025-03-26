@@ -1,6 +1,7 @@
 "use client";
 
 // import { msmeLines, sectors } from "mock_data/dummyData";
+import { useCallback } from "react";
 import type { MSME } from "@/types/MSME";
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
@@ -124,11 +125,14 @@ export default function GuestPage() {
     }));
   }, [msmes, sectors]);
 
-  const searchMSME = (query: string) => {
-    return msmesWithSectorNames.filter((msme) =>
-      msme.companyName.toLowerCase().includes(query.toLowerCase()),
-    );
-  };
+  const searchMSME = useCallback(
+    (query: string) => {
+      return msmesWithSectorNames.filter((msme) =>
+        msme.companyName.toLowerCase().includes(query.toLowerCase()),
+      );
+    },
+    [msmesWithSectorNames],
+  );
 
   const sortMSMEs = (msmes: MSMEWithSectorNames[], sortType: string) => {
     switch (sortType) {
@@ -179,8 +183,6 @@ export default function GuestPage() {
     selectedSector,
     selectedMunicipalities,
     currentPage,
-    msmes,
-    sectors,
     searchMSME,
   ]);
 
