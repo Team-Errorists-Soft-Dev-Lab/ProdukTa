@@ -9,7 +9,15 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Plus, Search, Download, Store } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Download,
+  Store,
+  X,
+  Check,
+  FileDown,
+} from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
 import AdminEditMSMEModal from "@/components/modals/AdminEditMSMEModal";
@@ -28,6 +36,15 @@ import {
 import { MSMEFilters } from "@/components/admin/MSMEFilters";
 import type { SortState, FilterState } from "@/types/table";
 import Link from "next/link";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 export default function MSMEPage({
   params,
@@ -52,6 +69,7 @@ export default function MSMEPage({
   const [isExportMode, setIsExportMode] = useState(false);
   const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const { sectorName } = params;
 
   const Sector = sectors.find(
@@ -298,38 +316,104 @@ export default function MSMEPage({
               <div className="flex items-center gap-4">
                 {isExportMode ? (
                   <>
-                    {selectedMSMEs.length > 0 ? (
-                      <Link
-                        href={{
-                          pathname: "/admin/pdf-export",
-                          query: { selectedId: JSON.stringify(selectedMSMEs) },
-                        }}
+                    <div className="flex items-center gap-4">
+                      <Badge
+                        variant="outline"
+                        className="h-8 border-2 border-[#996439] bg-amber-50 px-3 py-1.5"
                       >
-                        <Button className="bg-[#996439] font-bold hover:bg-[#ce9261]">
-                          <Download className="mr-2 h-4 w-4" /> Export Data
-                          <span className="ml-2 text-xl font-bold text-white">
-                            [{selectedMSMEs.length}]
-                          </span>
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Button
-                        className="bg-[#996439] font-bold opacity-50"
-                        disabled
-                      >
-                        <Download className="mr-2 h-4 w-4" /> Export Data
-                        <span className="ml-2 text-xl font-bold text-white">
-                          [0]
+                        <Check className="mr-1 h-4 w-4 text-[#996439]" />
+                        <span className="text-sm font-medium text-[#996439]">
+                          {selectedMSMEs.length} MSMEs selected
                         </span>
+                      </Badge>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            className={cn(
+                              "bg-[#996439] text-white hover:bg-[#ce9261]",
+                              selectedMSMEs.length === 0 &&
+                                "cursor-not-allowed opacity-50",
+                            )}
+                            disabled={selectedMSMEs.length === 0}
+                          >
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Export Selected
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            disabled={selectedMSMEs.length === 0 || isExporting}
+                            asChild
+                          >
+                            <Link
+                              href={{
+                                pathname: "/admin/csv-export",
+                                query: {
+                                  selectedId: JSON.stringify(selectedMSMEs),
+                                },
+                              }}
+                              onClick={(e) => {
+                                if (selectedMSMEs.length === 0) {
+                                  e.preventDefault();
+                                  toast.error(
+                                    "Please select at least one MSME to export",
+                                  );
+                                  return;
+                                }
+                                setIsExporting(true);
+                              }}
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Export as CSV
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            disabled={selectedMSMEs.length === 0 || isExporting}
+                            asChild
+                          >
+                            <Link
+                              href={{
+                                pathname: "/admin/pdf-export",
+                                query: {
+                                  selectedId: JSON.stringify(selectedMSMEs),
+                                },
+                              }}
+                              onClick={(e) => {
+                                if (selectedMSMEs.length === 0) {
+                                  e.preventDefault();
+                                  toast.error(
+                                    "Please select at least one MSME to export",
+                                  );
+                                  return;
+                                }
+                                setIsExporting(true);
+                              }}
+                            >
+                              <Download
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  isExporting && "animate-spin",
+                                )}
+                              />
+                              Export as PDF
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <Button
+                        variant="outline"
+                        onClick={handleExportModeToggle}
+                        className="border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white"
+                      >
+                        <X className="mr-2 h-4 w-4" />
+                        Cancel Selection
                       </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      onClick={handleExportModeToggle}
-                      className="border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white"
-                    >
-                      Cancel
-                    </Button>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -339,7 +423,7 @@ export default function MSMEPage({
                       className="border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Export Data
+                      Select & Export
                     </Button>
                     <Button
                       onClick={() => setIsAddMSMEModalOpen(true)}
