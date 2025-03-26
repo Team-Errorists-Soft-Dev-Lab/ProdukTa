@@ -3,14 +3,12 @@ import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
 import nodemailer from "nodemailer";
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 const RequestSchema = z.object({
   adminId: z.number(),
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = (await request.json()) as unknown;
     const { adminId } = RequestSchema.parse(body);
@@ -22,7 +20,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!admin) {
-      return NextResponse.json({ error: "Admin not found" }, { status: 404 });
+      return Response.json({ error: "Admin not found" }, { status: 404 });
     }
 
     // Update Supabase user metadata
@@ -45,7 +43,7 @@ export async function POST(request: NextRequest) {
       subject: "Your Admin Access Has Been Approved 🎉",
       html: `
     <h1>Dear ${admin.name},</h1>
-    <p>We're pleased to inform you that your request for admin access has been approved! You can now log in and manage your account with full administrative privileges.</p>
+    <p>We’re pleased to inform you that your request for admin access has been approved! You can now log in and manage your account with full administrative privileges.</p>
     <p>To get started, log in to your account and explore the available features.</p>
     <p>If you have any questions or need assistance, feel free to reach out.</p>
     <p>Best regards,</p>
@@ -57,18 +55,12 @@ export async function POST(request: NextRequest) {
 
     revalidatePath("/superadmin/admins", "page");
 
-    return NextResponse.json({ success: true });
+    return Response.json({ success: true });
   } catch (error) {
     console.error("Error approving admin:", error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Invalid request data" }, { status: 400 });
     }
-    return NextResponse.json(
-      { error: "Failed to approve admin" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Failed to approve admin" }, { status: 500 });
   }
 }
