@@ -3,7 +3,6 @@
 // import { msmeLines, sectors } from "mock_data/dummyData";
 import type { MSME } from "@/types/MSME";
 import { useState, useMemo } from "react";
-import MSMEModal from "@/components/modals/MSMEModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useMSMEContext } from "@/contexts/MSMEContext";
@@ -113,7 +112,6 @@ export default function GuestPage() {
     string[]
   >([]);
   const [sort, setSort] = useState<string>("name");
-  const [searchResult, setSearchResult] = useState<MSME[]>(msmes);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -183,6 +181,7 @@ export default function GuestPage() {
     currentPage,
     msmes,
     sectors,
+    searchMSME,
   ]);
 
   const totalPages = Math.ceil(
@@ -206,7 +205,6 @@ export default function GuestPage() {
       setSelectedSector(sector);
     }
     setSearchQuery("");
-    setSearchResult(msmes);
     setCurrentPage(1);
   };
 
@@ -293,7 +291,6 @@ export default function GuestPage() {
     setSelectedSector(null);
     setSelectedMunicipalities([]);
     setSearchQuery("");
-    setSearchResult(msmes);
     setCurrentPage(1);
     setIsFilterOpen(false);
   };
