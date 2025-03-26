@@ -24,7 +24,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ sector: adminSector.sector });
+    return NextResponse.json({ sector: adminSector.sector }, { status: 200 });
   } catch (error) {
     console.error("Error fetching admin sector:", error);
     return NextResponse.json(
