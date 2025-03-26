@@ -10,7 +10,11 @@ export async function PUT(
     const body = (await request.json()) as MSME;
     const updatedMSME = await prisma.mSME.update({
       where: { id: Number(params.id) },
-      data: body,
+      data: {
+        ...body,
+        longitude: body.longitude ?? 0,
+        latitude: body.latitude ?? 0,
+      },
     });
 
     return NextResponse.json(updatedMSME);
