@@ -324,7 +324,10 @@ export default function GuestPage() {
             <div className="relative w-full flex-1 sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400" />
               <Input
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 type="text"
                 placeholder="Search MSMEs..."
                 className="w-full bg-white pl-10 text-[#8B4513]"
