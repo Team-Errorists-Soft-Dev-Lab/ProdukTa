@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    console.log("Fetching active admins...");
+
     const admins = await prisma.admin.findMany({
       where: {
         isPending: false,
@@ -16,6 +18,16 @@ export async function GET() {
         },
       },
     });
+
+    if (!admins || admins.length === 0) {
+      console.error("No active admins found");
+      return NextResponse.json(
+        { error: "No active admins found" },
+        { status: 404 },
+      );
+    }
+
+    console.log("Admins fetched:", admins);
 
     return NextResponse.json({ admins });
   } catch (error) {
