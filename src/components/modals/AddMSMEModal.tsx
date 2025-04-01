@@ -570,7 +570,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
-        aspect={1} // Square aspect ratio
+        // aspect={1} // Square aspect ratio
       />
     </Dialog>
   );

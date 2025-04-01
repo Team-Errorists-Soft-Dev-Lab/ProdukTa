@@ -13,8 +13,8 @@ export type MSME = {
   provinceAddress: string;
   cityMunicipalityAddress: string;
   barangayAddress: string;
-  longitude: number | null;
-  latitude: number | null;
+  longitude: number;
+  latitude: number;
   yearEstablished: number;
   dti_number: number;
   sectorId: number;
