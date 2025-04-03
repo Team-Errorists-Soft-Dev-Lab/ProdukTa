@@ -20,18 +20,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-
-interface MSME {
-  id: string;
-  contactPerson: string;
-  contactNumber: string;
-  email: string;
-  cityMunicipalityAddress: string;
-  companyName: string;
-  products: string[];
-  sectorId?: number;
-  dti_number?: string;
-}
+import type { ExportMSME } from "@/types/MSME";
 
 const csvHeaders = [
   { label: "Company Name", key: "companyName" },
@@ -45,7 +34,7 @@ const csvHeaders = [
 export default function CSVExportPage() {
   const searchParams = useSearchParams();
   const [selectedId, setSelectedId] = useState<string[]>([]);
-  const [msmeData, setMsmeData] = useState<MSME[]>([]);
+  const [msmeData, setMsmeData] = useState<ExportMSME[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -76,7 +65,7 @@ export default function CSVExportPage() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = ((await response.json()) as { msmes: MSME[] }).msmes;
+        const data = ((await response.json()) as { msmes: ExportMSME[] }).msmes;
         setMsmeData(data);
         hasFetchedRef.current = true;
       } catch (error) {

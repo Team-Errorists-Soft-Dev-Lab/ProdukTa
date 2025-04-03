@@ -27,12 +27,7 @@ import { uploadImage, deleteImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-
-interface EditMSMEModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  msme: MSME | null;
-}
+import type { EditMSMEModalProps } from "@/types/MSME";
 
 export default function EditMSMEModal({
   isOpen,

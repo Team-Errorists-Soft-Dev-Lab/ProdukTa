@@ -9,13 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
-
-interface LocationSelectProps {
-  value: string;
-  onValueChange: (value: string) => void;
-  required?: boolean;
-  disabled?: boolean;
-}
+import type { LocationSelectProps } from "@/types/location";
 
 export function LocationSelect({
   value,

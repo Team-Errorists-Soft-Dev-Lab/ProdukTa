@@ -12,6 +12,7 @@ import {
   Bar,
 } from "recharts";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
+import type { BarChart2Props } from "@/types/charts";
 
 const MSMEPerSector = [
   { name: "Bamboo", color: SECTOR_COLORS.Bamboo },
@@ -33,12 +34,6 @@ const getSectorInfo = (sectorName: string) => {
     }
   );
 };
-
-interface BarChart2Props {
-  data: Array<{ name: string; uv: number }>;
-  label: string;
-  color?: string;
-}
 
 const BarChart2: React.FC<BarChart2Props> = ({ data, label }) => {
   const { color } = getSectorInfo(label);

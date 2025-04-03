@@ -21,22 +21,12 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-
-interface MSME {
-  id: string;
-  contactPerson: string;
-  contactNumber: string;
-  email: string;
-  cityMunicipalityAddress: string;
-  companyName: string;
-  products: string[];
-  sectorId?: number;
-}
+import type { ExportMSME } from "@/types/MSME";
 
 export default function ExportData() {
   const searchParams = useSearchParams();
   const [selectedId, setSelectedId] = useState<string[]>([]);
-  const [msmeData, setMsmeData] = useState<MSME[]>([]);
+  const [msmeData, setMsmeData] = useState<ExportMSME[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -67,7 +57,7 @@ export default function ExportData() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = ((await response.json()) as { msmes: MSME[] }).msmes;
+        const data = ((await response.json()) as { msmes: ExportMSME[] }).msmes;
         setMsmeData(data);
         hasFetchedRef.current = true;
       } catch (error) {
@@ -84,7 +74,7 @@ export default function ExportData() {
   }, [selectedId]);
 
   const generatePDFContent = (
-    msme: MSME,
+    msme: ExportMSME,
     actualMsmeWidth: number,
     actualMsmeHeight: number,
   ) => {

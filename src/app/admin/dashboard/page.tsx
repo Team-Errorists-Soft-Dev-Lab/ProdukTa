@@ -51,6 +51,14 @@ export default function MSMEPage() {
     setCurrentPage(page);
   };
 
+  const edit = () => {
+    // Edit functionality
+  };
+
+  const deleteMSME = () => {
+    // Delete functionality
+  };
+
   const renderPaginationItems = () => {
     const items = [];
     // const maxVisible = 2;
@@ -166,6 +174,8 @@ export default function MSMEPage() {
           </div>
 
           <MSMECardView
+            onEdit={edit}
+            onDelete={deleteMSME}
             msmes={currentMSMEs}
             isLoading={isLoading}
             getSectorName={getSectorName}

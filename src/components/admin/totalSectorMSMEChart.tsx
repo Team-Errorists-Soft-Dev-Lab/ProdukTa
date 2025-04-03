@@ -2,11 +2,7 @@
 
 import { PieChart, Pie, Cell } from "recharts";
 import { CardContent } from "@/components/ui/card";
-
-interface SmallSectorPieChartProps {
-  totalMSMEs: number;
-  sectorName: string;
-}
+import type { SmallSectorPieChartProps } from "@/types/sector";
 
 export function TotalSectorMSMEChart({
   totalMSMEs,

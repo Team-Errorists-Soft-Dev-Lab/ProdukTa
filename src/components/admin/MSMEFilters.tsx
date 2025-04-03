@@ -16,14 +16,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
-import type { FilterState } from "@/types/table";
-import type { Sector } from "@/types/superadmin";
-
-interface MSMEFiltersProps {
-  sectors: Sector[];
-  filters: FilterState;
-  onFilterChange: (filters: FilterState) => void;
-}
+import type { MSMEFiltersProps } from "@/types/MSME";
 
 export function MSMEFilters({
   sectors,

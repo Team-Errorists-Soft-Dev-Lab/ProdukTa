@@ -18,12 +18,7 @@ import { Label } from "@/components/ui/label";
 import "react-image-crop/dist/ReactCrop.css";
 import { validateImage } from "@/utils/imageUtils";
 import { toast } from "sonner";
-
-interface ImageCropModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCropComplete: (file: File) => void;
-}
+import type { ImageCropModalProps } from "@/types/image";
 
 function centerAspectCrop(
   mediaWidth: number,

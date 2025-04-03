@@ -19,16 +19,10 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import type { MSME } from "@/types/superadmin";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
 import { useAuth } from "@/contexts/AuthContext";
-
-interface EditMSMEModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  msme: MSME | null;
-}
+import type { EditMSMEModalProps } from "@/types/MSME";
 
 export default function EditMSMEModal({
   isOpen,
