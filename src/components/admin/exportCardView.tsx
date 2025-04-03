@@ -8,19 +8,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, MapPin } from "lucide-react";
-import type { MSME } from "@/types/superadmin";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSectorIcon } from "@/lib/utils";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 import { Checkbox } from "@/components/ui/checkbox";
-
-interface MSMECardViewProps {
-  msmes: MSME[];
-  isLoading: boolean;
-  getSectorName: (id: number) => string;
-  selectedMSMEs: number[];
-  onSelectMSME: (id: number, checked: boolean) => void;
-}
+import type { MSMECardViewPropsWithEditDelete as MSMECardViewProps } from "@/types/MSME";
 
 export function MSMECardView({
   msmes,

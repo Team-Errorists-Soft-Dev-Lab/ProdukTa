@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
-import type { MSME } from "@/types/superadmin";
+import type { MSME } from "@/types/MSME";
 import type { SortState } from "@/types/table";
 import {
   AlertDialog,
@@ -33,21 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
-
-interface MSMETableViewProps {
-  msmes: MSME[];
-  isLoading: boolean;
-  onEdit?: (msme: MSME) => void;
-  onDelete?: (id: number) => void;
-  getSectorName: (id: number) => string;
-  sortState: SortState;
-  onSort: (column: string) => void;
-  isExportMode?: boolean;
-  selectedMSMEs?: number[];
-  onSelectMSME?: (id: number, isSelected: boolean) => void;
-  selectAll?: boolean;
-  onSelectAll?: (isSelected: boolean) => void;
-}
+import { MSMETableViewProps } from "@/types/MSME";
 
 export function MSMETableView({
   msmes,
@@ -64,13 +50,13 @@ export function MSMETableView({
   onSelectAll,
 }: MSMETableViewProps) {
   const SortIcon = ({ column }: { column: string }) => {
-    if (sortState.column !== column) {
+    if (sortState?.column !== column) {
       return <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400" />;
     }
-    if (sortState.direction === "default") {
+    if (sortState?.direction === "default") {
       return <ArrowUpDown className="ml-2 h-4 w-4" />;
     }
-    return sortState.direction === "asc" ? (
+    return sortState?.direction === "asc" ? (
       <ChevronUp className="ml-2 h-4 w-4" />
     ) : (
       <ChevronDown className="ml-2 h-4 w-4" />
@@ -98,11 +84,15 @@ export function MSMETableView({
       <button
         className={cn(
           "inline-flex items-center whitespace-nowrap hover:text-emerald-600",
-          sortState.column === column &&
-            sortState.direction !== "default" &&
+          sortState?.column === column &&
+            sortState?.direction !== "default" &&
             "font-medium text-emerald-600",
         )}
-        onClick={() => onSort(column)}
+        onClick={() => {
+          if (onSort) {
+            onSort(column);
+          }
+        }}
       >
         {children}
         <SortIcon column={column} />

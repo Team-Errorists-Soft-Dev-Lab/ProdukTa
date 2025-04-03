@@ -21,17 +21,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-
-interface MSME {
-  id: string;
-  contactPerson: string;
-  contactNumber: string;
-  email: string;
-  cityMunicipalityAddress: string;
-  companyName: string;
-  products: string[];
-  sectorId?: number;
-}
+import type { ExportMSME as MSME } from "@/types/MSME";
 
 export default function ExportData() {
   const searchParams = useSearchParams();

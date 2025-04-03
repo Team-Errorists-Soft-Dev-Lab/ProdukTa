@@ -28,11 +28,7 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { uploadImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "./ImageCropModal";
-
-interface AddMSMEModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import type { AddMSMEModalProps } from "@/types/MSME";
 
 export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const { handleAddMSME } = useMSMEContext();

@@ -3,8 +3,6 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    console.log("Fetching active admins...");
-
     const admins = await prisma.admin.findMany({
       where: {
         isPending: false,
