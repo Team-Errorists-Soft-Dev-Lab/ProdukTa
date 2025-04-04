@@ -18,6 +18,11 @@ interface VisitorContextType {
   fetchVisitors: (sectorName: string) => Promise<void>;
 }
 
+interface VisitorResponse {
+  results: Visitor[];
+  error?: string;
+}
+
 const VisitorContext = createContext<VisitorContextType | undefined>(undefined);
 
 export const VisitorProvider = ({ children }: { children: ReactNode }) => {
@@ -36,7 +41,7 @@ export const VisitorProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as VisitorResponse;
 
       if (data.error) {
         setVisitors(null);

@@ -44,8 +44,12 @@ export default function MSMEPage({
   );
 
   useEffect(() => {
-    fetchExportDetails(sectorName);
-    fetchVisitors(sectorName);
+    fetchExportDetails(sectorName).catch((error) => {
+      console.error("Error fetching export details:", error);
+    });
+    fetchVisitors(sectorName).catch((error) => {
+      console.error("Error fetching visitors:", error);
+    });
   }, [sectorName]);
 
   // Filter MSMEs for this sector
