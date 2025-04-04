@@ -1,4 +1,5 @@
 import { prisma } from "@/utils/prisma/client";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -28,13 +29,13 @@ export async function GET() {
       status: "pending" as const,
     }));
 
-    return Response.json({
+    return NextResponse.json({
       pendingAdmins: formattedAdmins,
       count: formattedAdmins.length,
     });
   } catch (error) {
     console.error("Error fetching pending admins:", error);
-    return Response.json(
+    return NextResponse.json(
       { error: "Failed to fetch pending admins" },
       { status: 500 },
     );

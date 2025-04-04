@@ -18,17 +18,17 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import {
-  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
+import type { ExportsLineChartProps } from "@/types/export";
 
-interface ExportsLineChartProps {
-  data: { month: string; exports: number }[];
-}
-
-export function ExportsLineChart({ data }: ExportsLineChartProps) {
+export function ExportsLineChart({
+  data,
+  // totalExports,
+}: ExportsLineChartProps) {
   // Chart configuration for exports
   const exportChartConfig = {
     exports: {

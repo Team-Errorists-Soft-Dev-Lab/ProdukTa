@@ -17,10 +17,7 @@ import type { CarouselApi } from "@/components/ui/carousel";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
-
-interface MSMEWithSectorName extends MSME {
-  sectorName: string | null;
-}
+import type { MSMEWithSectorName } from "@/types/MSME";
 
 export default function MSMEPage({ params }: { params: { id: string } }) {
   const [MSME, setMSME] = useState<MSMEWithSectorName>();
@@ -68,7 +65,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchMSME().catch((error) => console.error(error));
+    fetchMSME().catch(() => router.push("Failed to fetch MSME"));
   }, [params.id, router]);
 
   useEffect(() => {

@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   Users,
-  FileText,
   User,
   LogOut,
   ChevronLeft,
@@ -129,7 +128,7 @@ export default function Sidebar() {
             Manage MSMEs
           </span>
         </Link>
-        <Link
+        {/* <Link
           href={`/admin/export-data/${sectorPath}`}
           className={cn(
             "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
@@ -146,7 +145,7 @@ export default function Sidebar() {
           >
             Export Data
           </span>
-        </Link>
+        </Link> */}
         <Link
           href="/guest"
           className={cn(

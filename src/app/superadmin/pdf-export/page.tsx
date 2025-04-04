@@ -21,17 +21,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-
-interface MSME {
-  id: string;
-  contactPerson: string;
-  contactNumber: string;
-  email: string;
-  cityMunicipalityAddress: string;
-  companyName: string;
-  products: string[];
-  sectorId?: number;
-}
+import type { ExportMSME as MSME } from "@/types/MSME";
 
 export default function ExportData() {
   const searchParams = useSearchParams();
@@ -231,7 +221,7 @@ export default function ExportData() {
           </div>
           <Button
             onClick={exportToPDF}
-            className="bg-emerald-600 hover:bg-[#51d14a]"
+            className="bg-emerald-600 hover:bg-emerald-500"
             disabled={isLoading || msmeData.length === 0}
           >
             {isLoading ? (

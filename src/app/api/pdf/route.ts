@@ -2,6 +2,11 @@ import { prisma } from "@/utils/prisma/client";
 import { NextResponse } from "next/server";
 import type { MSME } from "@/types/MSME";
 
+type MSMECreateInput = Omit<MSME, "longitude" | "latitude"> & {
+  longitude: number;
+  latitude: number;
+};
+
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -52,8 +57,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const body = (await request.json()) as MSMECreateInput;
   try {
-    const body = (await request.json()) as MSME;
     const newMSME = await prisma.mSME.create({
       data: body,
     });

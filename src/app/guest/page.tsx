@@ -2,7 +2,6 @@
 
 // import { msmeLines, sectors } from "mock_data/dummyData";
 import { useCallback } from "react";
-import type { MSME } from "@/types/MSME";
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -34,12 +33,9 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import type { MSMEWithSectorName } from "@/types/MSME";
 
 const itemsPerPage = 15;
-
-interface MSMEWithSectorNames extends MSME {
-  sectorName: string;
-}
 
 const municipalities = {
   "1st District": [
@@ -135,7 +131,7 @@ export default function GuestPage() {
     [msmesWithSectorNames],
   );
 
-  const sortMSMEs = (msmes: MSMEWithSectorNames[], sortType: string) => {
+  const sortMSMEs = (msmes: MSMEWithSectorName[], sortType: string) => {
     switch (sortType) {
       case "name":
         return [...msmes].sort((a, b) =>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -26,12 +26,8 @@ import { LocationSelect } from "@/components/forms/LocationSelect";
 import { uploadImage, deleteImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
-
-interface EditMSMEModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  msme: MSME | null;
-}
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import type { EditMSMEModalProps } from "@/types/MSME";
 
 export default function EditMSMEModal({
   isOpen,
@@ -58,6 +54,15 @@ export default function EditMSMEModal({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+  });
 
   useEffect(() => {
     if (msme) {
@@ -73,6 +78,11 @@ export default function EditMSMEModal({
       setYearEstablished(msme.yearEstablished.toString());
       setDTINumber(msme.dti_number.toString());
       setSectorId(msme.sectorId);
+      setLatitude(msme.latitude || null);
+      setLongitude(msme.longitude || null);
+      if (msme.latitude && msme.longitude) {
+        setMarker({ lat: msme.latitude, lng: msme.longitude });
+      }
     }
   }, [msme]);
 
@@ -81,6 +91,26 @@ export default function EditMSMEModal({
       setLogoUrl(msme.companyLogo);
     }
   }, [msme]);
+
+  const defaultMapCenter = useMemo(
+    () => ({
+      lat: latitude || 10.7202, // Default latitude for Iloilo City
+      lng: longitude || 122.5621, // Default longitude for Iloilo City
+    }),
+    [latitude, longitude],
+  );
+
+  const handleMapClick = (event: google.maps.MapMouseEvent) => {
+    if (event.latLng) {
+      const newMarker = {
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+      };
+      setMarker(newMarker);
+      setLatitude(newMarker.lat);
+      setLongitude(newMarker.lng);
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -100,6 +130,7 @@ export default function EditMSMEModal({
     if (!yearEstablished) newErrors.yearEstablished = "Year is required";
     if (!dtiNumber.trim()) newErrors.dtiNumber = "DTI number is required";
     if (!sectorId) newErrors.sectorId = "Sector is required";
+    if (!latitude || !longitude) newErrors.location = "Location is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -122,7 +153,8 @@ export default function EditMSMEModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm() || !msme || !sectorId) return;
+    if (!validateForm() || !msme || !sectorId || !latitude || !longitude)
+      return;
 
     setIsSubmitting(true);
     try {
@@ -165,10 +197,9 @@ export default function EditMSMEModal({
         yearEstablished: parseInt(yearEstablished),
         dti_number: parseInt(dtiNumber),
         sectorId,
-
         majorProductLines: msme.majorProductLines || [],
-        longitude: msme.longitude || 0,
-        latitude: msme.latitude || 0,
+        longitude,
+        latitude,
       });
 
       onClose();
@@ -563,6 +594,34 @@ export default function EditMSMEModal({
               </div>
             )}
           </div>
+          <div className="mt-6 space-y-6">
+            <div>
+              <Label htmlFor="location" className="text-sm font-medium">
+                Pin Location <span className="text-red-500">*</span>
+              </Label>
+
+              {!isLoaded ? (
+                <div>Loading...</div>
+              ) : (
+                <div className="container mx-auto p-4">
+                  <GoogleMap
+                    mapContainerStyle={{
+                      width: "100%",
+                      height: "400px",
+                    }}
+                    center={defaultMapCenter}
+                    zoom={12}
+                    onClick={handleMapClick}
+                  >
+                    {marker && <Marker position={marker} />}
+                  </GoogleMap>
+                </div>
+              )}
+              {errors.location && (
+                <p className="mt-1 text-sm text-red-500">{errors.location}</p>
+              )}
+            </div>
+          </div>
           <div className="flex items-center justify-end gap-4">
             <Button
               type="button"
@@ -594,7 +653,6 @@ export default function EditMSMEModal({
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
-        aspect={1} // Square aspect ratio
       />
     </Dialog>
   );

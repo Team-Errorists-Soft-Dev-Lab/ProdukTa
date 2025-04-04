@@ -28,10 +28,7 @@ import { uploadImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-interface AddMSMEModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import type { AddMSMEModalProps } from "@/types/MSME";
 
 export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const { sectors, handleAddMSME } = useMSMEContext();
@@ -108,7 +105,8 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm() || !sectorId) return;
+    if (!validateForm() || !sectorId || latitude === null || longitude === null)
+      return;
 
     setIsSubmitting(true);
     try {
@@ -569,7 +567,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
-        aspect={1} // Square aspect ratio
+        // aspect={1} // Square aspect ratio
       />
     </Dialog>
   );

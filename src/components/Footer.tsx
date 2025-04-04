@@ -21,14 +21,13 @@ export default function Footer() {
           <a key={social} href="#" className="text-[#8B4513]">
             <span className="sr-only">{social}</span>
             <div className="h-6 w-6">
+              {/* <img src={`${social}.svg`} alt={social} className="h-full w-full" /> */}
               <Image
-                src={`${social}.svg`}
+                src={`/images/${social}.svg`}
                 alt={social}
-                className="h-full w-full"
                 width={24}
                 height={24}
               />
-              {/* <img src={`${social}.svg`} alt={social} className="h-full w-full" /> */}
             </div>
           </a>
         ))}

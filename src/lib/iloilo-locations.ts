@@ -1,7 +1,4 @@
-export interface Location {
-  name: string;
-  type: "city" | "municipality";
-}
+import type { Location } from "@/types/location";
 
 export const ILOILO_LOCATIONS: Location[] = [
   // Cities

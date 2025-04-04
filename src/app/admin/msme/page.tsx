@@ -18,16 +18,15 @@ import {
   Table as TableIcon,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import AddMSMEModal from "@/components/modals/AddMSMEModal";
-import EditMSMEModal from "@/components/modals/EditMSMEModal";
-import type { MSME } from "@/types/superadmin";
+import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
+import AdminEditMSMEModal from "@/components/modals/AdminEditMSMEModal";
+import type { MSME } from "@/types/MSME";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MSMETableView } from "@/components/msme/MSMETable";
 import { MSMECardView } from "@/components/admin/cardView";
 import {
   Pagination,
@@ -260,27 +259,17 @@ export default function ManageMSME() {
               />
             </div>
           </div>
-
-          {viewMode === "table" ? (
-            <MSMETableView
+          ( ) : (
+          <div className="">
+            <MSMECardView
               msmes={paginatedMSMEs}
               isLoading={isLoading}
               onEdit={handleEdit}
               onDelete={handleDeleteMSME}
               getSectorName={getSectorName}
             />
-          ) : (
-            <div className="">
-              <MSMECardView
-                msmes={paginatedMSMEs}
-                isLoading={isLoading}
-                onEdit={handleEdit}
-                onDelete={handleDeleteMSME}
-                getSectorName={getSectorName}
-              />
-            </div>
-          )}
-
+          </div>
+          )
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between border-t pt-4">
               <div className="text-sm text-gray-500">
@@ -320,11 +309,11 @@ export default function ManageMSME() {
         </CardContent>
       </Card>
 
-      <AddMSMEModal
+      <AdminAddMSMEModal
         isOpen={isAddMSMEModalOpen}
         onClose={() => setIsAddMSMEModalOpen(false)}
       />
-      <EditMSMEModal
+      <AdminEditMSMEModal
         isOpen={isEditMSMEModalOpen}
         onClose={() => setIsEditMSMEModalOpen(false)}
         msme={currentMSME}
