@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Phone, Facebook, Instagram } from "lucide-react";
-import type { MSME } from "@/types/MSME";
 import {
   Carousel,
   CarouselContent,

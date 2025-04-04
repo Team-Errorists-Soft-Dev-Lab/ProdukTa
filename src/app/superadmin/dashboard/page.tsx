@@ -197,7 +197,10 @@ export default function Dashboard() {
             <CardDescription>Monthly data export trends</CardDescription>
           </CardHeader>
           <CardContent className="pb-4">
-            <ExportsLineChart data={lineChartData} />
+            <ExportsLineChart
+              data={lineChartData}
+              totalExports={totalExports}
+            />
           </CardContent>
         </Card>
 

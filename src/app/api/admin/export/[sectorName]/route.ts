@@ -1,25 +1,44 @@
 import { prisma } from "@/utils/prisma/client";
+import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { sectorId: string } },
+  { params }: { params: { sectorName: string } },
 ) {
   try {
-    const totalExports = await prisma.exportLog.count({
+    const { sectorName } = params;
+
+    // Find the sector by name
+    const sector = await prisma.sector.findFirst({
       where: {
-        MSME: {
-          sectorId: parseInt(params.sectorId),
+        name: {
+          equals: sectorName,
+          mode: "insensitive", // Case insensitive search
         },
       },
     });
 
-    const sectorId = parseInt(params.sectorId);
+    if (!sector) {
+      return NextResponse.json(
+        { message: "Sector not found" },
+        { status: 404 },
+      );
+    }
+
+    const totalExports = await prisma.exportLog.count({
+      where: {
+        MSME: {
+          sectorId: sector.id,
+        },
+      },
+    });
+
     const mostExportedMSME = await prisma.exportLog.groupBy({
       by: ["msmeId"],
       _count: { msmeId: true },
       where: {
         MSME: {
-          sectorId: sectorId,
+          sectorId: sector.id,
         },
       },
       orderBy: {
@@ -31,11 +50,9 @@ export async function GET(
     });
 
     if (mostExportedMSME.length === 0 || mostExportedMSME[0] === undefined) {
-      // return { message: "No exports found for this sector." };
-      return new Response(
-        JSON.stringify({ message: "No exports found for this sector." }),
-        { headers: { "Content-Type": "application/json" } },
-      );
+      return new NextResponse(JSON.stringify({ message: "No MSME found" }), {
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Fetch detailed MSME data

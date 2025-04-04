@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/select";
 import { Loader2, X } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import type { MSME } from "@/types/MSME";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
 import { uploadImage, deleteImage } from "@/utils/supabase/storage";

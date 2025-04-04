@@ -1,4 +1,4 @@
-import { SignupSector } from "@/types/sector";
+import type { SignupSector } from "@/types/sector";
 
 export interface ApiResponse {
   sectors: SignupSector[];
