@@ -8,16 +8,15 @@ import ReactCrop, {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import "react-image-crop/dist/ReactCrop.css";
-import { validateImage } from "@/utils/imageUtils";
 import { toast } from "sonner";
+import { Dropzone, DropzoneEmptyState } from "@/components/ui/dropzone";
+import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import type { ImageCropModalProps } from "@/types/image";
 
 function centerAspectCrop(
@@ -44,6 +43,7 @@ export default function ImageCropModal({
   isOpen,
   onClose,
   onCropComplete,
+  aspect = 1,
 }: ImageCropModalProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
@@ -51,28 +51,30 @@ export default function ImageCropModal({
   const imgRef = useRef<HTMLImageElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const logoUpload = useSupabaseUpload({
+    bucketName: "msme-images",
+    path: "logos",
+    maxFileSize: 5 * 1000 * 1000, // 5MB
+    maxFiles: 1,
+    allowedMimeTypes: ["image/*"],
+    upsert: true,
+  });
 
-    // Validate image
-    const validation = validateImage(file);
-    if (!validation.isValid) {
-      toast.error(validation.error);
-      return;
-    }
-
+  const handleDropzoneFile = (file: File) => {
     setCrop(undefined); // Reset crop between images
     const reader = new FileReader();
     reader.addEventListener("load", () => {
-      setImageSrc(reader.result?.toString() || "");
+      const result = reader.result;
+      if (typeof result === "string") {
+        setImageSrc(result);
+      }
     });
     reader.readAsDataURL(file);
   };
 
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget;
-    setCrop(centerAspectCrop(width, height, 1));
+    setCrop(centerAspectCrop(width, height, aspect));
   };
 
   const getCroppedImg = useCallback(async (): Promise<File> => {
@@ -147,24 +149,26 @@ export default function ImageCropModal({
     onClose();
   };
 
+  // When dropzone files change
+  React.useEffect(() => {
+    if (logoUpload.files.length > 0 && logoUpload.files[0]) {
+      handleDropzoneFile(logoUpload.files[0]);
+    }
+  }, [logoUpload.files]);
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
-        <DialogDescription />
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           {!imageSrc && (
             <div className="space-y-2">
-              <Label htmlFor="image-upload">Select Image</Label>
-              <Input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={isLoading}
-              />
+              <Label>Upload Logo</Label>
+              <Dropzone {...logoUpload}>
+                <DropzoneEmptyState />
+              </Dropzone>
             </div>
           )}
 
@@ -173,7 +177,7 @@ export default function ImageCropModal({
               crop={crop}
               onChange={(_, percentCrop) => setCrop(percentCrop)}
               onComplete={(c) => setCompletedCrop(c)}
-              aspect={1}
+              aspect={aspect}
               minWidth={100}
               minHeight={100}
               className="max-h-[400px] w-full"
