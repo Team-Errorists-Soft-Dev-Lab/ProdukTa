@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
-import type { MSME } from "@/types/superadmin";
+import type { MSME } from "@/types/MSME";
 import type { SortState } from "@/types/table";
 import {
   AlertDialog,
@@ -35,21 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
-
-interface MSMETableViewProps {
-  msmes: MSME[];
-  isLoading: boolean;
-  onEdit?: (msme: MSME) => void;
-  onDelete?: (id: number) => void;
-  getSectorName: (id: number) => string;
-  sortState?: SortState;
-  onSort?: (column: string) => void;
-  isExportMode?: boolean;
-  selectedMSMEs?: number[];
-  onSelectMSME?: (id: number, isSelected: boolean) => void;
-  selectAll?: boolean;
-  onSelectAll?: (isSelected: boolean) => void;
-}
+import type { MSMETableViewProps } from "@/types/MSME";
 
 export function MSMETableView({
   msmes,

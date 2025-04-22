@@ -20,7 +20,7 @@ import {
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
 import AdminEditMSMEModal from "@/components/modals/AdminEditMSMEModal";
-import type { MSME } from "@/types/superadmin";
+import type { MSME } from "@/types/MSME";
 import {
   Tooltip,
   TooltipContent,

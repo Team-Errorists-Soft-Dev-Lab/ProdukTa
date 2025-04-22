@@ -108,6 +108,14 @@ export default function ExportDataPage({
     );
   };
 
+  const onEdit = () => {
+    // Edit functionality
+  };
+
+  const onDelete = () => {
+    // Delete functionality
+  };
+
   useEffect(() => {
     setCurrentPage(1);
   }, [itemsPerPage, filteredMSMEs]);
@@ -257,6 +265,8 @@ export default function ExportDataPage({
         </div>
       )}
       <MSMECardView
+        onEdit={onEdit}
+        onDelete={onDelete}
         msmes={currentMSMEs}
         isLoading={isLoading}
         getSectorName={getSectorName}

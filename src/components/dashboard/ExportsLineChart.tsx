@@ -23,10 +23,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
-interface ExportsLineChartProps {
-  data: { month: string; exports: number }[];
-  totalExports: number;
-}
+import type { ExportsLineChartProps } from "@/types/export";
 
 export function ExportsLineChart({
   data,

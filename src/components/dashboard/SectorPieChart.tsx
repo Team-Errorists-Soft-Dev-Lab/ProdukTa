@@ -16,16 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-interface Sector {
-  name: string;
-  value: number;
-}
-
-interface SectorPieChartProps {
-  sectors: Sector[];
-  colors: string[];
-}
+import type { SectorPieChartProps } from "@/types/sector";
 
 export function SectorPieChart({ sectors, colors }: SectorPieChartProps) {
   // Calculate total MSMEs

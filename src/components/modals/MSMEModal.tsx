@@ -7,7 +7,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Facebook, Instagram } from "lucide-react";
-import type { MSME } from "@/types/MSME";
 import {
   Carousel,
   CarouselContent,
@@ -20,11 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import MapComponent from "@/components/map/MapComponent";
 import { useState, useEffect } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
-
-interface MSMEModalProps {
-  MSME: MSME;
-  sectorName: string;
-}
+import type { MSMEModalProps } from "@/types/MSME";
 
 export default function MSMEModal({ MSME, sectorName }: MSMEModalProps) {
   const [api, setApi] = useState<CarouselApi>();

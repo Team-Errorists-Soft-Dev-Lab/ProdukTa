@@ -4,11 +4,7 @@ import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LatLngExpression } from "leaflet";
 import { Icon } from "leaflet";
-
-interface MapComponentProps {
-  latitude: number;
-  longitude: number;
-}
+import type { MapComponentProps } from "@/types/location";
 
 export default function MapComponent({
   latitude,
