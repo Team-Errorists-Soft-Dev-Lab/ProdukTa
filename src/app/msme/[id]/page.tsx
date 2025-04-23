@@ -29,7 +29,6 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const addVisitorCount = async () => {
       const msmeId = MSME?.id;
-      console.log("MSME id: ", msmeId);
       if (!msmeId) return;
       const response = await fetch("/api/admin/visitors", {
         method: "POST",
@@ -38,7 +37,6 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
         },
         body: JSON.stringify({ msmeId }),
       });
-      console.log("Response: ", response);
     };
 
     if (MSME?.id) {
