@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download, Store, FileText, MapPin } from "lucide-react";
 import {
   Card,
@@ -36,6 +36,9 @@ export default function MSMEPage({
   const { exportDetails, fetchExportDetails, isLoadingExportData } =
     useExportDetailsContext();
   const { visitors, fetchVisitors, isLoadingVisitors } = useVisitorContext();
+  const [lineChartData, setLineChartData] = useState<
+    { month: string; exports: number }[]
+  >([]);
 
   const sector = sectors.find(
     (sector) =>
@@ -57,18 +60,34 @@ export default function MSMEPage({
     return msmes.filter((msme) => msme.sectorId === sector?.id);
   }, [msmes, sector]);
 
+  const formattedData = Object.entries(
+    exportDetails?.monthlyExportCounts || {},
+  ).map(([month, exports]) => ({
+    month: new Date(`${month}-01`).toLocaleString("default", {
+      month: "long",
+    }), // Convert YYYY-MM to month name
+    exports: exports as number,
+  }));
+
+  useEffect(() => {
+    if (exportDetails) {
+      setLineChartData(formattedData);
+      console.log("Formatted data:", formattedData);
+    }
+  }, [exportDetails]);
+
   // Export analytics data transformed for line chart (mock data)
-  const lineChartData = useMemo(
-    () => [
-      { month: "January", exports: 12 },
-      { month: "February", exports: 18 },
-      { month: "March", exports: 15 },
-      { month: "April", exports: 22 },
-      { month: "May", exports: 27 },
-      { month: "June", exports: 20 },
-    ],
-    [],
-  );
+  // const lineChartData = useMemo(
+  //   () => [
+  //     { month: "January", exports: 12 },
+  //     { month: "February", exports: 18 },
+  //     { month: "March", exports: 15 },
+  //     { month: "April", exports: 22 },
+  //     { month: "May", exports: 27 },
+  //     { month: "June", exports: 20 },
+  //   ],
+  //   [],
+  // );
 
   // Calculate total exports from line chart data
   const totalExports = useMemo(() => {
@@ -218,7 +237,7 @@ export default function MSMEPage({
               <CardTitle className="text-lg text-[#996439]">
                 Data Exports
               </CardTitle>
-              <CardDescription>This month</CardDescription>
+              <CardDescription>By the top MSME</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-end justify-between">

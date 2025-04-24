@@ -9,6 +9,7 @@ interface ExportDetails {
   msmeDetails: MSME;
   exportCount: number;
   totalExports: number;
+  monthlyExportCounts: Record<string, number>;
   message?: string;
 }
 
@@ -46,6 +47,7 @@ export const ExportDetailsProvider = ({
       }
 
       const data = (await response.json()) as ExportDetails;
+      console.log("Export details data:", data);
 
       if (data.message === "No MSME found") {
         setExportDetails(null);

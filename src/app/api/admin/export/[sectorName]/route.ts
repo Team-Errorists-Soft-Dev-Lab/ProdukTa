@@ -33,6 +33,30 @@ export async function GET(
       },
     });
 
+    const exportCountsByMonth = await prisma.exportLog.groupBy({
+      by: ["exportedAt"],
+      _count: {
+        id: true,
+      },
+      where: {
+        MSME: {
+          sectorId: sector.id,
+        },
+      },
+      orderBy: {
+        exportedAt: "asc",
+      },
+    });
+
+    const monthlyExportCounts = exportCountsByMonth.reduce(
+      (acc, log) => {
+        const month = log.exportedAt.toISOString().slice(0, 7);
+        acc[month] = (acc[month] || 0) + log._count.id;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     const mostExportedMSME = await prisma.exportLog.groupBy({
       by: ["msmeId"],
       _count: { msmeId: true },
@@ -66,6 +90,7 @@ export async function GET(
       msmeDetails,
       exportCount: mostExportedMSME[0]._count.msmeId,
       totalExports,
+      monthlyExportCounts,
     };
 
     return new Response(JSON.stringify(result), {
