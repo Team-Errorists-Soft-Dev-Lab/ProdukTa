@@ -32,11 +32,26 @@ interface ApiResponse<T> {
 interface MSMEContextType {
   sectors: Sector[];
   msmes: MSME[];
+  pagedMSMEs: MSME[];
+  totalPages: number;
   isLoading: boolean;
   error: Error | null;
+  fetchPagedMSMEs: (page: number) => Promise<void>;
   handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
   handleDeleteMSME: (msmeId: number) => Promise<void>;
+}
+
+interface PagedMSMEsResponse {
+  msmes: MSME[];
+  meta: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }
 
 const MSMEContext = createContext<MSMEContextType | undefined>(undefined);
@@ -44,6 +59,25 @@ const MSMEContext = createContext<MSMEContextType | undefined>(undefined);
 export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [msmes, setMSMEs] = useState<MSME[]>([]);
+  const [pagedMSMEs, setPagedMSMEs] = useState<MSME[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState<boolean>();
+
+  const fetchPagedMSMEs = async (page: number) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/msme/paginated-msme/${page}`);
+      if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
+
+      const data = (await response.json()) as PagedMSMEsResponse;
+      setPagedMSMEs(data.msmes);
+      setTotalPages(data.meta.totalPages);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching paged MSMEs:", error);
+      toast.error("Failed to fetch paged MSMEs");
+    }
+  };
 
   const fetchMSMEs = async () => {
     try {
@@ -73,6 +107,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     void fetchMSMEs();
+    void fetchPagedMSMEs(1);
     void fetchSectors();
   }, []);
 
@@ -175,8 +210,11 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       value={{
         sectors,
         msmes: msmes || [],
-        isLoading: !sectors.length,
+        pagedMSMEs,
+        totalPages,
+        isLoading: isLoading || false,
         error: null,
+        fetchPagedMSMEs,
         handleAddMSME,
         handleUpdateMSME,
         handleDeleteMSME,

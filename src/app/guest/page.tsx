@@ -1,7 +1,7 @@
 "use client";
 
 // import { msmeLines, sectors } from "mock_data/dummyData";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -34,8 +34,6 @@ import {
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import type { MSMEWithSectorName } from "@/types/MSME";
-
-const itemsPerPage = 15;
 
 const municipalities = {
   "1st District": [
@@ -103,7 +101,9 @@ const municipalities = {
 };
 
 export default function GuestPage() {
-  const { msmes, sectors, isLoading } = useMSMEContext();
+  // const [msmes, setMSMEs] = useState<MSME[]>([]);
+  const { pagedMSMEs, totalPages, sectors, isLoading, fetchPagedMSMEs } =
+    useMSMEContext();
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<
     string[]
@@ -114,13 +114,13 @@ export default function GuestPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const msmesWithSectorNames = useMemo(() => {
-    return msmes.map((msme) => ({
+    return pagedMSMEs.map((msme) => ({
       ...msme,
       sectorName:
         sectors.find((sector) => sector.id === msme.sectorId)?.name ??
         "Unknown Sector",
     }));
-  }, [msmes, sectors]);
+  }, [pagedMSMEs, sectors]);
 
   const searchMSME = useCallback(
     (query: string) => {
@@ -171,8 +171,7 @@ export default function GuestPage() {
 
     const sorted = sortMSMEs(filtered, sort);
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return sorted.slice(startIndex, startIndex + itemsPerPage);
+    return sorted;
   }, [
     searchQuery,
     msmesWithSectorNames,
@@ -183,13 +182,10 @@ export default function GuestPage() {
     searchMSME,
   ]);
 
-  const totalPages = Math.ceil(
-    (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
-      itemsPerPage,
-  );
-
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    fetchPagedMSMEs(page).then(() => {
+      setCurrentPage(page);
+    });
   };
 
   const handleSectorChange = (sector: string) => {
@@ -200,6 +196,7 @@ export default function GuestPage() {
     }
     setSearchQuery("");
     setCurrentPage(1);
+    fetchPagedMSMEs(1);
   };
 
   const renderPaginationItems = () => {
@@ -215,7 +212,7 @@ export default function GuestPage() {
             className={cn(
               "min-w-9 rounded-md",
               currentPage === pageNum
-                ? "bg-[#8B4513] text-white hover:bg-[#A0522D]"
+                ? "pointer-events-none bg-[#8B4513] text-white hover:bg-[#A0522D]"
                 : "text-[#8B4513] hover:bg-[#8B4513]/10",
             )}
           >
@@ -285,6 +282,7 @@ export default function GuestPage() {
     setSelectedMunicipalities([]);
     setSearchQuery("");
     setCurrentPage(1);
+    fetchPagedMSMEs(1);
     setIsFilterOpen(false);
   };
 
@@ -296,6 +294,10 @@ export default function GuestPage() {
     );
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+    fetchPagedMSMEs(currentPage);
+  }, [currentPage]);
 
   if (isLoading) {
     return (
@@ -550,6 +552,3 @@ export default function GuestPage() {
     </div>
   );
 }
-
-// note: make a MSME card to display MSME
-// note: Make MSME Modal to page
