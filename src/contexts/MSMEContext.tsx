@@ -35,8 +35,10 @@ interface MSMEContextType {
   pagedMSMEs: MSME[];
   totalPages: number;
   isLoading: boolean;
+  isSearching: boolean;
   error: Error | null;
   fetchPagedMSMEs: (page: number) => Promise<void>;
+  searchMSMEs: (searchQuery: string) => Promise<void>;
   handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
   handleDeleteMSME: (msmeId: number) => Promise<void>;
@@ -62,6 +64,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [pagedMSMEs, setPagedMSMEs] = useState<MSME[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState<boolean>();
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const fetchPagedMSMEs = async (page: number) => {
     try {
@@ -79,6 +82,26 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const searchMSMEs = async (searchQuery: string) => {
+    try {
+      setIsSearching(true);
+      const response = await fetch(`/api/msme/search/${searchQuery}`);
+      if (!response.ok) {
+        toast.error("Failed to search MSMEs");
+        throw new Error("Failed to search MSMEs");
+      }
+
+      const data = (await response.json()) as MSME[];
+      setPagedMSMEs(data);
+      setIsSearching(false);
+      setTotalPages(1); // Reset total pages to 1 since we are showing search results
+    } catch (error) {
+      console.error("Error searching MSMEs:", error);
+      toast.error("Failed to search MSMEs");
+    }
+  };
+
+  // const fetchSortedMSMEs = async ()
   const fetchMSMEs = async () => {
     try {
       const response = await fetch("/api/msme");
@@ -213,8 +236,10 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
         pagedMSMEs,
         totalPages,
         isLoading: isLoading || false,
+        isSearching,
         error: null,
         fetchPagedMSMEs,
+        searchMSMEs,
         handleAddMSME,
         handleUpdateMSME,
         handleDeleteMSME,

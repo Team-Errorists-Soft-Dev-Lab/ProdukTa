@@ -23,7 +23,7 @@ export default function Footer() {
             <div className="h-6 w-6">
               {/* <img src={`${social}.svg`} alt={social} className="h-full w-full" /> */}
               <Image
-                src={`/images/${social}.svg`}
+                src={`/${social}.svg`}
                 alt={social}
                 width={24}
                 height={24}

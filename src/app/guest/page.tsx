@@ -1,6 +1,5 @@
 "use client";
 
-// import { msmeLines, sectors } from "mock_data/dummyData";
 import { useCallback, useEffect } from "react";
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
@@ -33,77 +32,20 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { municipalities } from "@/lib/municipalities";
 import type { MSMEWithSectorName } from "@/types/MSME";
-
-const municipalities = {
-  "1st District": [
-    "Guimbal",
-    "Igbaras",
-    "Miagao",
-    "Oton",
-    "San Joaquin",
-    "Tigbauan",
-    "Tubungan",
-  ],
-  "2nd District": [
-    "Alimodian",
-    "Leganes",
-    "Leon",
-    "New Lucena",
-    "Pavia",
-    "San Miguel",
-    "Santa Barbara",
-    "Zarraga",
-  ],
-  "3rd District": [
-    "Badiangan",
-    "Bingawan",
-    "Cabatuan",
-    "Calinog",
-    "Janiuay",
-    "Lambunao",
-    "Maasin",
-    "Mina",
-    "Pototan",
-  ],
-  "4th District": [
-    "Anilao",
-    "Banate",
-    "Barotac Nuevo",
-    "Dingle",
-    "Dueñas",
-    "Dumangas",
-    "Passi",
-    "San Enrique",
-  ],
-  "5th District": [
-    "Ajuy",
-    "Balasan",
-    "Barotac Viejo",
-    "Batad",
-    "Carles",
-    "Concepcion",
-    "Estancia",
-    "Lemery",
-    "San Dionisio",
-    "San Rafael",
-    "Sara",
-  ],
-  "Iloilo City": [
-    "Arevalo",
-    "City Proper",
-    "Jaro",
-    "La Paz",
-    "Lapuz",
-    "Mandurriao",
-    "Molo",
-  ],
-};
+import { toast } from "sonner";
 
 export default function GuestPage() {
-  // const [msmes, setMSMEs] = useState<MSME[]>([]);
-  const { pagedMSMEs, totalPages, sectors, isLoading, fetchPagedMSMEs } =
-    useMSMEContext();
+  const {
+    pagedMSMEs,
+    searchMSMEs,
+    isSearching,
+    totalPages,
+    sectors,
+    isLoading,
+    fetchPagedMSMEs,
+  } = useMSMEContext();
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<
     string[]
@@ -112,9 +54,10 @@ export default function GuestPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<MSMEWithSectorName[]>([]);
 
   const msmesWithSectorNames = useMemo(() => {
-    return pagedMSMEs.map((msme) => ({
+    return (pagedMSMEs || []).map((msme) => ({
       ...msme,
       sectorName:
         sectors.find((sector) => sector.id === msme.sectorId)?.name ??
@@ -122,14 +65,45 @@ export default function GuestPage() {
     }));
   }, [pagedMSMEs, sectors]);
 
-  const searchMSME = useCallback(
-    (query: string) => {
-      return msmesWithSectorNames.filter((msme) =>
-        msme.companyName.toLowerCase().includes(query.toLowerCase()),
+  const handleSearch = async (query: string) => {
+    if (query.trim() === "") {
+      setSearchResults([]);
+      await fetchPagedMSMEs(1);
+      return;
+    }
+
+    if (query.length < 2) {
+      toast.error("Search term must be at least 2 characters long", {
+        duration: 3000,
+        description: "Please enter a longer search term.",
+      });
+      return;
+    }
+
+    try {
+      const results = (await searchMSMEs(
+        query,
+      )) as unknown as MSMEWithSectorName[];
+
+      setSearchResults(
+        (results ?? []).map((msme) => ({
+          ...msme,
+          sectorName:
+            sectors.find((sector) => sector.id === msme.sectorId)?.name ??
+            "Unknown Sector",
+        })),
       );
-    },
-    [msmesWithSectorNames],
-  );
+    } catch (error) {
+      console.error("Error during searchMSMEs: ", error);
+      setSearchResults([]); // Handle errors gracefully
+    }
+  };
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      await handleSearch(searchQuery);
+    }
+  };
 
   const sortMSMEs = (msmes: MSMEWithSectorName[], sortType: string) => {
     switch (sortType) {
@@ -153,6 +127,26 @@ export default function GuestPage() {
   };
 
   const displayedMSME = useMemo(() => {
+    // If we have search results, use those
+    if (searchResults.length > 0) {
+      let filtered = searchResults;
+
+      if (selectedSector) {
+        filtered = filtered.filter(
+          (msme) => msme.sectorName === selectedSector,
+        );
+      }
+
+      if (selectedMunicipalities.length > 0) {
+        filtered = filtered.filter((msme) =>
+          selectedMunicipalities.includes(msme.cityMunicipalityAddress),
+        );
+      }
+
+      return sortMSMEs(filtered, sort);
+    }
+
+    // Otherwise use the paged data
     let filtered = msmesWithSectorNames;
 
     if (selectedSector) {
@@ -165,38 +159,37 @@ export default function GuestPage() {
       );
     }
 
-    if (searchQuery) {
-      filtered = searchMSME(searchQuery);
-    }
-
-    const sorted = sortMSMEs(filtered, sort);
-
-    return sorted;
+    return sortMSMEs(filtered, sort);
   }, [
-    searchQuery,
     msmesWithSectorNames,
     sort,
     selectedSector,
     selectedMunicipalities,
-    currentPage,
-    searchMSME,
+    searchResults,
   ]);
 
   const handlePageChange = (page: number) => {
-    fetchPagedMSMEs(page).then(() => {
-      setCurrentPage(page);
-    });
+    fetchPagedMSMEs(page)
+      .then(() => {
+        setCurrentPage(page);
+        setSearchResults([]); // Clear search results when paginating
+      })
+      .catch((error) => {
+        console.error("Error fetching paged MSMEs:", error);
+        toast.error("Failed to fetch paged MSMEs");
+      });
   };
 
-  const handleSectorChange = (sector: string) => {
+  const handleSectorChange = async (sector: string) => {
     if (sector === "All") {
       setSelectedSector(null);
     } else {
       setSelectedSector(sector);
     }
     setSearchQuery("");
+    setSearchResults([]); // Clear search results when changing sector
     setCurrentPage(1);
-    fetchPagedMSMEs(1);
+    await fetchPagedMSMEs(1);
   };
 
   const renderPaginationItems = () => {
@@ -277,12 +270,13 @@ export default function GuestPage() {
     return items;
   };
 
-  const resetFilters = () => {
+  const resetFilters = async () => {
     setSelectedSector(null);
     setSelectedMunicipalities([]);
     setSearchQuery("");
+    setSearchResults([]);
     setCurrentPage(1);
-    fetchPagedMSMEs(1);
+    await fetchPagedMSMEs(1);
     setIsFilterOpen(false);
   };
 
@@ -293,10 +287,11 @@ export default function GuestPage() {
         : [...prev, municipality],
     );
     setCurrentPage(1);
+    setSearchResults([]);
   };
 
   useEffect(() => {
-    fetchPagedMSMEs(currentPage);
+    void fetchPagedMSMEs(currentPage);
   }, [currentPage]);
 
   if (isLoading) {
@@ -323,9 +318,11 @@ export default function GuestPage() {
             <div className="relative w-full flex-1 sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400" />
               <Input
+                value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 type="text"
-                placeholder="Search MSMEs..."
+                placeholder="Search MSMEs... (Press Enter to search)"
                 className="w-full bg-white pl-10 text-[#8B4513]"
               />
             </div>
@@ -457,65 +454,71 @@ export default function GuestPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {displayedMSME.length > 0 ? (
-            displayedMSME.map((msme) => (
-              <Dialog key={msme.id}>
-                <Link href={`/msme/${msme.id}`} passHref>
-                  <DialogTrigger asChild>
-                    <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
-                      <CardHeader className="p-0">
-                        <Image
-                          src={`${msme.productGallery?.[0] ?? "/placeholder.png"}`}
-                          alt={msme.companyName}
-                          width={400}
-                          height={200}
-                          className="h-48 w-full object-cover"
-                        />
-                      </CardHeader>
+        {isSearching ? (
+          <div className="flex justify-center py-8">
+            <Spinner />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {displayedMSME.length > 0 ? (
+              displayedMSME.map((msme) => (
+                <Dialog key={msme.id}>
+                  <Link href={`/msme/${msme.id}`} passHref>
+                    <DialogTrigger asChild>
+                      <Card className="flex min-h-[400px] cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md">
+                        <CardHeader className="p-0">
+                          <Image
+                            src={`${msme.productGallery?.[0] ?? "/placeholder.png"}`}
+                            alt={msme.companyName}
+                            width={400}
+                            height={200}
+                            className="h-48 w-full object-cover"
+                          />
+                        </CardHeader>
 
-                      <CardContent className="flex flex-1 flex-col p-4">
-                        <div className="flex-1">
-                          <div className="mb-2 flex items-center justify-between">
-                            <CardTitle className="text-lg font-semibold text-[#8B4513]">
-                              {msme.companyName}
-                            </CardTitle>
-                            <Badge
-                              variant="secondary"
-                              className="text-xs font-normal"
-                            >
-                              {msme.sectorName}
-                            </Badge>
+                        <CardContent className="flex flex-1 flex-col p-4">
+                          <div className="flex-1">
+                            <div className="mb-2 flex items-center justify-between">
+                              <CardTitle className="text-lg font-semibold text-[#8B4513]">
+                                {msme.companyName}
+                              </CardTitle>
+                              <Badge
+                                variant="secondary"
+                                className="text-xs font-normal"
+                              >
+                                {msme.sectorName}
+                              </Badge>
+                            </div>
+                            <p className="mb-4 line-clamp-2 text-sm text-gray-600">
+                              {msme.companyDescription}
+                            </p>
                           </div>
-                          <p className="mb-4 line-clamp-2 text-sm text-gray-600">
-                            {msme.companyDescription}
-                          </p>
-                        </div>
-                        <div className="mt-auto flex items-center justify-between text-sm">
-                          <span className="max-w-[150px] truncate text-gray-500">
-                            {msme.cityMunicipalityAddress}
-                          </span>
-                          <Button
-                            variant="link"
-                            className="h-auto p-0 font-normal text-[#8B4513]"
-                          >
-                            View Details
-                            <ArrowRight className="ml-1 h-3 w-3" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </DialogTrigger>
-                </Link>
-              </Dialog>
-            ))
-          ) : (
-            <p className="col-span-3 text-center text-gray-500">
-              No results found
-            </p>
-          )}
-        </div>
-        {totalPages > 1 && (
+                          <div className="mt-auto flex items-center justify-between text-sm">
+                            <span className="max-w-[150px] truncate text-gray-500">
+                              {msme.cityMunicipalityAddress}
+                            </span>
+                            <Button
+                              variant="link"
+                              className="h-auto p-0 font-normal text-[#8B4513]"
+                            >
+                              View Details
+                              <ArrowRight className="ml-1 h-3 w-3" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                  </Link>
+                </Dialog>
+              ))
+            ) : (
+              <p className="col-span-3 text-center text-gray-500">
+                No results found
+              </p>
+            )}
+          </div>
+        )}
+        {searchResults.length === 0 && totalPages > 1 && (
           <div className="mt-6">
             <Pagination>
               <PaginationContent className="gap-2">
