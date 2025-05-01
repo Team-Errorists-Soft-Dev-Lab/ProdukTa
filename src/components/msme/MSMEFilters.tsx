@@ -1,7 +1,4 @@
 import React from "react";
-
-import type { FilterState } from "@/types/table";
-import type { Sector } from "@/types/sector";
 import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

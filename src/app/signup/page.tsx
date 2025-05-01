@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type Sector from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";

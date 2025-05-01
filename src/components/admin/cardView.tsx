@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash, Mail, Phone, MapPin } from "lucide-react";
-import type { MSME } from "@/types/MSME";
 import {
   AlertDialog,
   AlertDialogAction,

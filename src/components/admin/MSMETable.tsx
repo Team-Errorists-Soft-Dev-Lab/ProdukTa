@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
-import type { MSME } from "@/types/MSME";
-import type { SortState } from "@/types/table";
 import {
   AlertDialog,
   AlertDialogAction,
