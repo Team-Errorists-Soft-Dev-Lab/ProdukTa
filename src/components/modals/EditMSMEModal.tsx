@@ -27,6 +27,12 @@ import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import type { EditMSMEModalProps } from "@/types/MSME";
+import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
+import {
+  Dropzone,
+  DropzoneContent,
+  DropzoneEmptyState,
+} from "@/components/ui/dropzone";
 
 export default function EditMSMEModal({
   isOpen,
@@ -48,8 +54,6 @@ export default function EditMSMEModal({
   const [yearEstablished, setYearEstablished] = useState("");
   const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
@@ -58,9 +62,19 @@ export default function EditMSMEModal({
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(
     null,
   );
+  const [isReplacingImages, setIsReplacingImages] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+  });
+
+  const productImagesUpload = useSupabaseUpload({
+    bucketName: "msme-images",
+    path: "products",
+    maxFileSize: 10 * 1000 * 1000, // 10MB
+    maxFiles: 5,
+    allowedMimeTypes: ["image/*"],
+    upsert: true,
   });
 
   useEffect(() => {
@@ -82,6 +96,7 @@ export default function EditMSMEModal({
       if (msme.latitude && msme.longitude) {
         setMarker({ lat: msme.latitude, lng: msme.longitude });
       }
+      setIsReplacingImages(false);
     }
   }, [msme]);
 
@@ -142,8 +157,9 @@ export default function EditMSMEModal({
         await deleteImage(msme.companyLogo);
       }
       const fileName = `logo-${Date.now()}`;
-      const path = await uploadImage(croppedFile, fileName);
-      setCompanyLogo(path);
+      const url = await uploadImage(croppedFile, fileName);
+      setCompanyLogo(url);
+      setLogoUrl(url);
       setLogoFile(croppedFile);
     } catch {
       toast.error("Failed to upload logo");
@@ -164,29 +180,28 @@ export default function EditMSMEModal({
         logoUrl = await uploadImage(logoFile, fileName);
       }
 
-      // Handle product images upload
-      let imageUrls: string[] = msme.productGallery || [];
-      if (selectedFiles.length > 0) {
-        // Delete old images if they exist
-        if (msme.productGallery && msme.productGallery.length > 0) {
-          await Promise.all(
-            msme.productGallery.map((path) => deleteImage(path)),
-          );
+      // Get the uploaded product image URLs
+      const imageUrls = productImagesUpload.successes.map((fileName) => {
+        // Ensure the URL is properly formatted
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        if (fileName.includes("storage/v1/object/public")) {
+          return fileName;
         }
-        // Upload new images
-        imageUrls = await Promise.all(
-          selectedFiles.map((file, index) =>
-            uploadImage(file, `product-${Date.now()}-${index}`),
-          ),
-        );
-      }
+        return `${supabaseUrl}/storage/v1/object/public/msme-images/products/${fileName}`;
+      });
+
+      // If we're replacing images, only use the new uploads
+      // Otherwise, combine new uploads with existing images
+      const updatedGallery = isReplacingImages
+        ? imageUrls
+        : [...(msme.productGallery || []), ...imageUrls];
 
       await handleUpdateMSME({
         ...msme,
         companyName,
         companyDescription,
         companyLogo: logoUrl,
-        productGallery: imageUrls,
+        productGallery: updatedGallery,
         contactPerson,
         contactNumber,
         email,
@@ -222,22 +237,6 @@ export default function EditMSMEModal({
     (_, i) => currentYear - i,
   );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
-      setSelectedFiles(files);
-
-      // Create preview URLs
-      const urls = files.map((file) => URL.createObjectURL(file));
-      setPreviewUrls(urls);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const handleDeleteExistingImage = async (imageUrl: string, index: number) => {
     try {
       await deleteImage(imageUrl);
@@ -248,36 +247,26 @@ export default function EditMSMEModal({
           ...msme,
           productGallery: updatedGallery,
         });
+
+        // If all images are deleted, automatically set to replacing mode
+        if (updatedGallery.length === 0) {
+          setIsReplacingImages(true);
+        }
       }
     } catch {
       toast.error("Failed to delete image");
     }
   };
 
-  const clearImageSelection = () => {
-    setSelectedFiles([]);
-    setPreviewUrls([]);
+  // Function to handle replacing all existing images
+  const handleReplaceAllImages = () => {
+    setIsReplacingImages(true);
   };
 
-  const clearLogoSelection = async () => {
-    if (msme?.companyLogo) {
-      try {
-        await deleteImage(msme.companyLogo);
-        await handleUpdateMSME({
-          ...msme,
-          companyLogo: "",
-        });
-        setCompanyLogo("");
-        setLogoUrl("");
-        setLogoFile(null);
-      } catch {
-        toast.error("Failed to remove logo");
-      }
-    } else {
-      setCompanyLogo("");
-      setLogoUrl("");
-      setLogoFile(null);
-    }
+  // Function to cancel replacement and revert to showing existing images
+  const handleCancelReplacement = () => {
+    setIsReplacingImages(false);
+    productImagesUpload.setFiles([]);
   };
 
   if (!msme) return null;
@@ -338,9 +327,9 @@ export default function EditMSMEModal({
               </div>
               <div>
                 <Label htmlFor="companyLogo">Company Logo</Label>
-                <div className="mt-1.5 flex items-center gap-4">
+                <div className="mt-1.5 flex flex-col gap-4">
                   {logoUrl && (
-                    <div className="relative">
+                    <div className="relative inline-block">
                       <Image
                         src={logoUrl}
                         alt="Company logo"
@@ -353,7 +342,11 @@ export default function EditMSMEModal({
                         variant="destructive"
                         size="icon"
                         className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
-                        onClick={clearLogoSelection}
+                        onClick={() => {
+                          setCompanyLogo("");
+                          setLogoUrl("");
+                          setLogoFile(null);
+                        }}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -518,59 +511,15 @@ export default function EditMSMEModal({
             </div>
           </div>
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="images">Product Images</Label>
-              {(previewUrls.length > 0 ||
-                (msme?.productGallery && msme.productGallery.length > 0)) && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={clearImageSelection}
-                >
-                  Clear Selection
-                </Button>
-              )}
-            </div>
-            <Input
-              id="images"
-              type="file"
-              multiple
-              onChange={handleFileChange}
-              accept="image/*"
-              className="mt-1.5"
-            />
-            <p className="text-sm text-muted-foreground">
-              Upload up to 5 images of your products or business
-            </p>
+            <Label>Product Images</Label>
 
-            {(previewUrls.length > 0 ||
-              (msme?.productGallery && msme.productGallery.length > 0)) && (
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {previewUrls.map((url, index) => (
-                  <div key={index} className="group relative">
-                    <Image
-                      src={url}
-                      alt={`Preview ${index + 1}`}
-                      className="h-24 w-full rounded-md object-cover"
-                      width={200}
-                      height={96}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1 h-6 w-6 rounded-full bg-red-500/80 p-1 hover:bg-red-500"
-                      onClick={() => removeFile(index)}
-                    >
-                      <X className="h-4 w-4 text-white" />
-                    </Button>
-                  </div>
-                ))}
-
-                {msme?.productGallery &&
-                  !previewUrls.length &&
-                  msme.productGallery.map((url, index) => (
+            {/* Show existing product gallery if not replacing images */}
+            {!isReplacingImages &&
+            msme?.productGallery &&
+            msme.productGallery.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-2">
+                  {msme.productGallery.map((url, index) => (
                     <div key={`existing-${index}`} className="group relative">
                       <Image
                         src={url}
@@ -590,6 +539,43 @@ export default function EditMSMEModal({
                       </Button>
                     </div>
                   ))}
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleReplaceAllImages}
+                    className="text-sm"
+                  >
+                    Replace Images
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Dropzone {...productImagesUpload}>
+                  <DropzoneEmptyState />
+                  <DropzoneContent />
+                </Dropzone>
+                <p className="text-sm text-muted-foreground">
+                  Upload up to 5 images of your products (max 10MB each)
+                </p>
+
+                {/* Show option to cancel replacement if in replacing mode */}
+                {isReplacingImages &&
+                  msme?.productGallery &&
+                  msme.productGallery.length > 0 && (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancelReplacement}
+                        className="text-sm"
+                      >
+                        Cancel Replacement
+                      </Button>
+                    </div>
+                  )}
               </div>
             )}
           </div>
@@ -652,6 +638,7 @@ export default function EditMSMEModal({
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
+        aspect={1} // Square aspect ratio
       />
     </Dialog>
   );
