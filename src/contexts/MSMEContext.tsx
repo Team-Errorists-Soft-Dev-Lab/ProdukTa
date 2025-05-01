@@ -44,30 +44,38 @@ const MSMEContext = createContext<MSMEContextType | undefined>(undefined);
 export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [msmes, setMSMEs] = useState<MSME[]>([]);
+  const [loadingMSMEs, setLoadingMSMEs] = useState(true);
+  const [loadingSectors, setLoadingSectors] = useState(true);
 
   const fetchMSMEs = async () => {
     try {
+      setLoadingMSMEs(true);
       const response = await fetch("/api/msme");
       if (!response.ok) throw new Error("Failed to fetch MSMEs");
 
       const data = (await response.json()) as MSMEResponse;
       setMSMEs(data.msmes);
+      setLoadingMSMEs(false);
     } catch (error) {
       console.error("Error fetching MSMEs:", error);
       toast.error("Failed to fetch MSMEs");
+      setLoadingMSMEs(false);
     }
   };
 
   const fetchSectors = async () => {
     try {
+      setLoadingSectors(true);
       const response = await fetch("/api/sectors");
       if (!response.ok) throw new Error("Failed to fetch sectors");
 
       const data = (await response.json()) as SectorsResponse;
       setSectors(data.sectors);
+      setLoadingSectors(false);
     } catch (error) {
       console.error("Error fetching sectors:", error);
       toast.error("Failed to fetch sectors");
+      setLoadingSectors(false);
     }
   };
 
@@ -175,7 +183,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       value={{
         sectors,
         msmes: msmes || [],
-        isLoading: !sectors.length,
+        isLoading: loadingMSMEs || loadingSectors,
         error: null,
         handleAddMSME,
         handleUpdateMSME,
