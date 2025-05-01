@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download, Store, FileText, MapPin } from "lucide-react";
 import {
   Card,
@@ -22,6 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExportsLineChart } from "@/components/dashboard/ExportsLineChart";
+import { useExportDetailsContext } from "@/contexts/ExportDetailsContext";
+import { useVisitorContext } from "@/contexts/VisitorContext";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function MSMEPage({
   params,
@@ -30,6 +33,12 @@ export default function MSMEPage({
 }) {
   const { msmes, sectors, isLoading } = useMSMEContext();
   const { sectorName } = params;
+  const { exportDetails, fetchExportDetails, isLoadingExportData } =
+    useExportDetailsContext();
+  const { visitors, fetchVisitors, isLoadingVisitors } = useVisitorContext();
+  const [lineChartData, setLineChartData] = useState<
+    { month: string; exports: number }[]
+  >([]);
 
   const sector = sectors.find(
     (sector) =>
@@ -37,23 +46,48 @@ export default function MSMEPage({
       sectorName.toLowerCase(),
   );
 
+  useEffect(() => {
+    fetchExportDetails(sectorName).catch((error) => {
+      console.error("Error fetching export details:", error);
+    });
+    fetchVisitors(sectorName).catch((error) => {
+      console.error("Error fetching visitors:", error);
+    });
+  }, [sectorName]);
+
   // Filter MSMEs for this sector
   const sectorMSMEs = useMemo(() => {
     return msmes.filter((msme) => msme.sectorId === sector?.id);
   }, [msmes, sector]);
 
+  const formattedData = Object.entries(
+    exportDetails?.monthlyExportCounts || {},
+  ).map(([month, exports]) => ({
+    month: new Date(`${month}-01`).toLocaleString("default", {
+      month: "long",
+    }), // Convert YYYY-MM to month name
+    exports: exports as number,
+  }));
+
+  useEffect(() => {
+    if (exportDetails) {
+      setLineChartData(formattedData);
+      console.log("Formatted data:", formattedData);
+    }
+  }, [exportDetails]);
+
   // Export analytics data transformed for line chart (mock data)
-  const lineChartData = useMemo(
-    () => [
-      { month: "January", exports: 12 },
-      { month: "February", exports: 18 },
-      { month: "March", exports: 15 },
-      { month: "April", exports: 22 },
-      { month: "May", exports: 27 },
-      { month: "June", exports: 20 },
-    ],
-    [],
-  );
+  // const lineChartData = useMemo(
+  //   () => [
+  //     { month: "January", exports: 12 },
+  //     { month: "February", exports: 18 },
+  //     { month: "March", exports: 15 },
+  //     { month: "April", exports: 22 },
+  //     { month: "May", exports: 27 },
+  //     { month: "June", exports: 20 },
+  //   ],
+  //   [],
+  // );
 
   // Calculate total exports from line chart data
   const totalExports = useMemo(() => {
@@ -123,7 +157,7 @@ export default function MSMEPage({
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card className="border-[#996439]/20 shadow-sm transition-all duration-200 hover:border-[#996439]/40 hover:shadow-md">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg text-[#996439]">
@@ -188,31 +222,76 @@ export default function MSMEPage({
           </CardContent>
         </Card>
 
-        <Card className="border-[#996439]/20 shadow-sm transition-all duration-200 hover:border-[#996439]/40 hover:shadow-md">
-          <CardHeader className="pb-2 pt-4">
-            <CardTitle className="text-lg text-[#996439]">
-              Data Exports
-            </CardTitle>
-            <CardDescription>This month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-end justify-between">
-              <p className="text-3xl font-bold text-[#996439]">
-                {totalExports}
-              </p>
-              <div className="rounded-full bg-amber-100 p-2 text-[#996439]">
-                <Download size={25} />
+        {isLoadingExportData ? (
+          <div>
+            <LoadingSpinner
+              size="sm"
+              color="primary"
+              className="mx-auto mt-4"
+              text="Loading export data..."
+            />
+          </div>
+        ) : (
+          <Card className="border-[#996439]/20 shadow-sm transition-all duration-200 hover:border-[#996439]/40 hover:shadow-md">
+            <CardHeader className="pb-2 pt-4">
+              <CardTitle className="text-lg text-[#996439]">
+                Data Exports
+              </CardTitle>
+              <CardDescription>By the top MSME</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-end justify-between">
+                <p className="text-3xl font-bold text-[#996439]">
+                  {exportDetails?.exportCount || 0}
+                </p>
+                <div className="rounded-full bg-amber-100 p-2 text-[#996439]">
+                  <Download size={25} />
+                </div>
               </div>
-            </div>
-            <div className="mt-4">
-              <Link href={`/admin/msme/${sectorName}`}>
-                <Button className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]">
-                  <Download className="mr-2 h-4 w-4" /> Export Data
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="mt-4">
+                <Link href={`/admin/msme/${sectorName}`}>
+                  <Button className="w-full bg-[#996439] font-bold hover:bg-[#ce9261]">
+                    <Download className="mr-2 h-4 w-4" /> Export Data
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isLoadingVisitors ? (
+          <div>
+            <LoadingSpinner
+              size="sm"
+              color="primary"
+              className="mx-auto mt-4"
+              text="Loading Visitors data..."
+            />
+          </div>
+        ) : (
+          <Card className="border-[#996439]/20 shadow-sm transition-all duration-200 hover:border-[#996439]/40 hover:shadow-md">
+            <CardHeader className="pb-2 pt-4">
+              <CardTitle className="text-lg text-[#996439]">
+                Most Visited MSME
+              </CardTitle>
+              <CardDescription>
+                Visit count:{" "}
+                {visitors && visitors.length > 0
+                  ? visitors[0]?.visitCount
+                  : "No data available"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-end justify-between">
+                <p className="text-xl font-bold text-[#996439]">
+                  {visitors && visitors.length > 0
+                    ? visitors[0]?.msmeData?.companyName
+                    : "No data available"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

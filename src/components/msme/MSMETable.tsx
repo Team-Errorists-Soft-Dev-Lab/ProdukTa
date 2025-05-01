@@ -9,8 +9,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
-import type { MSME } from "@/types/MSME";
-import type { SortState } from "@/types/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MSMETableViewProps } from "@/types/MSME";
+import type { MSMETableViewProps } from "@/types/MSME";
 
 export function MSMETableView({
   msmes,

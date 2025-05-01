@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Phone, Facebook, Instagram } from "lucide-react";
-import type { MSME } from "@/types/MSME";
 import {
   Carousel,
   CarouselContent,
@@ -26,6 +25,26 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const addVisitorCount = async () => {
+      const msmeId = MSME?.id;
+      if (!msmeId) return;
+      const response = await fetch("/api/admin/visitors", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ msmeId }),
+      });
+    };
+
+    if (MSME?.id) {
+      addVisitorCount().catch((error) =>
+        console.error("Error adding visitor count:", error),
+      );
+    }
+  }, [MSME]);
 
   useEffect(() => {
     const fetchMSME = async () => {

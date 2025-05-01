@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/chart";
 import type { ChartConfig } from "@/components/ui/chart";
 import type { ExportsLineChartProps } from "@/types/export";
+import { useMemo } from "react";
 
 export function ExportsLineChart({
   data,
@@ -39,6 +40,18 @@ export function ExportsLineChart({
       label: "Month",
     },
   } satisfies ChartConfig;
+
+  const trendPercentage = useMemo(() => {
+    const currentMonthExports = data[data.length - 1]?.exports || 0;
+    const previousMonthExports = data[data.length - 2]?.exports || 0;
+
+    if (previousMonthExports === 0) return 0; // Avoid division by zero
+
+    return (
+      ((currentMonthExports - previousMonthExports) / previousMonthExports) *
+      100
+    );
+  }, []);
 
   return (
     <Card className="border-emerald-600">
@@ -103,12 +116,21 @@ export function ExportsLineChart({
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing export trends for the last 6 months
-        </div>
+        {trendPercentage > 0 ? (
+          <div>
+            <div className="flex gap-2 font-medium leading-none">
+              Trending down by {trendPercentage.toFixed(2)}% this month
+              <TrendingUp className="h-4 w-4 rotate-180" />
+            </div>
+            <div className="leading-none text-muted-foreground">
+              Showing export trends for the last 6 months
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-2 font-medium leading-none">
+            <p>Not enough data to derive trend percentage</p>
+          </div>
+        )}
       </CardFooter>
     </Card>
   );
