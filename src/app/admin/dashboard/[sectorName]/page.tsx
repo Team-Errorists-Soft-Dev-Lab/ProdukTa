@@ -66,7 +66,7 @@ export default function MSMEPage({
     month: new Date(`${month}-01`).toLocaleString("default", {
       month: "long",
     }), // Convert YYYY-MM to month name
-    exports: exports as number,
+    exports: exports,
   }));
 
   useEffect(() => {
@@ -338,12 +338,33 @@ export default function MSMEPage({
             </CardTitle>
             <CardDescription>Monthly data export trends</CardDescription>
           </CardHeader>
-          <CardContent className="pb-4">
-            <ExportsLineChart
-              data={lineChartData}
-              totalExports={totalExports}
-            />
-          </CardContent>
+          {!isLoadingExportData ? (
+            <div>
+              {lineChartData.length === 0 && totalExports === 0 ? (
+                <CardContent className="pb-4">
+                  <p className="text-center text-gray-500">
+                    No export data available for this sector.
+                  </p>
+                </CardContent>
+              ) : (
+                <CardContent className="pb-4">
+                  <ExportsLineChart
+                    data={lineChartData}
+                    totalExports={totalExports}
+                  />
+                </CardContent>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center p-4">
+              <LoadingSpinner
+                size="sm"
+                color="primary"
+                className="mx-auto mt-4"
+                text="Loading export data..."
+              />
+            </div>
+          )}
         </Card>
       </div>
     </div>
