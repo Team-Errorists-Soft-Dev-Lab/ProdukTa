@@ -149,23 +149,22 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
       console.error("Error fetching MSMEs:", error);
       toast.error("Failed to fetch MSMEs");
-      setLoadingMSMEs(false);
     }
   };
 
   const fetchSectors = async () => {
     try {
-      setLoadingSectors(true);
+      setIsLoading(true);
       const response = await fetch("/api/sectors");
       if (!response.ok) throw new Error("Failed to fetch sectors");
 
       const data = (await response.json()) as SectorsResponse;
       setSectors(data.sectors);
-      setLoadingSectors(false);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching sectors:", error);
       toast.error("Failed to fetch sectors");
-      setLoadingSectors(false);
+      setIsLoading(false);
     }
   };
 
