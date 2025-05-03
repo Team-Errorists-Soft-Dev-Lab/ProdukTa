@@ -1,34 +1,62 @@
 import { prisma } from "@/utils/prisma/client";
-import { NextResponse } from "next/server";
+import { type MSME } from "@/types/MSME";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { page: string } },
+  req: Request,
+  { params }: { params: { sectorName: string; page: number } },
 ) {
-  // get only the first 15 items per page
   try {
-    if (!params?.page || isNaN(parseInt(params.page))) {
-      return NextResponse.json({ error: "Invalid page ID" }, { status: 400 });
+    const sector = params.sectorName;
+    const page = params.page;
+    console.log("Sector Name:", sector);
+    if (!sector) {
+      return Response.json({ error: "Sector is required" }, { status: 400 });
     }
 
-    const page = parseInt(params.page);
     const pageSize = 15;
     const offset = (page - 1) * pageSize;
-    const msmes = await prisma.mSME.findMany({
-      orderBy: {
-        createdAt: "desc",
+
+    const getSector = await prisma.sector.findFirst({
+      where: {
+        name: {
+          equals: sector,
+          mode: "insensitive",
+        },
       },
-      skip: offset,
-      take: pageSize,
     });
 
-    const totalMSMEs = await prisma.mSME.count();
+    // get all MSMEs from a specific sector
+    const result = (await prisma.mSME.findMany({
+      where: {
+        sectorId: {
+          equals: getSector?.id,
+        },
+      },
+      take: pageSize,
+      skip: offset,
+    })) as MSME[];
+
+    if (!result || result.length === 0) {
+      return Response.json(
+        { error: "No MSMEs found for this sector" },
+        { status: 404 },
+      );
+    }
+
+    const totalMSMEs = await prisma.mSME.count({
+      where: {
+        sectorId: {
+          equals: getSector?.id,
+        },
+      },
+    });
+
     const totalPages = Math.ceil(totalMSMEs / pageSize);
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
 
     if (page > totalPages) {
-      return NextResponse.json({
+      return Response.json({
         msmes: [],
         meta: {
           totalItems: totalMSMEs,
@@ -42,7 +70,7 @@ export async function GET(
     }
 
     if (totalMSMEs === 0) {
-      return NextResponse.json({
+      return Response.json({
         msmes: [],
         meta: {
           totalItems: 0,
@@ -56,7 +84,7 @@ export async function GET(
     }
 
     if (offset >= totalMSMEs) {
-      return NextResponse.json({
+      return Response.json({
         msmes: [],
         meta: {
           totalItems: totalMSMEs,
@@ -69,8 +97,8 @@ export async function GET(
       });
     }
 
-    return NextResponse.json({
-      msmes,
+    return Response.json({
+      msmes: result,
       meta: {
         totalItems: totalMSMEs,
         currentPage: page,
@@ -80,10 +108,8 @@ export async function GET(
         hasPreviousPage,
       },
     });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to fetch MSMEs" },
-      { status: 400 },
-    );
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error: "Failed to fetch visitor data" });
   }
 }

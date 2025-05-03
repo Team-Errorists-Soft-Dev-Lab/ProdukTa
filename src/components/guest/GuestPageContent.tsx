@@ -22,6 +22,9 @@ export default function GuestPage() {
     pagedMSMEs,
     searchMSMEs,
     isSearching,
+    fetchMSMEsBySector,
+    isChangingPage,
+    isChangingSector,
     totalPages,
     sectors,
     isLoading,
@@ -76,7 +79,7 @@ export default function GuestPage() {
       );
     } catch (error) {
       console.error("Error during searchMSMEs: ", error);
-      setSearchResults([]); // Handle errors gracefully
+      setSearchResults([]);
     }
   };
 
@@ -121,7 +124,6 @@ export default function GuestPage() {
       return sortMSMEs(filtered, sort);
     }
 
-    // Otherwise use the paged data
     let filtered = msmesWithSectorNames;
 
     if (selectedSector) {
@@ -143,28 +145,37 @@ export default function GuestPage() {
     searchResults,
   ]);
 
-  const handlePageChange = (page: number) => {
-    fetchPagedMSMEs(page)
-      .then(() => {
+  const handlePageChange = async (page: number) => {
+    if (selectedSector !== null) {
+      if (selectedSector) {
+        await fetchMSMEsBySector(selectedSector, page);
         setCurrentPage(page);
-        setSearchResults([]);
-      })
-      .catch((error) => {
-        console.error("Error fetching paged MSMEs:", error);
-        toast.error("Failed to fetch paged MSMEs");
-      });
+        return;
+      }
+    } else {
+      fetchPagedMSMEs(page)
+        .then(() => {
+          setCurrentPage(page);
+          setSearchResults([]);
+        })
+        .catch((error) => {
+          console.error("Error fetching paged MSMEs:", error);
+          toast.error("Failed to fetch paged MSMEs");
+        });
+    }
   };
 
   const handleSectorChange = async (sector: string) => {
     if (sector === "All") {
       setSelectedSector(null);
+      await fetchPagedMSMEs(1);
     } else {
       setSelectedSector(sector);
+      await fetchMSMEsBySector(sector, currentPage);
     }
     setSearchQuery("");
     setSearchResults([]);
-    setCurrentPage(1);
-    await fetchPagedMSMEs(1);
+    // setCurrentPage(1);
   };
 
   const resetFilters = async () => {
@@ -188,8 +199,8 @@ export default function GuestPage() {
   };
 
   useEffect(() => {
-    void fetchPagedMSMEs(currentPage);
-  }, [currentPage]);
+    void fetchPagedMSMEs(1);
+  }, [fetchPagedMSMEs]);
 
   if (isLoading) {
     return (
@@ -245,7 +256,7 @@ export default function GuestPage() {
       />
 
       <div className="mx-auto max-w-6xl px-4 py-8">
-        {isSearching ? (
+        {isSearching || isChangingPage || isChangingSector ? (
           <div className="flex justify-center py-8">
             <Spinner />
           </div>
