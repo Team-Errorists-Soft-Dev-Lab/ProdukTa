@@ -171,7 +171,8 @@ export default function GuestPage() {
       await fetchPagedMSMEs(1);
     } else {
       setSelectedSector(sector);
-      await fetchMSMEsBySector(sector, currentPage);
+      setCurrentPage(1);
+      await fetchMSMEsBySector(sector, 1);
     }
     setSearchQuery("");
     setSearchResults([]);
