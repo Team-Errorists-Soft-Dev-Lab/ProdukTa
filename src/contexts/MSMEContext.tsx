@@ -6,11 +6,13 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useCallback,
 } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import type { MSME } from "@/types/MSME";
 import { deleteImage } from "@/utils/supabase/storage";
+import { useDebouncedCallback } from "use-debounce";
 
 type CreateMSME = Omit<MSME, "id">;
 
@@ -47,6 +49,7 @@ interface MSMEContextType {
   error: Error | null;
   fetchPagedMSMEs: (page: number) => Promise<void>;
   searchMSMEs: (searchQuery: string) => Promise<void>;
+  searchMSMEsDebounced: (searchQuery: string) => void;
   fetchMSMEsBySector: (sectorName: string, page: number) => Promise<void>;
   handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
@@ -96,8 +99,13 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const searchMSMEs = async (searchQuery: string) => {
+  const searchMSMEs = async (searchQuery: string): Promise<void> => {
     try {
+      if (!searchQuery || searchQuery.trim().length < 2) {
+        await fetchPagedMSMEs(1);
+        return;
+      }
+
       setIsSearching(true);
       const response = await fetch(`/api/msme/search/${searchQuery}`);
       if (!response.ok) {
@@ -115,6 +123,32 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       toast.error("Failed to search MSMEs");
     }
   };
+
+  const searchMSMEsDebounced = useDebouncedCallback(
+    (searchQuery: string) => {
+      if (!searchQuery || searchQuery.trim() === "") {
+        setIsSearching(false);
+        void fetchPagedMSMEs(1);
+        return;
+      }
+
+      if (searchQuery.trim().length < 2) {
+        return;
+      }
+
+      setIsSearching(true);
+
+      void searchMSMEs(searchQuery);
+    },
+
+    300,
+
+    {
+      leading: false,
+      trailing: true,
+      maxWait: 1000,
+    },
+  );
 
   const fetchMSMEsBySector = async (sectorName: string, page: number) => {
     try {
@@ -283,6 +317,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
         fetchPagedMSMEs,
         fetchMSMEsBySector,
         searchMSMEs,
+        searchMSMEsDebounced,
         handleAddMSME,
         handleUpdateMSME,
         handleDeleteMSME,

@@ -17,7 +17,7 @@ export async function GET(
     }
 
     // Sanitize the search term
-    const searchTerm = msmeName.trim();
+    const searchTerm = decodeURIComponent(msmeName.trim());
     if (searchTerm.length < 2) {
       return NextResponse.json(
         { error: "Search term must be at least 2 characters long" },
@@ -25,6 +25,7 @@ export async function GET(
       );
     }
 
+    // Search by company name
     const msme = await prisma.mSME.findMany({
       where: {
         companyName: {
@@ -35,6 +36,7 @@ export async function GET(
       orderBy: {
         companyName: "asc",
       },
+      take: 20, // Limit results for performance
     });
 
     return NextResponse.json(msme);
