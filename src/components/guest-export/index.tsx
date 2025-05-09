@@ -411,6 +411,19 @@ export function GuestExport() {
 
     try {
       await exportToPDF(exportData, contentRef.current);
+      await Promise.all(
+        exportData.map((msme) =>
+          fetch("/api/admin/export", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              msmeId: msme.id,
+            }),
+          }),
+        ),
+      );
     } catch (error) {
       console.error("Error generating PDF:", error);
       setExportError("Failed to generate PDF");
@@ -419,7 +432,7 @@ export function GuestExport() {
     }
   };
 
-  const handleExportToCSV = () => {
+  const handleExportToCSV = async () => {
     // Determine which MSMEs to export
     const msmeIdsToExport =
       selectedMSMEs.length > 0
@@ -446,6 +459,20 @@ export function GuestExport() {
     }
 
     exportToCSV(msmeDataToExport);
+
+    await Promise.all(
+      msmeDataToExport.map((msme) =>
+        fetch("/api/admin/export", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            msmeId: msme.id,
+          }),
+        }),
+      ),
+    );
   };
 
   const renderPaginationItems = () => {
