@@ -31,7 +31,7 @@ export default function Header() {
             { name: "Home", path: "/landing-page" },
             { name: "About Us", path: "/about-us" },
             { name: "Search MSME", path: "/guest" },
-            { name: "Export", path: "" },
+            { name: "Export", path: "/guest-export" },
           ].map(({ name, path }) => (
             <Button
               key={path}
