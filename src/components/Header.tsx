@@ -19,7 +19,7 @@ export default function Header() {
           onClick={() => router.push("/landing-page")}
         >
           <Image
-            src="/ProdukTa2.png"
+            src="/Produkta2.png"
             alt="ProdukTa Logo"
             width={230}
             height={230}
