@@ -23,11 +23,19 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 
+interface ExportDataProps {
+  monthlyExportCounts: Record<string, number>;
+  totalExports: number;
+}
+
 export default function Dashboard() {
   const { sectors, msmes, isLoading, error } = useMSMEContext();
   const { activeAdmins } = useSuperAdminContext();
   const [totalExports, setTotalExports] = useState<number>(0);
   const [lineChartData, setLineChartData] = useState<
+    { month: string; exports: number }[]
+  >([]);
+  const [formattedData, setFormattedData] = useState<
     { month: string; exports: number }[]
   >([]);
   const [loadingTotalExports, setLoadingTotalExports] = useState<boolean>(true);
@@ -38,43 +46,26 @@ export default function Dashboard() {
     }
   }, [error]);
 
-  // Export analytics data transformed for line chart
-  // const lineChartData = useMemo(
-  //   () => [
-  //     { month: "January", exports: 45 },
-  //     { month: "February", exports: 65 },
-  //     { month: "March", exports: 35 },
-  //     { month: "April", exports: 55 },
-  //     { month: "May", exports: 70 },
-  //     { month: "June", exports: 40 },
-  //   ],
-  //   [],
-  // );
-
-  // const chartData = async() => {
-  //   const result = await fetch("/api/admin/export");
-  //   const data = await result.json();
-  //   return data.exportCount;
-  // }
-
   useEffect(() => {
     const fetchExportData = async () => {
       setLoadingTotalExports(true); // Start loading
       try {
         const response = await fetch("/api/admin/export");
-        const data = await response.json();
+        const data = (await response.json()) as ExportDataProps;
+        console.log("Export data:", data);
 
         // Transform the `monthlyExportCounts` into the desired format
-        const formattedData = Object.entries(data.monthlyExportCounts).map(
+        const formatted = Object.entries(data.monthlyExportCounts).map(
           ([month, exports]) => ({
             month: new Date(`${month}-01`).toLocaleString("default", {
               month: "long",
             }), // Convert YYYY-MM to month name
-            exports: exports as number,
+            exports: exports,
           }),
         );
 
-        setLineChartData(formattedData); // Set the line chart data
+        setFormattedData(formatted); // Store the full dataset
+        setLineChartData(formatted); // Initialize the chart with the full dataset
         setTotalExports(data.totalExports); // Set the total exports
       } catch (error) {
         console.error("Error fetching export data:", error);
@@ -83,8 +74,30 @@ export default function Dashboard() {
       }
     };
 
-    fetchExportData();
+    fetchExportData().catch((error) => {
+      console.error("Error fetching export data:", error);
+    });
   }, []);
+
+  const setExportOption = (value: string) => {
+    if (value === "6months") {
+      setLineChartData(
+        formattedData.slice(-6).map((data) => ({
+          month: data.month,
+          exports: data.exports,
+        })),
+      );
+    } else if (value === "year") {
+      setLineChartData(
+        formattedData.slice(-12).map((data) => ({
+          month: data.month,
+          exports: data.exports,
+        })),
+      );
+    } else {
+      setLineChartData(formattedData);
+    }
+  };
 
   // Calculate sector data from MSMEs with proper type checking
   const sectorChartData = useMemo(() => {
@@ -219,7 +232,7 @@ export default function Dashboard() {
           <CardHeader className="py-3">
             <CardTitle className="flex items-center justify-between text-lg">
               <span>Export Statistics</span>
-              <Select defaultValue="6months">
+              <Select defaultValue="6months" onValueChange={setExportOption}>
                 <SelectTrigger className="w-36 border-emerald-200 text-sm">
                   <SelectValue placeholder="Time period" />
                 </SelectTrigger>

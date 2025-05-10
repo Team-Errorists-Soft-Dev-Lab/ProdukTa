@@ -72,27 +72,33 @@ export default function MSMEPage({
   useEffect(() => {
     if (exportDetails) {
       setLineChartData(formattedData);
-      console.log("Formatted data:", formattedData);
     }
   }, [exportDetails]);
-
-  // Export analytics data transformed for line chart (mock data)
-  // const lineChartData = useMemo(
-  //   () => [
-  //     { month: "January", exports: 12 },
-  //     { month: "February", exports: 18 },
-  //     { month: "March", exports: 15 },
-  //     { month: "April", exports: 22 },
-  //     { month: "May", exports: 27 },
-  //     { month: "June", exports: 20 },
-  //   ],
-  //   [],
-  // );
 
   // Calculate total exports from line chart data
   const totalExports = useMemo(() => {
     return lineChartData.reduce((acc, curr) => acc + curr.exports, 0);
   }, [lineChartData]);
+
+  const setExportOption = (value: string) => {
+    if (value === "6months") {
+      setLineChartData(
+        formattedData.slice(-6).map((data) => ({
+          month: data.month,
+          exports: data.exports,
+        })),
+      );
+    } else if (value === "year") {
+      setLineChartData(
+        formattedData.slice(-12).map((data) => ({
+          month: data.month,
+          exports: data.exports,
+        })),
+      );
+    } else {
+      setLineChartData(formattedData);
+    }
+  };
 
   // Calculate sector data for all sectors
   const sectorData = useMemo(() => {
@@ -235,9 +241,14 @@ export default function MSMEPage({
           <Card className="border-[#996439]/20 shadow-sm transition-all duration-200 hover:border-[#996439]/40 hover:shadow-md">
             <CardHeader className="pb-2 pt-4">
               <CardTitle className="text-lg text-[#996439]">
-                Data Exports
+                Most Exported MSME
               </CardTitle>
-              <CardDescription>By the top MSME</CardDescription>
+              <CardDescription>
+                By the top exported MSME: <br />
+                <p className="text-md font-bold text-[#996439]">
+                  {exportDetails?.msmeDetails?.companyName || "N/A"}
+                </p>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-end justify-between">
@@ -325,7 +336,7 @@ export default function MSMEPage({
           <CardHeader className="py-3">
             <CardTitle className="flex items-center justify-between text-lg text-[#996439]">
               <span>Export Statistics</span>
-              <Select defaultValue="6months">
+              <Select defaultValue="6months" onValueChange={setExportOption}>
                 <SelectTrigger className="w-36 border-[#996439]/20 text-sm">
                   <SelectValue placeholder="Time period" />
                 </SelectTrigger>
