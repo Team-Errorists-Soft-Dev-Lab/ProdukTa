@@ -20,7 +20,6 @@ import { toast } from "sonner";
 
 import { Loader2, Search } from "lucide-react";
 
-import type { MSMEWithSectorName } from "@/types/MSME";
 import type { Sector } from "@/types/sector";
 import type { MSME } from "@/types/MSME";
 
@@ -57,52 +56,6 @@ export default function GuestPage() {
         "Unknown Sector",
     }));
   }, [pagedMSMEs, sectors]);
-
-  const sortMSMEs = useCallback(
-    (msmes: MSMEWithSectorName[], sortType: string) => {
-      switch (sortType) {
-        case "name":
-          return [...msmes].sort((a, b) =>
-            (a.companyName || "").localeCompare(b.companyName || ""),
-          );
-        case "sector":
-          return [...msmes].sort((a, b) =>
-            (a.sectorName || "").localeCompare(b.sectorName || ""),
-          );
-        case "municipality":
-          return [...msmes].sort((a, b) =>
-            (a.cityMunicipalityAddress || "").localeCompare(
-              b.cityMunicipalityAddress || "",
-            ),
-          );
-        default:
-          return msmes;
-      }
-    },
-    [],
-  );
-
-  const displayedMSME = useMemo(() => {
-    let filtered = msmesWithSectorNames;
-
-    if (selectedSector) {
-      filtered = filtered.filter((msme) => msme.sectorName === selectedSector);
-    }
-
-    if (selectedMunicipalities.length > 0) {
-      filtered = filtered.filter((msme) =>
-        selectedMunicipalities.includes(msme.cityMunicipalityAddress),
-      );
-    }
-
-    return sortMSMEs(filtered, sort);
-  }, [
-    msmesWithSectorNames,
-    sort,
-    selectedSector,
-    selectedMunicipalities,
-    sortMSMEs,
-  ]);
 
   const handleSearch = useCallback(
     async (query: string) => {
@@ -145,16 +98,26 @@ export default function GuestPage() {
 
   const sortMSMEs = useCallback(
     async (order: string) => {
-      console.log("Sorting MSMEs by:", order);
-      if (order === "z-a") {
-        setSort("z-a");
-        await fetchPagedMSMEs(currentPage, true);
-      } else {
-        setSort("a-z");
-        await fetchPagedMSMEs(currentPage);
+      setSort(order);
+
+      try {
+        const isDescending = order === "z-a"; // Determine if sorting is descending
+
+        if (selectedSector) {
+          // Fetch MSMEs by sector with the current sort order
+          await fetchMSMEsBySector(selectedSector, 1, isDescending);
+        } else {
+          // Fetch all paged MSMEs with the current sort order
+          await fetchPagedMSMEs(1, isDescending);
+        }
+
+        setCurrentPage(1); // Reset to the first page
+      } catch (error) {
+        console.error("Error sorting MSMEs:", error);
+        toast.error("Failed to sort MSMEs. Please try again.");
       }
     },
-    [fetchPagedMSMEs, currentPage],
+    [fetchPagedMSMEs, fetchMSMEsBySector, selectedSector],
   );
 
   const displayedMSME = useMemo(() => {
@@ -203,11 +166,11 @@ export default function GuestPage() {
     async (sector: string) => {
       if (sector === "All") {
         setSelectedSector(null);
-        await fetchPagedMSMEs(1);
+        await fetchPagedMSMEs(1, sort === "z-a");
       } else {
         setSelectedSector(sector);
         setCurrentPage(1);
-        await fetchMSMEsBySector(sector, 1);
+        await fetchMSMEsBySector(sector, 1, sort === "z-a");
       }
       setSearchQuery("");
       setSearchActive(false);
@@ -215,7 +178,13 @@ export default function GuestPage() {
         searchMSMEsDebounced("");
       }
     },
-    [searchQuery, searchMSMEsDebounced, fetchMSMEsBySector, fetchPagedMSMEs],
+    [
+      searchQuery,
+      searchMSMEsDebounced,
+      fetchMSMEsBySector,
+      fetchPagedMSMEs,
+      sort,
+    ],
   );
 
   const resetFilters = useCallback(async () => {
@@ -228,14 +197,31 @@ export default function GuestPage() {
     setIsFilterOpen(false);
   }, [fetchPagedMSMEs]);
 
-  const handleMunicipalitySelection = useCallback((municipality: string) => {
-    setSelectedMunicipalities((prev) =>
-      prev.includes(municipality)
-        ? prev.filter((item) => item !== municipality)
-        : [...prev, municipality],
-    );
-    setCurrentPage(1);
-  }, []);
+  const handleMunicipalitySelection = useCallback(
+    async (municipality: string) => {
+      // Update the selected municipalities
+      setSelectedMunicipalities((prev) =>
+        prev.includes(municipality)
+          ? prev.filter((item) => item !== municipality)
+          : [...prev, municipality],
+      );
+
+      setCurrentPage(1);
+
+      // Re-fetch MSMEs with the current sort order
+      try {
+        const isDescending = sort === "z-a"; // Determine if sorting is descending
+        await fetchPagedMSMEs(1, isDescending); // Pass the sort order as a parameter
+      } catch (error) {
+        console.error(
+          "Error fetching MSMEs after municipality selection:",
+          error,
+        );
+        toast.error("Failed to fetch MSMEs. Please try again.");
+      }
+    },
+    [fetchPagedMSMEs, sort],
+  );
 
   useEffect(() => {
     void fetchPagedMSMEs(1);
