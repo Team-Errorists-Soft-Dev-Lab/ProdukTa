@@ -1,10 +1,18 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import type { MSME } from "@/types/MSME";
 import { deleteImage } from "@/utils/supabase/storage";
+import { useDebouncedCallback } from "use-debounce";
 
 type CreateMSME = Omit<MSME, "id">;
 
@@ -32,11 +40,32 @@ interface ApiResponse<T> {
 interface MSMEContextType {
   sectors: Sector[];
   msmes: MSME[];
+  pagedMSMEs: MSME[];
+  totalPages: number;
   isLoading: boolean;
+  isChangingPage: boolean;
+  isChangingSector: boolean;
+  isSearching: boolean;
   error: Error | null;
+  fetchPagedMSMEs: (page: number) => Promise<void>;
+  searchMSMEs: (searchQuery: string) => Promise<void>;
+  searchMSMEsDebounced: (searchQuery: string) => void;
+  fetchMSMEsBySector: (sectorName: string, page: number) => Promise<void>;
   handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
   handleDeleteMSME: (msmeId: number) => Promise<void>;
+}
+
+interface PagedMSMEsResponse {
+  msmes: MSME[];
+  meta: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }
 
 const MSMEContext = createContext<MSMEContextType | undefined>(undefined);
@@ -44,43 +73,138 @@ const MSMEContext = createContext<MSMEContextType | undefined>(undefined);
 export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [msmes, setMSMEs] = useState<MSME[]>([]);
-  const [loadingMSMEs, setLoadingMSMEs] = useState(true);
-  const [loadingSectors, setLoadingSectors] = useState(true);
+  const [pagedMSMEs, setPagedMSMEs] = useState<MSME[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isChangingPage, setIsChangingPage] = useState<boolean>(false);
+  const [isSwitchingSector, setIsSwitchingSector] = useState<boolean>(false);
+
+  const fetchPagedMSMEs = useMemo(() => {
+    return async (page: number) => {
+      try {
+        setIsChangingPage(true);
+        const response = await fetch(`/api/msme/paginated-msme/${page}`);
+        if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
+
+        const data = (await response.json()) as PagedMSMEsResponse;
+        setPagedMSMEs(data.msmes);
+        setTotalPages(data.meta.totalPages);
+        setIsChangingPage(false);
+      } catch (error) {
+        setIsChangingPage(false);
+        console.error("Error fetching paged MSMEs:", error);
+        toast.error("Failed to fetch paged MSMEs");
+      }
+    };
+  }, []);
+
+  const searchMSMEs = async (searchQuery: string): Promise<void> => {
+    try {
+      if (!searchQuery || searchQuery.trim().length < 2) {
+        await fetchPagedMSMEs(1);
+        return;
+      }
+
+      setIsSearching(true);
+      const response = await fetch(`/api/msme/search/${searchQuery}`);
+      if (!response.ok) {
+        toast.error("Failed to search MSMEs");
+        throw new Error("Failed to search MSMEs");
+      }
+
+      const data = (await response.json()) as MSME[];
+      setPagedMSMEs(data);
+      setIsSearching(false);
+      setTotalPages(1);
+    } catch (error) {
+      setIsSearching(false);
+      console.error("Error searching MSMEs:", error);
+      toast.error("Failed to search MSMEs");
+    }
+  };
+
+  const searchMSMEsDebounced = useDebouncedCallback(
+    (searchQuery: string) => {
+      if (!searchQuery || searchQuery.trim() === "") {
+        setIsSearching(false);
+        void fetchPagedMSMEs(1);
+        return;
+      }
+
+      if (searchQuery.trim().length < 2) {
+        return;
+      }
+
+      setIsSearching(true);
+
+      void searchMSMEs(searchQuery);
+    },
+
+    300,
+
+    {
+      leading: false,
+      trailing: true,
+      maxWait: 1000,
+    },
+  );
+
+  const fetchMSMEsBySector = async (sectorName: string, page: number) => {
+    try {
+      setIsSwitchingSector(true);
+      setIsChangingPage(true);
+      const response = await fetch(
+        `/api/msme/sector-filter/${sectorName}/${page}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
+      const data = (await response.json()) as PagedMSMEsResponse;
+      setPagedMSMEs(data.msmes);
+      setTotalPages(data.meta.totalPages);
+      setIsChangingPage(false);
+      setIsSwitchingSector(false);
+    } catch (error) {
+      setIsSwitchingSector(false);
+      console.error("Error fetching MSMEs by sector:", error);
+      toast.error("Failed to fetch MSMEs by sector");
+    }
+  };
 
   const fetchMSMEs = async () => {
     try {
-      setLoadingMSMEs(true);
+      setIsLoading(true);
       const response = await fetch("/api/msme");
       if (!response.ok) throw new Error("Failed to fetch MSMEs");
 
       const data = (await response.json()) as MSMEResponse;
       setMSMEs(data.msmes);
-      setLoadingMSMEs(false);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Error fetching MSMEs:", error);
       toast.error("Failed to fetch MSMEs");
-      setLoadingMSMEs(false);
     }
   };
 
   const fetchSectors = async () => {
     try {
-      setLoadingSectors(true);
+      setIsLoading(true);
       const response = await fetch("/api/sectors");
       if (!response.ok) throw new Error("Failed to fetch sectors");
 
       const data = (await response.json()) as SectorsResponse;
       setSectors(data.sectors);
-      setLoadingSectors(false);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching sectors:", error);
       toast.error("Failed to fetch sectors");
-      setLoadingSectors(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     void fetchMSMEs();
+    void fetchPagedMSMEs(1);
     void fetchSectors();
   }, []);
 
@@ -183,8 +307,17 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       value={{
         sectors,
         msmes: msmes || [],
-        isLoading: loadingMSMEs || loadingSectors,
+        pagedMSMEs,
+        totalPages,
+        isLoading: isLoading || false,
+        isChangingPage,
+        isChangingSector: isSwitchingSector,
+        isSearching,
         error: null,
+        fetchPagedMSMEs,
+        fetchMSMEsBySector,
+        searchMSMEs,
+        searchMSMEsDebounced,
         handleAddMSME,
         handleUpdateMSME,
         handleDeleteMSME,
