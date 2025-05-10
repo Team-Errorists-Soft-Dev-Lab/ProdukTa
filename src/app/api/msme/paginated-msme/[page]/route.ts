@@ -5,8 +5,8 @@ export async function GET(
   request: Request,
   { params }: { params: { page: string } },
 ) {
-  // get only the first 15 items per page
   try {
+    // Validate the page parameter
     if (!params?.page || isNaN(parseInt(params.page))) {
       return NextResponse.json({ error: "Invalid page ID" }, { status: 400 });
     }
@@ -14,9 +14,15 @@ export async function GET(
     const page = parseInt(params.page);
     const pageSize = 15;
     const offset = (page - 1) * pageSize;
+
+    // Check for the optional "desc" query parameter
+    const url = new URL(request.url);
+    const isDescending = url.searchParams.get("desc") === "true";
+
+    // Fetch MSMEs with sorting based on the "desc" parameter
     const msmes = await prisma.mSME.findMany({
       orderBy: {
-        createdAt: "desc",
+        companyName: isDescending ? "desc" : "asc", // Sort by companyName
       },
       skip: offset,
       take: pageSize,
@@ -27,6 +33,7 @@ export async function GET(
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
 
+    // Handle cases where the page exceeds total pages
     if (page > totalPages) {
       return NextResponse.json({
         msmes: [],
@@ -41,6 +48,7 @@ export async function GET(
       });
     }
 
+    // Handle cases where there are no MSMEs
     if (totalMSMEs === 0) {
       return NextResponse.json({
         msmes: [],
@@ -51,20 +59,6 @@ export async function GET(
           itemsPerPage: pageSize,
           hasNextPage: false,
           hasPreviousPage: false,
-        },
-      });
-    }
-
-    if (offset >= totalMSMEs) {
-      return NextResponse.json({
-        msmes: [],
-        meta: {
-          totalItems: totalMSMEs,
-          currentPage: page,
-          totalPages,
-          itemsPerPage: pageSize,
-          hasNextPage: false,
-          hasPreviousPage: page > 1,
         },
       });
     }
@@ -80,7 +74,8 @@ export async function GET(
         hasPreviousPage,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Error fetching MSMEs:", error);
     return NextResponse.json(
       { error: "Failed to fetch MSMEs" },
       { status: 400 },

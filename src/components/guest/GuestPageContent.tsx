@@ -143,6 +143,40 @@ export default function GuestPage() {
     [searchMSMEsDebounced],
   );
 
+  const sortMSMEs = useCallback(
+    async (order: string) => {
+      console.log("Sorting MSMEs by:", order);
+      if (order === "z-a") {
+        setSort("z-a");
+        await fetchPagedMSMEs(currentPage, true);
+      } else {
+        setSort("a-z");
+        await fetchPagedMSMEs(currentPage);
+      }
+    },
+    [fetchPagedMSMEs, currentPage],
+  );
+
+  const displayedMSME = useMemo(() => {
+    let filtered = msmesWithSectorNames;
+
+    if (selectedSector) {
+      filtered = filtered.filter((msme) => msme.sectorName === selectedSector);
+    }
+
+    if (selectedMunicipalities.length > 0) {
+      filtered = filtered.filter((msme) =>
+        selectedMunicipalities.includes(msme.cityMunicipalityAddress),
+      );
+    }
+
+    return filtered;
+  }, [msmesWithSectorNames, selectedSector, selectedMunicipalities]);
+
+  useEffect(() => {
+    void sortMSMEs(sort);
+  }, [sort, sortMSMEs]);
+
   const handlePageChange = useCallback(
     async (page: number) => {
       if (selectedSector !== null) {
@@ -152,7 +186,7 @@ export default function GuestPage() {
           return;
         }
       } else {
-        fetchPagedMSMEs(page)
+        fetchPagedMSMEs(page, sort === "z-a")
           .then(() => {
             setCurrentPage(page);
           })
@@ -162,7 +196,7 @@ export default function GuestPage() {
           });
       }
     },
-    [selectedSector, fetchMSMEsBySector, fetchPagedMSMEs],
+    [selectedSector, fetchMSMEsBySector, fetchPagedMSMEs, sort],
   );
 
   const handleSectorChange = useCallback(

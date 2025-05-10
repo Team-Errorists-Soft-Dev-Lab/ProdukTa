@@ -47,7 +47,7 @@ interface MSMEContextType {
   isChangingSector: boolean;
   isSearching: boolean;
   error: Error | null;
-  fetchPagedMSMEs: (page: number) => Promise<void>;
+  fetchPagedMSMEs: (page: number, order?: boolean) => Promise<void>;
   searchMSMEs: (searchQuery: string) => Promise<void>;
   searchMSMEsDebounced: (searchQuery: string) => void;
   fetchMSMEsBySector: (sectorName: string, page: number) => Promise<void>;
@@ -81,16 +81,28 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [isSwitchingSector, setIsSwitchingSector] = useState<boolean>(false);
 
   const fetchPagedMSMEs = useMemo(() => {
-    return async (page: number) => {
+    return async (page: number, descOrder?: boolean) => {
       try {
         setIsChangingPage(true);
-        const response = await fetch(`/api/msme/paginated-msme/${page}`);
-        if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
+        if (descOrder) {
+          const response = await fetch(
+            `/api/msme/paginated-msme/${page}?desc=true`,
+          );
+          if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
+          const data = (await response.json()) as PagedMSMEsResponse;
+          setPagedMSMEs(data.msmes);
+          setTotalPages(data.meta.totalPages);
+          setIsChangingPage(false);
+          return;
+        } else {
+          const response = await fetch(`/api/msme/paginated-msme/${page}`);
+          if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 
-        const data = (await response.json()) as PagedMSMEsResponse;
-        setPagedMSMEs(data.msmes);
-        setTotalPages(data.meta.totalPages);
-        setIsChangingPage(false);
+          const data = (await response.json()) as PagedMSMEsResponse;
+          setPagedMSMEs(data.msmes);
+          setTotalPages(data.meta.totalPages);
+          setIsChangingPage(false);
+        }
       } catch (error) {
         setIsChangingPage(false);
         console.error("Error fetching paged MSMEs:", error);

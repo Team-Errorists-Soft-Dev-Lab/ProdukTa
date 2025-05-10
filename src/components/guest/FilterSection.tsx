@@ -37,28 +37,22 @@ export function FilterSection({
 }: FilterSectionProps) {
   return (
     <div className="mt-4 flex w-full gap-4 sm:mt-0 sm:w-auto">
-      <Select onValueChange={setSort}>
+      <Select onValueChange={setSort} defaultValue="a-z">
         <SelectTrigger className="w-full bg-white text-[#8B4513] hover:bg-[#bb987a] hover:text-[#ffffff] active:bg-[#bb987a] active:text-[#ffffff] sm:w-[180px]">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
         <SelectContent className="bg-white">
           <SelectItem
-            value="name"
+            value="a-z"
             className="hover:bg-[#bb987a] hover:text-[#ffffff] active:bg-[#bb987a] active:text-[#ffffff]"
           >
-            Name
+            A-Z
           </SelectItem>
           <SelectItem
-            value="sector"
+            value="z-a"
             className="hover:bg-[#bb987a] hover:text-[#ffffff] active:bg-[#bb987a] active:text-[#ffffff]"
           >
-            Sector
-          </SelectItem>
-          <SelectItem
-            value="municipality"
-            className="hover:bg-[#bb987a] hover:text-[#ffffff] active:bg-[#bb987a] active:text-[#ffffff]"
-          >
-            Municipality
+            Z-A
           </SelectItem>
         </SelectContent>
       </Select>
