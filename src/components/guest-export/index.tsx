@@ -207,20 +207,6 @@ export function GuestExport() {
     return counts;
   }, [msmesWithSectorNames]);
 
-  const searchMSME = useCallback(
-    (query: string) => {
-      return msmesWithSectorNames.filter(
-        (msme) =>
-          msme.companyName.toLowerCase().includes(query.toLowerCase()) ||
-          msme.contactPerson?.toLowerCase().includes(query.toLowerCase()) ||
-          msme.cityMunicipalityAddress
-            ?.toLowerCase()
-            .includes(query.toLowerCase()),
-      );
-    },
-    [msmesWithSectorNames],
-  );
-
   const sortMSMEs = useCallback(
     (msmes: MSMEWithSectorName[]) => {
       return [...msmes].sort((a, b) => {
@@ -237,7 +223,8 @@ export function GuestExport() {
     [sortOrder],
   );
 
-  const displayedMSME = useMemo(() => {
+  // Get filtered MSMEs based on all filters (search, sectors, locations)
+  const filteredMSMEs = useMemo(() => {
     let filtered = msmesWithSectorNames;
 
     if (selectedSectors.length > 0) {
@@ -253,27 +240,34 @@ export function GuestExport() {
     }
 
     if (searchQuery) {
-      filtered = searchMSME(searchQuery);
+      filtered = filtered.filter(
+        (msme) =>
+          msme.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          msme.contactPerson
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          msme.cityMunicipalityAddress
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()),
+      );
     }
 
-    const sorted = sortMSMEs(filtered);
+    return filtered;
+  }, [msmesWithSectorNames, selectedSectors, selectedLocations, searchQuery]);
 
+  const displayedMSME = useMemo(() => {
+    const sorted = sortMSMEs(filteredMSMEs);
     const startIndex = (currentPage - 1) * itemsPerPage;
     return sorted.slice(startIndex, startIndex + itemsPerPage);
-  }, [
-    searchQuery,
-    msmesWithSectorNames,
-    selectedSectors,
-    selectedLocations,
-    currentPage,
-    searchMSME,
-    sortMSMEs,
-  ]);
+  }, [filteredMSMEs, currentPage, sortMSMEs]);
 
-  const totalPages = Math.ceil(
-    (searchQuery ? searchMSME(searchQuery) : msmesWithSectorNames).length /
-      itemsPerPage,
-  );
+  // Calculate total pages based on filtered MSMEs
+  const totalPages = Math.ceil(filteredMSMEs.length / itemsPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedSectors, selectedLocations]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -285,7 +279,6 @@ export function GuestExport() {
         ? prev.filter((item) => item !== sector)
         : [...prev, sector],
     );
-    setCurrentPage(1);
   };
 
   const handleToggleAllSectors = () => {
@@ -294,7 +287,6 @@ export function GuestExport() {
     } else {
       setSelectedSectors([...sectorOptions]);
     }
-    setCurrentPage(1);
   };
 
   const handleLocationToggle = (location: string) => {
@@ -303,7 +295,6 @@ export function GuestExport() {
         ? prev.filter((item) => item !== location)
         : [...prev, location],
     );
-    setCurrentPage(1);
   };
 
   const handleSelectMSME = (id: string) => {
@@ -332,25 +323,7 @@ export function GuestExport() {
       setSelectedMSMEs([]);
     } else {
       // Get all filtered MSMEs (not just current page)
-      let filtered = msmesWithSectorNames;
-
-      if (selectedSectors.length > 0) {
-        filtered = filtered.filter((msme) =>
-          selectedSectors.includes(msme.sectorName),
-        );
-      }
-
-      if (selectedLocations.length > 0) {
-        filtered = filtered.filter((msme) =>
-          selectedLocations.includes(msme.cityMunicipalityAddress),
-        );
-      }
-
-      if (searchQuery) {
-        filtered = searchMSME(searchQuery);
-      }
-
-      setSelectedMSMEs(filtered.map((msme) => msme.id.toString()));
+      setSelectedMSMEs(filteredMSMEs.map((msme) => msme.id.toString()));
     }
     setSelectAllFiltered(!selectAllFiltered);
     setSelectAll(false);
@@ -364,7 +337,6 @@ export function GuestExport() {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // The search is already reactive through the searchQuery state
-    setCurrentPage(1);
   };
 
   // PDF Export Functions
@@ -411,19 +383,6 @@ export function GuestExport() {
 
     try {
       await exportToPDF(exportData, contentRef.current);
-      await Promise.all(
-        exportData.map((msme) =>
-          fetch("/api/admin/export", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              msmeId: msme.id,
-            }),
-          }),
-        ),
-      );
     } catch (error) {
       console.error("Error generating PDF:", error);
       setExportError("Failed to generate PDF");
@@ -432,7 +391,7 @@ export function GuestExport() {
     }
   };
 
-  const handleExportToCSV = async () => {
+  const handleExportToCSV = () => {
     // Determine which MSMEs to export
     const msmeIdsToExport =
       selectedMSMEs.length > 0
@@ -459,20 +418,6 @@ export function GuestExport() {
     }
 
     exportToCSV(msmeDataToExport);
-
-    await Promise.all(
-      msmeDataToExport.map((msme) =>
-        fetch("/api/admin/export", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            msmeId: msme.id,
-          }),
-        }),
-      ),
-    );
   };
 
   const renderPaginationItems = () => {
@@ -486,10 +431,10 @@ export function GuestExport() {
             onClick={() => handlePageChange(pageNum)}
             isActive={currentPage === pageNum}
             className={cn(
-              "min-w-9 rounded-md transition-colors",
+              "min-w-9 select-none rounded-md transition-colors",
               currentPage === pageNum
                 ? "bg-[#8B4513] text-white hover:bg-[#A0522D]"
-                : "text-[#8B4513] hover:bg-[#8B4513]/10",
+                : "text-[#8B4513] hover:bg-[#8B4513]/10 hover:font-medium hover:text-[#5D2E0D]",
             )}
           >
             {pageNum}
@@ -516,14 +461,14 @@ export function GuestExport() {
         }
         items.push(
           <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis className="text-[#8B4513]" />
+            <PaginationEllipsis className="select-none text-[#8B4513]" />
           </PaginationItem>,
         );
       } else if (currentPage >= totalPages - 3) {
         // Near end
         items.push(
           <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis className="text-[#8B4513]" />
+            <PaginationEllipsis className="select-none text-[#8B4513]" />
           </PaginationItem>,
         );
         for (let i = totalPages - 4; i < totalPages; i++) {
@@ -533,7 +478,7 @@ export function GuestExport() {
         // In middle
         items.push(
           <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis className="text-[#8B4513]" />
+            <PaginationEllipsis className="select-none text-[#8B4513]" />
           </PaginationItem>,
         );
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
@@ -541,7 +486,7 @@ export function GuestExport() {
         }
         items.push(
           <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis className="text-[#8B4513]" />
+            <PaginationEllipsis className="select-none text-[#8B4513]" />
           </PaginationItem>,
         );
       }
@@ -593,7 +538,7 @@ export function GuestExport() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="rounded-full border-transparent bg-white/90 text-[#8B4513] shadow-sm backdrop-blur-sm transition-all hover:border-white hover:bg-white hover:shadow-md"
+                  className="rounded-full border-transparent bg-white/90 text-[#8B4513] shadow-sm backdrop-blur-sm transition-all hover:border-white hover:bg-[#8B4513] hover:text-white hover:shadow-md"
                 >
                   Sort by <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
@@ -627,7 +572,7 @@ export function GuestExport() {
               variant="outline"
               size="sm"
               onClick={handleSelectAllFiltered}
-              className="rounded-full border-[#8B4513]/20 bg-white text-[#8B4513] shadow-sm transition-all hover:border-[#8B4513] hover:shadow-md"
+              className="rounded-full border-[#8B4513]/20 bg-white text-[#8B4513] shadow-sm transition-all hover:border-[#8B4513] hover:bg-[#8B4513] hover:text-white hover:shadow-md"
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
               {selectAllFiltered ? "Deselect All" : "Select All"}
@@ -639,7 +584,7 @@ export function GuestExport() {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="rounded-full border-[#8B4513]/20 bg-white text-[#8B4513] shadow-sm transition-all hover:border-[#8B4513] hover:shadow-md"
+                  className="rounded-full border-[#8B4513]/20 bg-white text-[#8B4513] shadow-sm transition-all hover:border-[#8B4513] hover:bg-[#8B4513] hover:text-white hover:shadow-md"
                 >
                   <Building className="mr-2 h-4 w-4" /> Select Sector
                   {selectedSectors.length > 0 && (
@@ -736,7 +681,7 @@ export function GuestExport() {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="rounded-full border-[#8B4513]/20 bg-white text-[#8B4513] shadow-sm transition-all hover:border-[#8B4513] hover:shadow-md"
+                  className="rounded-full border-[#8B4513]/20 bg-white text-[#8B4513] shadow-sm transition-all hover:border-[#8B4513] hover:bg-[#8B4513] hover:text-white hover:shadow-md"
                 >
                   <MapPin className="mr-2 h-4 w-4" /> Select Location
                   {selectedLocations.length > 0 && (
@@ -862,7 +807,7 @@ export function GuestExport() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 rounded-full text-[#8B4513] hover:bg-[#8B4513]/10"
+                    className="h-8 rounded-full text-[#8B4513] hover:bg-[#8B4513] hover:text-white"
                     onClick={() => setSelectedMSMEs([])}
                   >
                     Clear selection
@@ -973,14 +918,14 @@ export function GuestExport() {
         {totalPages > 1 && (
           <div className="mt-6 flex justify-center">
             <Pagination>
-              <PaginationContent className="gap-1">
+              <PaginationContent className="select-none gap-1">
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() =>
                       handlePageChange(Math.max(1, currentPage - 1))
                     }
                     className={cn(
-                      "rounded-full border-[#8B4513]/20 text-[#8B4513] transition-colors hover:bg-[#8B4513]/10",
+                      "select-none rounded-full border-[#8B4513]/20 text-[#8B4513] transition-colors hover:bg-[#8B4513] hover:text-white",
                       currentPage === 1 && "pointer-events-none opacity-50",
                     )}
                   />
@@ -992,7 +937,7 @@ export function GuestExport() {
                       handlePageChange(Math.min(totalPages, currentPage + 1))
                     }
                     className={cn(
-                      "rounded-full border-[#8B4513]/20 text-[#8B4513] transition-colors hover:bg-[#8B4513]/10",
+                      "select-none rounded-full border-[#8B4513]/20 text-[#8B4513] transition-colors hover:bg-[#8B4513] hover:text-white",
                       currentPage === totalPages &&
                         "pointer-events-none opacity-50",
                     )}
