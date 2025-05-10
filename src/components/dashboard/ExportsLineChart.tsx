@@ -51,7 +51,7 @@ export function ExportsLineChart({
       ((currentMonthExports - previousMonthExports) / previousMonthExports) *
       100
     );
-  }, []);
+  }, [data]);
 
   return (
     <Card className="border-emerald-600">
