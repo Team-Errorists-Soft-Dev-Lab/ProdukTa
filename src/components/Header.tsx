@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -19,7 +19,7 @@ export default function Header() {
           onClick={() => router.push("/landing-page")}
         >
           <Image
-            src="/ProdukTa2.png"
+            src="/Produkta2.png"
             alt="ProdukTa Logo"
             width={230}
             height={230}
@@ -31,7 +31,7 @@ export default function Header() {
             { name: "Home", path: "/landing-page" },
             { name: "About Us", path: "/about-us" },
             { name: "Search MSME", path: "/guest" },
-            { name: "Export", path: "" },
+            { name: "Export", path: "/guest-export" },
           ].map(({ name, path }) => (
             <Button
               key={path}

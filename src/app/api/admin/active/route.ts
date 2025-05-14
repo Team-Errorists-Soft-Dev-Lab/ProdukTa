@@ -1,4 +1,5 @@
 import { prisma } from "@/utils/prisma/client";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -16,10 +17,18 @@ export async function GET() {
       },
     });
 
-    return Response.json({ admins });
+    if (!admins || admins.length === 0) {
+      console.error("No active admins found");
+      return NextResponse.json(
+        { error: "No active admins found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({ admins });
   } catch (error) {
     console.error("Error fetching active admins:", error);
-    return Response.json(
+    return NextResponse.json(
       { error: "Failed to fetch active admins" },
       { status: 500 },
     );

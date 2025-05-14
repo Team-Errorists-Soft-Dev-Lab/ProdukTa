@@ -1,24 +1,42 @@
-import React, { useState, useCallback } from "react";
-import ReactCrop, { type Crop } from "react-image-crop";
+import React, { useState, useCallback, useRef } from "react";
+import ReactCrop, {
+  centerCrop,
+  makeAspectCrop,
+  type Crop,
+  type PixelCrop,
+} from "react-image-crop";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import "react-image-crop/dist/ReactCrop.css";
-import { validateImage, compressImage } from "@/utils/imageUtils";
 import { toast } from "sonner";
+import { Dropzone, DropzoneEmptyState } from "@/components/ui/dropzone";
+import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
+import type { ImageCropModalProps } from "@/types/image";
 
-interface ImageCropModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCropComplete: (file: File) => void;
-  aspect?: number;
+function centerAspectCrop(
+  mediaWidth: number,
+  mediaHeight: number,
+  aspect: number,
+) {
+  return centerCrop(
+    makeAspectCrop(
+      {
+        unit: "%",
+        width: 90,
+      },
+      aspect,
+      mediaWidth,
+      mediaHeight,
+    ),
+    mediaWidth,
+    mediaHeight,
+  );
 }
 
 export default function ImageCropModal({
@@ -29,85 +47,87 @@ export default function ImageCropModal({
 }: ImageCropModalProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
-  const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const imgRef = useRef<HTMLImageElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const logoUpload = useSupabaseUpload({
+    bucketName: "msme-images",
+    path: "logos",
+    maxFileSize: 5 * 1000 * 1000, // 5MB
+    maxFiles: 1,
+    allowedMimeTypes: ["image/*"],
+    upsert: true,
+  });
 
-    // Validate image
-    const validation = validateImage(file);
-    if (!validation.isValid) {
-      toast.error(validation.error);
-      return;
-    }
-
-    try {
-      // Compress image before creating preview
-      const compressedFile = await compressImage(file);
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        const result = reader.result as string;
-        if (result) {
-          setImageSrc(result);
-        }
-      });
-      reader.readAsDataURL(compressedFile);
-    } catch (error) {
-      toast.error("Failed to process image");
-      console.error(error);
-    }
-  };
-
-  const getCroppedImg = useCallback((): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      if (!imageRef?.width || !crop?.width || !crop?.height) {
-        reject(new Error("No image or crop data available"));
-        return;
-      }
-
-      const canvas = document.createElement("canvas");
-      const scaleX = imageRef.naturalWidth / imageRef.width;
-      const scaleY = imageRef.naturalHeight / imageRef.height;
-      canvas.width = crop.width;
-      canvas.height = crop.height;
-      const ctx = canvas.getContext("2d");
-
-      if (ctx) {
-        ctx.drawImage(
-          imageRef,
-          crop.x * scaleX,
-          crop.y * scaleY,
-          crop.width * scaleX,
-          crop.height * scaleY,
-          0,
-          0,
-          crop.width,
-          crop.height,
-        );
-
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const file = new File([blob], "cropped-image.jpg", {
-                type: "image/jpeg",
-                lastModified: Date.now(),
-              });
-              resolve(file);
-            } else {
-              reject(new Error("Failed to create blob"));
-            }
-          },
-          "image/jpeg",
-          0.9,
-        );
+  const handleDropzoneFile = (file: File) => {
+    setCrop(undefined); // Reset crop between images
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      const result = reader.result;
+      if (typeof result === "string") {
+        setImageSrc(result);
       }
     });
-  }, [crop, imageRef]);
+    reader.readAsDataURL(file);
+  };
+
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    setCrop(centerAspectCrop(width, height, aspect));
+  };
+
+  const getCroppedImg = useCallback(async (): Promise<File> => {
+    if (!imgRef.current || !completedCrop) {
+      throw new Error("No image or crop data available");
+    }
+
+    const image = imgRef.current;
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = completedCrop.width * scaleX;
+    canvas.height = completedCrop.height * scaleY;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("No 2d context");
+    }
+
+    ctx.drawImage(
+      image,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+    );
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const file = new File([blob], "cropped-image.jpg", {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            resolve(file);
+          } else {
+            reject(new Error("Failed to create blob"));
+          }
+        },
+        "image/jpeg",
+        0.9,
+      );
+    });
+  }, [completedCrop]);
 
   const handleCropComplete = async () => {
-    if (!crop || !imageSrc) return;
+    if (!completedCrop || !imageSrc) return;
 
     setIsLoading(true);
     try {
@@ -116,6 +136,7 @@ export default function ImageCropModal({
       onClose();
     } catch (error) {
       console.error("Error cropping image:", error);
+      toast.error("Failed to crop image");
     } finally {
       setIsLoading(false);
     }
@@ -124,27 +145,30 @@ export default function ImageCropModal({
   const handleClose = () => {
     setImageSrc(null);
     setCrop(undefined);
+    setCompletedCrop(undefined);
     onClose();
   };
+
+  // When dropzone files change
+  React.useEffect(() => {
+    if (logoUpload.files.length > 0 && logoUpload.files[0]) {
+      handleDropzoneFile(logoUpload.files[0]);
+    }
+  }, [logoUpload.files]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
-        <DialogDescription />
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           {!imageSrc && (
             <div className="space-y-2">
-              <Label htmlFor="image-upload">Select Image</Label>
-              <Input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={isLoading}
-              />
+              <Label>Upload Logo</Label>
+              <Dropzone {...logoUpload}>
+                <DropzoneEmptyState />
+              </Dropzone>
             </div>
           )}
 
@@ -152,16 +176,19 @@ export default function ImageCropModal({
             <ReactCrop
               crop={crop}
               onChange={(_, percentCrop) => setCrop(percentCrop)}
-              onComplete={(c) => setCrop(c)}
+              onComplete={(c) => setCompletedCrop(c)}
               aspect={aspect}
-              minWidth={200}
-              minHeight={200}
+              minWidth={100}
+              minHeight={100}
+              className="max-h-[400px] w-full"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                ref={(img) => setImageRef(img)}
+                ref={imgRef}
                 src={imageSrc}
                 alt="Crop preview"
                 className="max-h-[400px] w-full object-contain"
+                onLoad={onImageLoad}
               />
             </ReactCrop>
           )}
@@ -173,7 +200,8 @@ export default function ImageCropModal({
           </Button>
           <Button
             onClick={handleCropComplete}
-            disabled={!imageSrc || isLoading}
+            disabled={!imageSrc || !completedCrop || isLoading}
+            className="bg-emerald-600 hover:bg-emerald-700"
           >
             {isLoading ? "Cropping..." : "Crop Image"}
           </Button>

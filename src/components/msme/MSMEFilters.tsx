@@ -1,7 +1,4 @@
 import React from "react";
-
-import type { FilterState } from "@/types/table";
-import type { Sector } from "@/types/superadmin";
 import { ILOILO_LOCATIONS } from "@/lib/iloilo-locations";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,13 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface MSMEFiltersProps {
-  sectors: Sector[];
-  filters: FilterState;
-  onFilterChange: (filters: FilterState) => void;
-  className?: string;
-}
+import type { MSMEFiltersProps } from "@/types/MSME";
 
 export function MSMEFilters({
   sectors,

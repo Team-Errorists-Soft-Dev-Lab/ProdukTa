@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Users, Download, Factory, Store } from "lucide-react";
 import {
   Card,
@@ -21,10 +21,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+
+interface ExportDataProps {
+  monthlyExportCounts: Record<string, number>;
+  totalExports: number;
+}
 
 export default function Dashboard() {
   const { sectors, msmes, isLoading, error } = useMSMEContext();
   const { activeAdmins } = useSuperAdminContext();
+  const [totalExports, setTotalExports] = useState<number>(0);
+  const [lineChartData, setLineChartData] = useState<
+    { month: string; exports: number }[]
+  >([]);
+  const [formattedData, setFormattedData] = useState<
+    { month: string; exports: number }[]
+  >([]);
+  const [loadingTotalExports, setLoadingTotalExports] = useState<boolean>(true);
+  const [option, setOption] = useState<string>("the last 6 months");
 
   useEffect(() => {
     if (error) {
@@ -32,23 +47,61 @@ export default function Dashboard() {
     }
   }, [error]);
 
-  // Export analytics data transformed for line chart
-  const lineChartData = useMemo(
-    () => [
-      { month: "January", exports: 45 },
-      { month: "February", exports: 65 },
-      { month: "March", exports: 35 },
-      { month: "April", exports: 55 },
-      { month: "May", exports: 70 },
-      { month: "June", exports: 40 },
-    ],
-    [],
-  );
+  useEffect(() => {
+    const fetchExportData = async () => {
+      setLoadingTotalExports(true); // Start loading
+      try {
+        const response = await fetch("/api/admin/export");
+        const data = (await response.json()) as ExportDataProps;
+        console.log("Export data:", data);
 
-  // Calculate total exports from line chart data
-  const totalExports = useMemo(() => {
-    return lineChartData.reduce((acc, curr) => acc + curr.exports, 0);
-  }, [lineChartData]);
+        // Transform the `monthlyExportCounts` into the desired format
+        const formatted = Object.entries(data.monthlyExportCounts).map(
+          ([month, exports]) => ({
+            month: new Date(`${month}-01`).toLocaleString("default", {
+              month: "long",
+            }), // Convert YYYY-MM to month name
+            exports: exports,
+          }),
+        );
+
+        setFormattedData(formatted); // Store the full dataset
+        setLineChartData(formatted); // Initialize the chart with the full dataset
+        setTotalExports(data.totalExports); // Set the total exports
+      } catch (error) {
+        console.error("Error fetching export data:", error);
+      } finally {
+        setLoadingTotalExports(false); // Stop loading
+      }
+    };
+
+    fetchExportData().catch((error) => {
+      console.error("Error fetching export data:", error);
+    });
+  }, []);
+
+  const setExportOption = (value: string) => {
+    if (value === "6months") {
+      setOption("the last 6 months");
+      setLineChartData(
+        formattedData.slice(-6).map((data) => ({
+          month: data.month,
+          exports: data.exports,
+        })),
+      );
+    } else if (value === "year") {
+      setOption("the last year");
+      setLineChartData(
+        formattedData.slice(-12).map((data) => ({
+          month: data.month,
+          exports: data.exports,
+        })),
+      );
+    } else {
+      setOption("all time");
+      setLineChartData(formattedData);
+    }
+  };
 
   // Calculate sector data from MSMEs with proper type checking
   const sectorChartData = useMemo(() => {
@@ -169,7 +222,7 @@ export default function Dashboard() {
           <CardContent>
             <div className="flex items-end justify-between">
               <p className="text-3xl font-bold text-emerald-600">
-                {totalExports}
+                {loadingTotalExports ? <Spinner /> : totalExports}
               </p>
               <div className="rounded-full bg-amber-100 p-2 text-amber-600">
                 <Download size={25} />
@@ -183,7 +236,7 @@ export default function Dashboard() {
           <CardHeader className="py-3">
             <CardTitle className="flex items-center justify-between text-lg">
               <span>Export Statistics</span>
-              <Select defaultValue="6months">
+              <Select defaultValue="6months" onValueChange={setExportOption}>
                 <SelectTrigger className="w-36 border-emerald-200 text-sm">
                   <SelectValue placeholder="Time period" />
                 </SelectTrigger>
@@ -197,10 +250,13 @@ export default function Dashboard() {
             <CardDescription>Monthly data export trends</CardDescription>
           </CardHeader>
           <CardContent className="pb-4">
-            <ExportsLineChart
-              data={lineChartData}
-              totalExports={totalExports}
-            />
+            {loadingTotalExports ? (
+              <div className="flex items-center justify-center">
+                <Spinner />
+              </div>
+            ) : (
+              <ExportsLineChart data={lineChartData} option={option} />
+            )}
           </CardContent>
         </Card>
 

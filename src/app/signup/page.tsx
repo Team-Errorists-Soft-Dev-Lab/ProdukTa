@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type Sector from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,16 +25,8 @@ import {
   getPasswordStrengthRules,
   checkPasswords,
 } from "@/lib/password-strength";
-
-interface Sector {
-  id: number;
-  name: string;
-}
-
-interface ApiResponse {
-  sectors: Sector[];
-  error?: string;
-}
+import type { SignupSector } from "@/types/sector";
+import type { ApiResponse } from "@/types/APIResponse";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -47,7 +38,7 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [sectors, setSectors] = useState<Sector[]>([]);
+  const [sectors, setSectors] = useState<SignupSector[]>([]);
   const [isLoadingSectors, setIsLoadingSectors] = useState(true);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const { signup } = useAuth();

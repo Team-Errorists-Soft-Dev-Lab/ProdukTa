@@ -6,9 +6,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  Users,
-  FileText,
-  User,
+  Store,
+  UserCircle2,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -16,6 +15,12 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function Sidebar() {
   const { logout, user } = useAuth();
@@ -93,100 +98,146 @@ export default function Sidebar() {
         </button>
       </div>
       <nav className="mt-8 flex-grow">
-        <Link
-          href={`/admin/dashboard/${sectorPath}`}
-          className={cn(
-            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
-            isLinkActive(`/admin/dashboard/${sectorPath}`) &&
-              "bg-[#996439] text-[#FCFBFA]",
-          )}
-        >
-          <Home className="mr-3" size={18} />
-          <span
-            className={cn(
-              "transition-opacity",
-              isCollapsed ? "hidden opacity-0" : "opacity-100",
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href={`/admin/dashboard/${sectorPath}`}
+                className={cn(
+                  "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+                  isLinkActive(`/admin/dashboard/${sectorPath}`) &&
+                    "bg-[#996439] text-[#FCFBFA]",
+                )}
+              >
+                <Home className="mr-3" size={18} />
+                <span
+                  className={cn(
+                    "transition-opacity",
+                    isCollapsed ? "hidden opacity-0" : "opacity-100",
+                  )}
+                >
+                  Home
+                </span>
+              </Link>
+            </TooltipTrigger>
+            {isCollapsed && (
+              <TooltipContent
+                side="right"
+                className="border-none bg-[#996439] text-[#FCFBFA] shadow-xl"
+              >
+                <p className="font-medium">Home</p>
+              </TooltipContent>
             )}
-          >
-            Home
-          </span>
-        </Link>
-        <Link
-          href={`/admin/msme/${sectorPath}`}
-          className={cn(
-            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
-            isLinkActive(`/admin/msme/${sectorPath}`) &&
-              "bg-[#996439] text-[#FCFBFA]",
-          )}
-        >
-          <Users className="mr-3" size={18} />
-          <span
-            className={cn(
-              "transition-opacity",
-              isCollapsed ? "hidden opacity-0" : "opacity-100",
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href={`/admin/msme/${sectorPath}`}
+                className={cn(
+                  "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+                  isLinkActive(`/admin/msme/${sectorPath}`) &&
+                    "bg-[#996439] text-[#FCFBFA]",
+                )}
+              >
+                <Store className="mr-3" size={18} />
+                <span
+                  className={cn(
+                    "transition-opacity",
+                    isCollapsed ? "hidden opacity-0" : "opacity-100",
+                  )}
+                >
+                  Manage MSMEs
+                </span>
+              </Link>
+            </TooltipTrigger>
+            {isCollapsed && (
+              <TooltipContent
+                side="right"
+                className="border-none bg-[#996439] text-[#FCFBFA] shadow-xl"
+              >
+                <p className="font-medium">Manage MSMEs</p>
+              </TooltipContent>
             )}
-          >
-            Manage MSMEs
-          </span>
-        </Link>
-        <Link
-          href={`/admin/export-data/${sectorPath}`}
-          className={cn(
-            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
-            isLinkActive(`/admin/export-data/${sectorPath}`) &&
-              "bg-[#996439] text-[#FCFBFA]",
-          )}
-        >
-          <FileText className="mr-3" size={18} />
-          <span
-            className={cn(
-              "transition-opacity",
-              isCollapsed ? "hidden opacity-0" : "opacity-100",
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href="/guest"
+                className={cn(
+                  "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
+                  isLinkActive("/guest") && "bg-[#996439] text-[#FCFBFA]",
+                )}
+              >
+                <UserCircle2 className="mr-3" size={18} />
+                <span
+                  className={cn(
+                    "transition-opacity",
+                    isCollapsed ? "hidden opacity-0" : "opacity-100",
+                  )}
+                >
+                  Guest Mode
+                </span>
+              </Link>
+            </TooltipTrigger>
+            {isCollapsed && (
+              <TooltipContent
+                side="right"
+                className="border-none bg-[#996439] text-[#FCFBFA] shadow-xl"
+              >
+                <p className="font-medium">Guest Mode</p>
+              </TooltipContent>
             )}
-          >
-            Export Data
-          </span>
-        </Link>
-        <Link
-          href="/guest"
-          className={cn(
-            "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
-            isLinkActive("/guest") && "bg-[#996439] text-[#FCFBFA]",
-          )}
-        >
-          <User className="mr-3" size={18} />
-          <span
-            className={cn(
-              "transition-opacity",
-              isCollapsed ? "hidden opacity-0" : "opacity-100",
-            )}
-          >
-            Guest Mode
-          </span>
-        </Link>
+          </Tooltip>
+        </TooltipProvider>
       </nav>
       <div className="p-4">
-        <button
-          onClick={handleLogout}
-          disabled={isLoading}
-          className={cn(
-            "flex w-full items-center justify-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]",
-            isLoading && "cursor-not-allowed opacity-50",
-          )}
-        >
-          <LogOut
-            className={cn("mr-2 transition-opacity", isCollapsed && "hidden")}
-            size={18}
-          />
-          <span
-            className={cn(
-              "transition-opacity",
-              isCollapsed ? "hidden opacity-0" : "opacity-100",
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleLogout}
+                disabled={isLoading}
+                className={cn(
+                  "flex w-full items-center justify-center rounded bg-[#996439] px-4 py-2 text-[#FCFBFA] transition duration-150 ease-in-out hover:bg-[#bb987a]",
+                  isLoading && "cursor-not-allowed opacity-50",
+                )}
+              >
+                <LogOut
+                  className={cn(
+                    "mr-2 transition-opacity",
+                    isCollapsed && "hidden",
+                  )}
+                  size={18}
+                />
+                <span
+                  className={cn(
+                    "transition-opacity",
+                    isCollapsed ? "hidden opacity-0" : "opacity-100",
+                  )}
+                >
+                  {isLoading ? "Logging out..." : "Logout"}
+                </span>
+              </button>
+            </TooltipTrigger>
+            {isCollapsed && (
+              <TooltipContent
+                side="right"
+                className="border-none bg-[#996439] text-[#FCFBFA] shadow-xl"
+              >
+                <p className="font-medium">Logout</p>
+                <p className="text-xs text-white/60">
+                  Sign out of your account
+                </p>
+              </TooltipContent>
             )}
-          >
-            {isLoading ? "Logging out..." : "Logout"}
-          </span>
-        </button>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </aside>
   );

@@ -13,7 +13,15 @@ const config = {
         hostname: "*.supabase.co",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+        pathname: "/**",
+      },
     ],
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 

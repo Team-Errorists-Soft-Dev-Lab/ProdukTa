@@ -16,16 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-interface Sector {
-  name: string;
-  value: number;
-}
-
-interface SectorPieChartProps {
-  sectors: Sector[];
-  colors: string[];
-}
+import type { SectorPieChartProps } from "@/types/sector";
 
 export function SectorPieChart({ sectors, colors }: SectorPieChartProps) {
   // Calculate total MSMEs
@@ -128,9 +119,6 @@ export function SectorPieChart({ sectors, colors }: SectorPieChartProps) {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Growth of 12% from last quarter <TrendingUp className="h-4 w-4" />
-        </div>
         <div className="leading-none text-muted-foreground">
           Distribution of MSMEs across sectors
         </div>

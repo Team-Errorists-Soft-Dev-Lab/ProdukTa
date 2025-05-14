@@ -28,10 +28,13 @@ import { uploadImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-interface AddMSMEModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import type { AddMSMEModalProps } from "@/types/MSME";
+import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
+import {
+  Dropzone,
+  DropzoneContent,
+  DropzoneEmptyState,
+} from "@/components/ui/dropzone";
 
 export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const { sectors, handleAddMSME } = useMSMEContext();
@@ -49,8 +52,6 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const [yearEstablished, setYearEstablished] = useState("");
   const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
@@ -66,6 +67,16 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
     { length: currentYear - 1899 },
     (_, i) => currentYear - i,
   );
+
+  // Replace selectedFiles and previewUrls with useSupabaseUpload
+  const productImagesUpload = useSupabaseUpload({
+    bucketName: "msme-images",
+    path: "products",
+    maxFileSize: 10 * 1000 * 1000, // 10MB
+    maxFiles: 5,
+    allowedMimeTypes: ["image/*"],
+    upsert: true,
+  });
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -97,7 +108,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
       setCompanyLogo(url);
       setLogoUrl(url);
       setLogoFile(croppedFile);
-    } catch (error) {
+    } catch {
       toast.error("Failed to upload logo");
     }
   };
@@ -108,7 +119,8 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm() || !sectorId) return;
+    if (!validateForm() || !sectorId || latitude === null || longitude === null)
+      return;
 
     setIsSubmitting(true);
     try {
@@ -119,12 +131,15 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         logoUrl = await uploadImage(logoFile, fileName);
       }
 
-      // Handle product images upload
-      const imageUrls = await Promise.all(
-        selectedFiles.map((file, index) =>
-          uploadImage(file, `product-${Date.now()}-${index}`),
-        ),
-      );
+      // Get the uploaded product image URLs
+      const imageUrls = productImagesUpload.successes.map((fileName) => {
+        // Ensure the URL is properly formatted
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        if (fileName.includes("storage/v1/object/public")) {
+          return fileName;
+        }
+        return `${supabaseUrl}/storage/v1/object/public/msme-images/products/${fileName}`;
+      });
 
       await handleAddMSME({
         companyName,
@@ -160,7 +175,6 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
       setYearEstablished("");
       setDTINumber("");
       setSectorId(null);
-      setSelectedFiles([]);
       setErrors({});
       setLogoFile(null);
       setLatitude(null);
@@ -175,33 +189,6 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
 
   const handleSectorChange = (value: string) => {
     setSectorId(Number(value));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
-      setSelectedFiles(files);
-
-      // Create preview URLs
-      const urls = files.map((file) => URL.createObjectURL(file));
-      setPreviewUrls(urls);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const clearImageSelection = () => {
-    setSelectedFiles([]);
-    setPreviewUrls([]);
-  };
-
-  const clearLogoSelection = () => {
-    setCompanyLogo("");
-    setLogoUrl("");
-    setLogoFile(null);
   };
 
   const defaultMapCenter = useMemo(
@@ -283,9 +270,9 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
               </div>
               <div>
                 <Label htmlFor="companyLogo">Company Logo</Label>
-                <div className="mt-1.5 flex items-center gap-4">
+                <div className="mt-1.5 flex flex-col gap-4">
                   {logoUrl && (
-                    <div className="relative">
+                    <div className="relative inline-block">
                       <Image
                         src={logoUrl}
                         alt="Company logo"
@@ -298,7 +285,11 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                         variant="destructive"
                         size="icon"
                         className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
-                        onClick={clearLogoSelection}
+                        onClick={() => {
+                          setCompanyLogo("");
+                          setLogoUrl("");
+                          setLogoFile(null);
+                        }}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -461,55 +452,14 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="images">Product Images</Label>
-                  {previewUrls.length > 0 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={clearImageSelection}
-                    >
-                      Clear Selection
-                    </Button>
-                  )}
-                </div>
-                <Input
-                  id="images"
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="mt-1.5"
-                />
+                <Label>Product Images</Label>
+                <Dropzone {...productImagesUpload}>
+                  <DropzoneEmptyState />
+                  <DropzoneContent />
+                </Dropzone>
                 <p className="text-sm text-muted-foreground">
-                  Upload up to 5 images of your products or business
+                  Upload up to 5 images of your products (max 10MB each)
                 </p>
-
-                {previewUrls.length > 0 && (
-                  <div className="mt-2 grid grid-cols-3 gap-2">
-                    {previewUrls.map((url, index) => (
-                      <div key={index} className="group relative">
-                        <Image
-                          src={url}
-                          alt={`Preview ${index + 1}`}
-                          className="h-24 w-full rounded-md object-cover"
-                          width={200}
-                          height={96}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-1 top-1 h-6 w-6 rounded-full bg-red-500/80 p-1 hover:bg-red-500"
-                          onClick={() => removeFile(index)}
-                        >
-                          <X className="h-4 w-4 text-white" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -569,7 +519,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
-        aspect={1} // Square aspect ratio
+        // aspect={1} // Square aspect ratio
       />
     </Dialog>
   );

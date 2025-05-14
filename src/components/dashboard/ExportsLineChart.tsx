@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -18,21 +17,15 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
+import type { ExportsLineChartProps } from "@/types/export";
+import { useMemo } from "react";
 
-interface ExportsLineChartProps {
-  data: { month: string; exports: number }[];
-  totalExports: number;
-}
-
-export function ExportsLineChart({
-  data,
-  totalExports,
-}: ExportsLineChartProps) {
+export function ExportsLineChart({ data, option }: ExportsLineChartProps) {
   // Chart configuration for exports
   const exportChartConfig = {
     exports: {
@@ -43,6 +36,18 @@ export function ExportsLineChart({
       label: "Month",
     },
   } satisfies ChartConfig;
+
+  const trendPercentage = useMemo(() => {
+    const currentMonthExports = data[data.length - 1]?.exports || 0;
+    const previousMonthExports = data[data.length - 2]?.exports || 0;
+
+    if (previousMonthExports === 0) return 0; // Avoid division by zero
+
+    return (
+      ((currentMonthExports - previousMonthExports) / previousMonthExports) *
+      100
+    );
+  }, [data]);
 
   return (
     <Card className="border-emerald-600">
@@ -107,12 +112,17 @@ export function ExportsLineChart({
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing export trends for the last 6 months
-        </div>
+        {trendPercentage > 0 ? (
+          <div>
+            <div className="leading-none text-muted-foreground">
+              Showing export trends for {option}
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-2 font-medium leading-none">
+            <p>Not enough data to derive trend percentage</p>
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

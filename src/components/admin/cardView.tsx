@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash, Mail, Phone, MapPin } from "lucide-react";
-import type { MSME } from "@/types/superadmin";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,14 +29,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSectorIcon } from "@/lib/utils";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
-
-interface MSMECardViewProps {
-  msmes: MSME[];
-  isLoading: boolean;
-  onEdit: (msme: MSME) => void;
-  onDelete: (id: number) => void;
-  getSectorName: (id: number) => string;
-}
+import type { MSMECardViewProps } from "@/types/MSME";
 
 export function MSMECardView({
   msmes,

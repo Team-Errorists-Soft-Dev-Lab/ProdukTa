@@ -6,6 +6,13 @@ export async function GET(
   { params }: { params: { id: string } },
 ) {
   try {
+    if (!params?.id || isNaN(parseInt(params.id))) {
+      return NextResponse.json(
+        { error: "Invalid or missing admin ID" },
+        { status: 400 },
+      );
+    }
+
     const adminId = parseInt(params.id);
 
     const adminSector = await prisma.adminSectors.findFirst({

@@ -108,6 +108,14 @@ export default function ExportDataPage({
     );
   };
 
+  const onEdit = () => {
+    // Edit functionality
+  };
+
+  const onDelete = () => {
+    // Delete functionality
+  };
+
   useEffect(() => {
     setCurrentPage(1);
   }, [itemsPerPage, filteredMSMEs]);
@@ -121,7 +129,7 @@ export default function ExportDataPage({
         <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto">
           <Link
             href={{
-              pathname: "/admin/pdfExport",
+              pathname: "/admin/pdf-export",
               query: { selectedId: JSON.stringify(selectedId) },
             }}
           >
@@ -257,6 +265,8 @@ export default function ExportDataPage({
         </div>
       )}
       <MSMECardView
+        onEdit={onEdit}
+        onDelete={onDelete}
         msmes={currentMSMEs}
         isLoading={isLoading}
         getSectorName={getSectorName}

@@ -1,11 +1,13 @@
 "use client";
-import React from "react";
+import type React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { redirect } from "next/navigation";
 import { AdminProvider } from "@/contexts/AdminContext";
 import Sidebar from "@/components/AdminSidebar";
 import Navbar from "@/components/AdminNavbar";
 import { MSMEProvider } from "@/contexts/MSMEContext";
+import { ExportDetailsProvider } from "@/contexts/ExportDetailsContext";
+import { VisitorProvider } from "@/contexts/VisitorContext";
 
 export default function AdminLayout({
   children,
@@ -22,15 +24,17 @@ export default function AdminLayout({
   return (
     <AdminProvider>
       <MSMEProvider>
-        <div className="flex h-screen overflow-hidden bg-gray-100">
-          <Sidebar />
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <Navbar />
-            <main className="flex-1 overflow-hidden overflow-y-auto overflow-x-hidden bg-gray-100 p-2">
-              {children}
-            </main>
-          </div>
-        </div>
+        <ExportDetailsProvider>
+          <VisitorProvider>
+            <div className="flex h-screen overflow-hidden bg-gray-100">
+              <Sidebar />
+              <div className="flex flex-1 flex-col overflow-y-auto">
+                <Navbar />
+                <main className="bg-gray-100 p-2">{children}</main>
+              </div>
+            </div>
+          </VisitorProvider>
+        </ExportDetailsProvider>
       </MSMEProvider>
     </AdminProvider>
   );

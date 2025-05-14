@@ -4,49 +4,77 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-
-interface MSME {
-  id: string;
-  contactPerson: string;
-  contactNumber: string;
-  email: string;
-  cityMunicipalityAddress: string;
-  companyName: string;
-  products: string[];
-}
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Download, Loader2 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import type { ExportMSME } from "@/types/MSME";
 
 export default function ExportData() {
   const searchParams = useSearchParams();
-  const selectedId: string[] = JSON.parse(
-    searchParams.get("selectedId") ?? "[]",
-  ) as string[];
-
-  const [msmeData, setMsmeData] = useState<MSME[]>([]);
+  const [selectedId, setSelectedId] = useState<string[]>([]);
+  const [msmeData, setMsmeData] = useState<ExportMSME[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
+  const hasFetchedRef = useRef(false);
+
+  useEffect(() => {
+    try {
+      const selectedIdParam = searchParams.get("selectedId");
+      if (selectedIdParam) {
+        const parsedIds = JSON.parse(selectedIdParam) as string[];
+        setSelectedId(parsedIds);
+      } else {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Error parsing selectedId:", error);
+      setError("Invalid selected IDs format");
+      setIsLoading(false);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchMsmeData = async () => {
+      if (selectedId.length === 0 || hasFetchedRef.current) return;
+
       try {
         const response = await fetch(`/api/pdf?ids=${selectedId.join(",")}`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = ((await response.json()) as { msmes: MSME[] }).msmes;
+        const data = ((await response.json()) as { msmes: ExportMSME[] }).msmes;
         setMsmeData(data);
+        hasFetchedRef.current = true;
       } catch (error) {
         console.error("Error fetching MSME data:", error);
         setError("Failed to fetch MSME data");
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    if (selectedId.length > 0) {
-      void fetchMsmeData();
-    }
-  }, []);
+    fetchMsmeData().catch((error) => {
+      console.error("Error in fetchMsmeData:", error);
+    });
+  }, [selectedId]);
 
   const generatePDFContent = (
-    msme: MSME,
+    msme: ExportMSME,
     actualMsmeWidth: number,
     actualMsmeHeight: number,
   ) => {
@@ -86,7 +114,23 @@ export default function ExportData() {
     return msmeElement;
   };
 
+  const recordExport = async (msmeId: string) => {
+    try {
+      await fetch("/api/admin/export", {
+        method: "POST",
+        body: JSON.stringify({ msmeId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("Error recording export:", error);
+    }
+  };
+
   const exportToPDF = async () => {
+    // note: call analytics api here to trigger increase in export count
+
     if (!contentRef.current) return;
 
     const pdf = new jsPDF("p", "mm", "a4");
@@ -103,6 +147,7 @@ export default function ExportData() {
     logoImg.src = "/DTI_logo.png";
     await new Promise<void>((resolve) => {
       logoImg.onload = () => resolve();
+      logoImg.onerror = () => resolve(); // Continue even if logo fails to load
     });
 
     for (let i = 0; i < msmeData.length; i += msmePerPage) {
@@ -115,8 +160,6 @@ export default function ExportData() {
       pageContent.style.flexDirection = "column";
       pageContent.style.gap = "5mm";
       pageContent.style.position = "relative";
-      // pageContent.style.background =
-      //   "linear-gradient(135deg, #e6f3ff 0%, #ffffff 50%, #ffebeb 100%)";
 
       // Add logo and text to the top of each page
       const headerContainer = document.createElement("div");
@@ -180,47 +223,87 @@ export default function ExportData() {
     }
 
     pdf.save("msme_data.pdf");
+
+    for (const id of selectedId) {
+      if (id !== undefined) {
+        await recordExport(id);
+      }
+    }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gray-300 p-4">
-      <h1 className="mb-4 text-2xl font-bold">Selected MSMEs</h1>
-      {error && <p className="text-red-500">{error}</p>}
-      <button
-        onClick={exportToPDF}
-        className="mb-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-      >
-        Export to PDF
-      </button>
-      <div
-        ref={contentRef}
-        className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-3"
-      >
-        {msmeData.length > 0 ? (
-          msmeData.map((msme, index) => (
-            <div key={index} className="rounded-lg bg-white p-6 shadow-md">
-              <h2 className="text-xl font-bold">{msme.companyName}</h2>
-              <p>Contact Person: {msme.contactPerson}</p>
-              <p>Contact Number: {msme.contactNumber}</p>
-              <p>Email: {msme.email}</p>
-              <p>Address: {msme.cityMunicipalityAddress}</p>
-              <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-3">
-                {Array.isArray(msme.products) &&
-                  msme.products.slice(0, 8).map((product, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-lg border bg-gray-50 p-4 text-center shadow-md"
-                    >
-                      {product}
-                    </div>
-                  ))}
-              </div>
+    <div className="container mx-auto p-4">
+      <Card className="border-[#996439]/20 shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div>
+            <CardTitle className="text-2xl font-bold">Export Data</CardTitle>
+            <CardDescription className="mt-1">
+              Selected MSMEs: {msmeData.length}
+            </CardDescription>
+          </div>
+          <Button
+            onClick={exportToPDF}
+            className="bg-amber-800 hover:bg-[#996439]"
+            disabled={isLoading || msmeData.length === 0}
+          >
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            Export to PDF
+          </Button>
+        </CardHeader>
+        <CardContent ref={contentRef} className="px-0">
+          {error && (
+            <div className="mb-4 rounded-md bg-red-50 p-4 text-red-500">
+              {error}
             </div>
-          ))
-        ) : (
-          <p>Loading MSMEs data...</p>
-        )}
-      </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex h-40 items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-[#996439]" />
+              <span className="ml-2">Loading MSMEs data...</span>
+            </div>
+          ) : msmeData.length === 0 ? (
+            <div className="flex h-40 items-center justify-center text-gray-500">
+              No MSMEs selected for export
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="w-[50px] text-center">#</TableHead>
+                    <TableHead>Company Name</TableHead>
+                    <TableHead>Contact Person</TableHead>
+                    <TableHead>Contact Number</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Location</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {msmeData.map((msme, index) => (
+                    <TableRow key={msme.id || index}>
+                      <TableCell className="text-center font-medium">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {msme.companyName}
+                      </TableCell>
+                      <TableCell>{msme.contactPerson}</TableCell>
+                      <TableCell>{msme.contactNumber}</TableCell>
+                      <TableCell>{msme.email}</TableCell>
+                      <TableCell>{msme.cityMunicipalityAddress}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
