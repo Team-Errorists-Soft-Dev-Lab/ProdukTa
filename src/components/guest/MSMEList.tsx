@@ -29,6 +29,15 @@ export default function MSMEList({ msmes }: MSMEListProps) {
                       height={240}
                       className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    {msme.companyLogo && (
+                      <Image
+                        src={`${msme.companyLogo ?? "/placeholder.png"}`}
+                        alt={msme.companyName}
+                        width={56}
+                        height={56}
+                        className="absolute bottom-4 right-4 z-20 h-14 w-14 rounded-full border-2 border-white object-cover shadow-md"
+                      />
+                    )}
                     <Badge className="absolute bottom-4 left-4 z-20 bg-amber-600/90 hover:bg-amber-600">
                       {msme.sectorName}
                     </Badge>
