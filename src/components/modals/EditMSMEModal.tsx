@@ -63,6 +63,7 @@ export default function EditMSMEModal({
     null,
   );
   const [isReplacingImages, setIsReplacingImages] = useState(false);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -151,6 +152,7 @@ export default function EditMSMEModal({
   };
 
   const handleLogoUpload = async (croppedFile: File) => {
+    setIsLogoUploading(true);
     try {
       // Delete old logo if it exists
       if (msme?.companyLogo) {
@@ -163,6 +165,8 @@ export default function EditMSMEModal({
       setLogoFile(croppedFile);
     } catch {
       toast.error("Failed to upload logo");
+    } finally {
+      setIsLogoUploading(false);
     }
   };
 
@@ -347,13 +351,23 @@ export default function EditMSMEModal({
                         setCompanyLogo("");
                         setLogoUrl("");
                         setLogoFile(null);
-                        setIsCropModalOpen(false);
+                        setIsCropModalOpen(true);
                       } else {
                         setIsCropModalOpen(true);
                       }
                     }}
+                    disabled={isLogoUploading}
                   >
-                    {logoUrl ? "Change Logo" : "Upload Logo"}
+                    {isLogoUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : logoUrl ? (
+                      "Change Logo"
+                    ) : (
+                      "Upload Logo"
+                    )}
                   </Button>
                 </div>
               </div>
