@@ -39,6 +39,7 @@ export default function Dashboard() {
     { month: string; exports: number }[]
   >([]);
   const [loadingTotalExports, setLoadingTotalExports] = useState<boolean>(true);
+  const [option, setOption] = useState<string>("the last 6 months");
 
   useEffect(() => {
     if (error) {
@@ -81,6 +82,7 @@ export default function Dashboard() {
 
   const setExportOption = (value: string) => {
     if (value === "6months") {
+      setOption("the last 6 months");
       setLineChartData(
         formattedData.slice(-6).map((data) => ({
           month: data.month,
@@ -88,6 +90,7 @@ export default function Dashboard() {
         })),
       );
     } else if (value === "year") {
+      setOption("the last year");
       setLineChartData(
         formattedData.slice(-12).map((data) => ({
           month: data.month,
@@ -95,6 +98,7 @@ export default function Dashboard() {
         })),
       );
     } else {
+      setOption("all time");
       setLineChartData(formattedData);
     }
   };
@@ -251,10 +255,7 @@ export default function Dashboard() {
                 <Spinner />
               </div>
             ) : (
-              <ExportsLineChart
-                data={lineChartData}
-                totalExports={totalExports}
-              />
+              <ExportsLineChart data={lineChartData} option={option} />
             )}
           </CardContent>
         </Card>

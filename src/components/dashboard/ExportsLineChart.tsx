@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -26,10 +25,7 @@ import type { ChartConfig } from "@/components/ui/chart";
 import type { ExportsLineChartProps } from "@/types/export";
 import { useMemo } from "react";
 
-export function ExportsLineChart({
-  data,
-  // totalExports,
-}: ExportsLineChartProps) {
+export function ExportsLineChart({ data, option }: ExportsLineChartProps) {
   // Chart configuration for exports
   const exportChartConfig = {
     exports: {
@@ -118,12 +114,8 @@ export function ExportsLineChart({
       <CardFooter className="flex-col items-start gap-2 text-sm">
         {trendPercentage > 0 ? (
           <div>
-            <div className="flex gap-2 font-medium leading-none">
-              Trending down by {trendPercentage.toFixed(2)}% this month
-              <TrendingUp className="h-4 w-4 rotate-180" />
-            </div>
             <div className="leading-none text-muted-foreground">
-              Showing export trends for the last 6 months
+              Showing export trends for {option}
             </div>
           </div>
         ) : (

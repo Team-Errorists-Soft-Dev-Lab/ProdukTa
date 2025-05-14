@@ -39,6 +39,7 @@ export default function MSMEPage({
   const [lineChartData, setLineChartData] = useState<
     { month: string; exports: number }[]
   >([]);
+  const [option, setOption] = useState("the last 6 months");
 
   const sector = sectors.find(
     (sector) =>
@@ -82,6 +83,7 @@ export default function MSMEPage({
 
   const setExportOption = (value: string) => {
     if (value === "6months") {
+      setOption("the last 6 months");
       setLineChartData(
         formattedData.slice(-6).map((data) => ({
           month: data.month,
@@ -89,6 +91,7 @@ export default function MSMEPage({
         })),
       );
     } else if (value === "year") {
+      setOption("the last year");
       setLineChartData(
         formattedData.slice(-12).map((data) => ({
           month: data.month,
@@ -96,6 +99,7 @@ export default function MSMEPage({
         })),
       );
     } else {
+      setOption("all time");
       setLineChartData(formattedData);
     }
   };
@@ -359,10 +363,7 @@ export default function MSMEPage({
                 </CardContent>
               ) : (
                 <CardContent className="pb-4">
-                  <ExportsLineChart
-                    data={lineChartData}
-                    totalExports={totalExports}
-                  />
+                  <ExportsLineChart data={lineChartData} option={option} />
                 </CardContent>
               )}
             </div>
