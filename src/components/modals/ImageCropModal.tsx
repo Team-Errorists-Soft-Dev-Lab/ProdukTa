@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import ReactCrop, {
   centerCrop,
   makeAspectCrop,
@@ -15,8 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import "react-image-crop/dist/ReactCrop.css";
 import { toast } from "sonner";
-import { Dropzone, DropzoneEmptyState } from "@/components/ui/dropzone";
-import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
+import { useDropzone } from "react-dropzone";
 import type { ImageCropModalProps } from "@/types/image";
 
 function centerAspectCrop(
@@ -51,16 +50,7 @@ export default function ImageCropModal({
   const imgRef = useRef<HTMLImageElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const logoUpload = useSupabaseUpload({
-    bucketName: "msme-images",
-    path: "logos",
-    maxFileSize: 5 * 1000 * 1000, // 5MB
-    maxFiles: 1,
-    allowedMimeTypes: ["image/*"],
-    upsert: true,
-  });
-
-  const handleDropzoneFile = (file: File) => {
+  const handleDropzoneFile = useCallback((file: File) => {
     setCrop(undefined); // Reset crop between images
     const reader = new FileReader();
     reader.addEventListener("load", () => {
@@ -70,7 +60,41 @@ export default function ImageCropModal({
       }
     });
     reader.readAsDataURL(file);
-  };
+  }, []);
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0 && acceptedFiles[0]) {
+        const file = acceptedFiles[0];
+        if (file.type.startsWith("image/")) {
+          handleDropzoneFile(file);
+        } else {
+          toast.error("Invalid file type. Please upload an image.");
+        }
+      }
+    },
+    [handleDropzoneFile],
+  );
+
+  const {
+    getRootProps: getRootPropsHook,
+    getInputProps,
+    isDragActive,
+  } = useDropzone({
+    onDrop,
+    accept: {
+      "image/*": [],
+    },
+    maxFiles: 1,
+    maxSize: 5 * 1000 * 1000, // 5MB
+  });
+
+  const allRootProps = getRootPropsHook();
+  const {
+    isDragActive: _isDragActiveFromProps,
+    tabIndex: _tabIndexFromProps,
+    ...rootProps
+  } = allRootProps;
 
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget;
@@ -149,13 +173,6 @@ export default function ImageCropModal({
     onClose();
   };
 
-  // When dropzone files change
-  React.useEffect(() => {
-    if (logoUpload.files.length > 0 && logoUpload.files[0]) {
-      handleDropzoneFile(logoUpload.files[0]);
-    }
-  }, [logoUpload.files]);
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -166,9 +183,42 @@ export default function ImageCropModal({
           {!imageSrc && (
             <div className="space-y-2">
               <Label>Upload Logo</Label>
-              <Dropzone {...logoUpload}>
-                <DropzoneEmptyState />
-              </Dropzone>
+              <div
+                {...rootProps}
+                tabIndex={_tabIndexFromProps}
+                className={`mt-1 flex cursor-pointer justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pb-6 pt-5 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500 ${
+                  _isDragActiveFromProps
+                    ? "border-indigo-500 bg-indigo-50 dark:border-indigo-400 dark:bg-indigo-900/10"
+                    : ""
+                }`}
+              >
+                <input {...getInputProps()} />
+                <div className="space-y-1 text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                    <p className="relative rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500 dark:bg-transparent dark:text-indigo-400 dark:hover:text-indigo-300">
+                      <span>Upload a file</span>
+                    </p>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    PNG, JPG, GIF up to 5MB
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
