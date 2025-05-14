@@ -1,6 +1,5 @@
 import { prisma } from "@/utils/prisma/client";
 import { NextResponse } from "next/server";
-
 export async function GET(
   req: Request,
   { params }: { params: { sectorName: string } },
@@ -8,12 +7,11 @@ export async function GET(
   try {
     const { sectorName } = params;
 
-    // Find the sector by name
     const sector = await prisma.sector.findFirst({
       where: {
         name: {
           equals: sectorName,
-          mode: "insensitive", // Case insensitive search
+          mode: "insensitive",
         },
       },
     });

@@ -63,6 +63,7 @@ export default function EditMSMEModal({
     null,
   );
   const [isReplacingImages, setIsReplacingImages] = useState(false);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -151,6 +152,7 @@ export default function EditMSMEModal({
   };
 
   const handleLogoUpload = async (croppedFile: File) => {
+    setIsLogoUploading(true);
     try {
       // Delete old logo if it exists
       if (msme?.companyLogo) {
@@ -163,6 +165,8 @@ export default function EditMSMEModal({
       setLogoFile(croppedFile);
     } catch {
       toast.error("Failed to upload logo");
+    } finally {
+      setIsLogoUploading(false);
     }
   };
 
@@ -337,27 +341,33 @@ export default function EditMSMEModal({
                         width={64}
                         height={64}
                       />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
-                        onClick={() => {
-                          setCompanyLogo("");
-                          setLogoUrl("");
-                          setLogoFile(null);
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
                   )}
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsCropModalOpen(true)}
+                    onClick={() => {
+                      if (logoUrl) {
+                        setCompanyLogo("");
+                        setLogoUrl("");
+                        setLogoFile(null);
+                        setIsCropModalOpen(true);
+                      } else {
+                        setIsCropModalOpen(true);
+                      }
+                    }}
+                    disabled={isLogoUploading}
                   >
-                    {companyLogo ? "Change Logo" : "Upload Logo"}
+                    {isLogoUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : logoUrl ? (
+                      "Change Logo"
+                    ) : (
+                      "Upload Logo"
+                    )}
                   </Button>
                 </div>
               </div>
@@ -638,7 +648,7 @@ export default function EditMSMEModal({
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
-        aspect={1} // Square aspect ratio
+        // aspect={1} // Square aspect ratio
       />
     </Dialog>
   );
