@@ -295,7 +295,7 @@ export default function GuestPage() {
         handleSectorChange={handleSectorChange}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mx-auto py-6">
         {displayedMSME.length === 0 &&
           !isSearching &&
           !isChangingPage &&
