@@ -36,6 +36,8 @@ import {
   DropzoneEmptyState,
 } from "@/components/ui/dropzone";
 
+const libraries: ("places" | "maps")[] = ["places", "maps"];
+
 export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const { sectors, handleAddMSME } = useMSMEContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,6 +117,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    libraries,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
