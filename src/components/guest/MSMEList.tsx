@@ -23,12 +23,21 @@ export default function MSMEList({ msmes }: MSMEListProps) {
                   <CardHeader className="relative p-0">
                     <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent" />
                     <Image
-                      src={`${msme.productGallery?.[0] ?? "/placeholder.png"}`}
+                      src={`${msme.productGallery?.[0] ?? "/placeholder-image.png"}`}
                       alt={msme.companyName}
                       width={400}
                       height={240}
                       className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    {msme.companyLogo && (
+                      <Image
+                        src={`${msme.companyLogo ?? "/no_image_placeholder.jpg"}`}
+                        alt={msme.companyName}
+                        width={56}
+                        height={56}
+                        className="absolute bottom-4 right-4 z-20 h-14 w-14 rounded-full border-2 border-white object-cover shadow-md"
+                      />
+                    )}
                     <Badge className="absolute bottom-4 left-4 z-20 bg-amber-600/90 hover:bg-amber-600">
                       {msme.sectorName}
                     </Badge>
