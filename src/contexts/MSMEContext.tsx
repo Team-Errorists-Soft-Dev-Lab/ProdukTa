@@ -46,13 +46,18 @@ interface MSMEContextType {
   isChangingSector: boolean;
   isSearching: boolean;
   error: Error | null;
-  fetchPagedMSMEs: (page: number, isDesc?: boolean) => Promise<void>;
+  fetchPagedMSMEs: (
+    page: number,
+    isDesc?: boolean,
+    municipalities?: string[],
+  ) => Promise<void>;
   searchMSMEs: (searchQuery: string) => Promise<void>;
   searchMSMEsDebounced: (searchQuery: string) => void;
   fetchMSMEsBySector: (
     sectorName: string,
     page: number,
     isDesc?: boolean,
+    municipalities?: string[],
   ) => Promise<void>;
   handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
@@ -84,32 +89,38 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [isSwitchingSector, setIsSwitchingSector] = useState<boolean>(false);
 
   const fetchPagedMSMEs = useMemo(() => {
-    return async (page: number, descOrder?: boolean) => {
+    return async (
+      page: number,
+      descOrder?: boolean,
+      municipalities?: string[],
+    ) => {
       try {
         setIsChangingPage(true);
-        if (descOrder) {
-          const response = await fetch(
-            `/api/msme/paginated-msme/${page}?desc=true`,
-          );
-          if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
-          const data = (await response.json()) as PagedMSMEsResponse;
-          setPagedMSMEs(data.msmes);
-          setTotalPages(data.meta.totalPages);
-          setIsChangingPage(false);
-          return;
-        } else {
-          const response = await fetch(`/api/msme/paginated-msme/${page}`);
-          if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 
-          const data = (await response.json()) as PagedMSMEsResponse;
-          setPagedMSMEs(data.msmes);
-          setTotalPages(data.meta.totalPages);
-          setIsChangingPage(false);
+        const params = new URLSearchParams();
+        if (descOrder) params.append("desc", "true");
+        if (municipalities && municipalities.length > 0) {
+          params.append("municipalities", municipalities.join(","));
         }
+
+        const url =
+          params.toString().length > 0
+            ? `/api/msme/paginated-msme/${page}?${params.toString()}`
+            : `/api/msme/paginated-msme/${page}`;
+
+        console.log("URL: ", url);
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
+
+        const data = (await response.json()) as PagedMSMEsResponse;
+        setPagedMSMEs(data.msmes);
+        setTotalPages(data.meta.totalPages);
       } catch (error) {
-        setIsChangingPage(false);
         console.error("Error fetching paged MSMEs:", error);
         toast.error("Failed to fetch paged MSMEs");
+      } finally {
+        setIsChangingPage(false);
       }
     };
   }, []);
@@ -166,36 +177,38 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const fetchMSMEsBySector = useMemo(() => {
-    return async (sectorName: string, page: number, isDesc?: boolean) => {
+    return async (
+      sectorName: string,
+      page: number,
+      isDesc?: boolean,
+      municipalities?: string[],
+    ) => {
       try {
         setIsSwitchingSector(true);
         setIsChangingPage(true);
-        if (isDesc) {
-          const response = await fetch(
-            `/api/msme/sector-filter/${sectorName}/${page}?desc=true`,
-          );
-          if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
-          const data = (await response.json()) as PagedMSMEsResponse;
-          setPagedMSMEs(data.msmes);
-          setTotalPages(data.meta.totalPages);
-          setIsChangingPage(false);
-          setIsSwitchingSector(false);
-          return;
-        } else {
-          const response = await fetch(
-            `/api/msme/sector-filter/${sectorName}/${page}`,
-          );
-          if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
-          const data = (await response.json()) as PagedMSMEsResponse;
-          setPagedMSMEs(data.msmes);
-          setTotalPages(data.meta.totalPages);
-          setIsChangingPage(false);
-          setIsSwitchingSector(false);
+
+        const params = new URLSearchParams();
+        if (isDesc) params.append("desc", "true");
+        if (municipalities && municipalities.length > 0) {
+          params.append("municipalities", municipalities.join(","));
         }
+
+        const url =
+          params.toString().length > 0
+            ? `/api/msme/sector-filter/${sectorName}/${page}?${params.toString()}`
+            : `/api/msme/sector-filter/${sectorName}/${page}`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
+        const data = (await response.json()) as PagedMSMEsResponse;
+        setPagedMSMEs(data.msmes);
+        setTotalPages(data.meta.totalPages);
       } catch (error) {
-        setIsSwitchingSector(false);
         console.error("Error fetching MSMEs by sector:", error);
         toast.error("Failed to fetch MSMEs by sector");
+      } finally {
+        setIsChangingPage(false);
+        setIsSwitchingSector(false);
       }
     };
   }, []);

@@ -199,28 +199,23 @@ export default function GuestPage() {
 
   const handleMunicipalitySelection = useCallback(
     async (municipality: string) => {
-      // Update the selected municipalities
-      setSelectedMunicipalities((prev) =>
-        prev.includes(municipality)
+      setSelectedMunicipalities((prev) => {
+        const updated = prev.includes(municipality)
           ? prev.filter((item) => item !== municipality)
-          : [...prev, municipality],
-      );
+          : [...prev, municipality];
 
-      setCurrentPage(1);
-
-      // Re-fetch MSMEs with the current sort order
-      try {
-        const isDescending = sort === "z-a"; // Determine if sorting is descending
-        await fetchPagedMSMEs(1, isDescending); // Pass the sort order as a parameter
-      } catch (error) {
-        console.error(
-          "Error fetching MSMEs after municipality selection:",
-          error,
-        );
-        toast.error("Failed to fetch MSMEs. Please try again.");
-      }
+        // Re-fetch MSMEs with the updated municipalities filter
+        const isDescending = sort === "z-a";
+        if (selectedSector) {
+          void fetchMSMEsBySector(selectedSector, 1, isDescending, updated);
+        } else {
+          void fetchPagedMSMEs(1, isDescending, updated);
+        }
+        setCurrentPage(1);
+        return updated;
+      });
     },
-    [fetchPagedMSMEs, sort],
+    [fetchPagedMSMEs, fetchMSMEsBySector, selectedSector, sort],
   );
 
   useEffect(() => {

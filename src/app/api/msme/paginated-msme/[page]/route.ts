@@ -15,20 +15,39 @@ export async function GET(
     const pageSize = 15;
     const offset = (page - 1) * pageSize;
 
-    // Check for the optional "desc" query parameter
+    // Parse query parameters
     const url = new URL(request.url);
     const isDescending = url.searchParams.get("desc") === "true";
+    const municipalitiesParams = url.searchParams.get("municipalities");
+    const municipalitiesSelected = municipalitiesParams
+      ?.split(",")
+      .filter(Boolean);
 
-    // Fetch MSMEs with sorting based on the "desc" parameter
-    const msmes = await prisma.mSME.findMany({
-      orderBy: {
-        companyName: isDescending ? "desc" : "asc", // Sort by companyName
-      },
-      skip: offset,
-      take: pageSize,
-    });
+    // Fetch MSMEs with sorting and municipality filtering
+    const [msmes, totalMSMEs] = await Promise.all([
+      prisma.mSME.findMany({
+        where: {
+          cityMunicipalityAddress: {
+            in: municipalitiesSelected,
+            mode: "insensitive",
+          },
+        },
+        orderBy: {
+          companyName: isDescending ? "desc" : "asc",
+        },
+        skip: offset,
+        take: pageSize,
+      }),
+      prisma.mSME.count({
+        where: {
+          cityMunicipalityAddress: {
+            in: municipalitiesSelected,
+            mode: "insensitive",
+          },
+        },
+      }),
+    ]);
 
-    const totalMSMEs = await prisma.mSME.count();
     const totalPages = Math.ceil(totalMSMEs / pageSize);
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
