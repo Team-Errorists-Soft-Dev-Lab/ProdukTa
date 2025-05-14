@@ -188,7 +188,7 @@ export default function ImageCropModal({
                 tabIndex={_tabIndexFromProps}
                 className={`mt-1 flex cursor-pointer justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pb-6 pt-5 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500 ${
                   _isDragActiveFromProps
-                    ? "border-indigo-500 bg-indigo-50 dark:border-indigo-400 dark:bg-indigo-900/10"
+                    ? "border-emerald-500 bg-emerald-50 dark:border-emerald-400 dark:bg-emerald-900/10"
                     : ""
                 }`}
               >
@@ -209,7 +209,7 @@ export default function ImageCropModal({
                     />
                   </svg>
                   <div className="flex text-sm text-gray-600 dark:text-gray-400">
-                    <p className="relative rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500 dark:bg-transparent dark:text-indigo-400 dark:hover:text-indigo-300">
+                    <p className="relative rounded-md bg-white font-medium text-emerald-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 hover:text-emerald-500 dark:bg-transparent dark:text-emerald-400 dark:hover:text-emerald-300">
                       <span>Upload a file</span>
                     </p>
                     <p className="pl-1">or drag and drop</p>
