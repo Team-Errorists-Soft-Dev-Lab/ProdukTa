@@ -337,27 +337,23 @@ export default function EditMSMEModal({
                         width={64}
                         height={64}
                       />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
-                        onClick={() => {
-                          setCompanyLogo("");
-                          setLogoUrl("");
-                          setLogoFile(null);
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
                   )}
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsCropModalOpen(true)}
+                    onClick={() => {
+                      if (logoUrl) {
+                        setCompanyLogo("");
+                        setLogoUrl("");
+                        setLogoFile(null);
+                        setIsCropModalOpen(false);
+                      } else {
+                        setIsCropModalOpen(true);
+                      }
+                    }}
                   >
-                    {companyLogo ? "Change Logo" : "Upload Logo"}
+                    {logoUrl ? "Change Logo" : "Upload Logo"}
                   </Button>
                 </div>
               </div>
@@ -638,7 +634,7 @@ export default function EditMSMEModal({
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
         onCropComplete={handleLogoUpload}
-        aspect={1} // Square aspect ratio
+        // aspect={1} // Square aspect ratio
       />
     </Dialog>
   );
