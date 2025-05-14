@@ -33,8 +33,8 @@ export default function GuestPagePagination({
             className={cn(
               "min-w-9 rounded-md",
               currentPage === pageNum
-                ? "pointer-events-none bg-[#8B4513] text-white hover:bg-[#A0522D]"
-                : "text-[#8B4513] hover:bg-[#8B4513]/10",
+                ? "pointer-events-none bg-[#8B4513] text-white hover:bg-[#bb987a]"
+                : "text-[#8B4513] hover:bg-[#bb987a]",
             )}
           >
             {pageNum}
@@ -106,7 +106,7 @@ export default function GuestPagePagination({
             <PaginationPrevious
               onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               className={cn(
-                "rounded-md border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10",
+                "rounded-md border-[#8B4513] text-[#8B4513] hover:bg-[#bb987a]",
                 currentPage === 1 && "pointer-events-none opacity-50",
               )}
             />
@@ -118,7 +118,7 @@ export default function GuestPagePagination({
                 handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               className={cn(
-                "rounded-md border-[#8B4513] text-[#8B4513] hover:bg-[#8B4513]/10",
+                "rounded-md border-[#8B4513] text-[#8B4513] hover:bg-[#bb987a]",
                 currentPage === totalPages && "pointer-events-none opacity-50",
               )}
             />

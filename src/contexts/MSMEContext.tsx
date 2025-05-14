@@ -6,7 +6,6 @@ import React, {
   useState,
   useEffect,
   useMemo,
-  useCallback,
 } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
@@ -47,10 +46,14 @@ interface MSMEContextType {
   isChangingSector: boolean;
   isSearching: boolean;
   error: Error | null;
-  fetchPagedMSMEs: (page: number) => Promise<void>;
+  fetchPagedMSMEs: (page: number, isDesc?: boolean) => Promise<void>;
   searchMSMEs: (searchQuery: string) => Promise<void>;
   searchMSMEsDebounced: (searchQuery: string) => void;
-  fetchMSMEsBySector: (sectorName: string, page: number) => Promise<void>;
+  fetchMSMEsBySector: (
+    sectorName: string,
+    page: number,
+    isDesc?: boolean,
+  ) => Promise<void>;
   handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
   handleDeleteMSME: (msmeId: number) => Promise<void>;
@@ -81,16 +84,28 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [isSwitchingSector, setIsSwitchingSector] = useState<boolean>(false);
 
   const fetchPagedMSMEs = useMemo(() => {
-    return async (page: number) => {
+    return async (page: number, descOrder?: boolean) => {
       try {
         setIsChangingPage(true);
-        const response = await fetch(`/api/msme/paginated-msme/${page}`);
-        if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
+        if (descOrder) {
+          const response = await fetch(
+            `/api/msme/paginated-msme/${page}?desc=true`,
+          );
+          if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
+          const data = (await response.json()) as PagedMSMEsResponse;
+          setPagedMSMEs(data.msmes);
+          setTotalPages(data.meta.totalPages);
+          setIsChangingPage(false);
+          return;
+        } else {
+          const response = await fetch(`/api/msme/paginated-msme/${page}`);
+          if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 
-        const data = (await response.json()) as PagedMSMEsResponse;
-        setPagedMSMEs(data.msmes);
-        setTotalPages(data.meta.totalPages);
-        setIsChangingPage(false);
+          const data = (await response.json()) as PagedMSMEsResponse;
+          setPagedMSMEs(data.msmes);
+          setTotalPages(data.meta.totalPages);
+          setIsChangingPage(false);
+        }
       } catch (error) {
         setIsChangingPage(false);
         console.error("Error fetching paged MSMEs:", error);
@@ -150,25 +165,40 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     },
   );
 
-  const fetchMSMEsBySector = async (sectorName: string, page: number) => {
-    try {
-      setIsSwitchingSector(true);
-      setIsChangingPage(true);
-      const response = await fetch(
-        `/api/msme/sector-filter/${sectorName}/${page}`,
-      );
-      if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
-      const data = (await response.json()) as PagedMSMEsResponse;
-      setPagedMSMEs(data.msmes);
-      setTotalPages(data.meta.totalPages);
-      setIsChangingPage(false);
-      setIsSwitchingSector(false);
-    } catch (error) {
-      setIsSwitchingSector(false);
-      console.error("Error fetching MSMEs by sector:", error);
-      toast.error("Failed to fetch MSMEs by sector");
-    }
-  };
+  const fetchMSMEsBySector = useMemo(() => {
+    return async (sectorName: string, page: number, isDesc?: boolean) => {
+      try {
+        setIsSwitchingSector(true);
+        setIsChangingPage(true);
+        if (isDesc) {
+          const response = await fetch(
+            `/api/msme/sector-filter/${sectorName}/${page}?desc=true`,
+          );
+          if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
+          const data = (await response.json()) as PagedMSMEsResponse;
+          setPagedMSMEs(data.msmes);
+          setTotalPages(data.meta.totalPages);
+          setIsChangingPage(false);
+          setIsSwitchingSector(false);
+          return;
+        } else {
+          const response = await fetch(
+            `/api/msme/sector-filter/${sectorName}/${page}`,
+          );
+          if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
+          const data = (await response.json()) as PagedMSMEsResponse;
+          setPagedMSMEs(data.msmes);
+          setTotalPages(data.meta.totalPages);
+          setIsChangingPage(false);
+          setIsSwitchingSector(false);
+        }
+      } catch (error) {
+        setIsSwitchingSector(false);
+        console.error("Error fetching MSMEs by sector:", error);
+        toast.error("Failed to fetch MSMEs by sector");
+      }
+    };
+  }, []);
 
   const fetchMSMEs = async () => {
     try {

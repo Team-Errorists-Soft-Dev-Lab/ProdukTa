@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
-import { useState, useMemo } from "react";
+import { useEffect, useCallback, useState, useMemo } from "react";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useMSMEContext } from "@/contexts/MSMEContext";
 import { Spinner } from "@/components/ui/spinner";
 import SearchSection from "@/components/guest/SearchSection";
 import {
@@ -14,10 +13,15 @@ import {
 } from "@/components/guest/FilterSection";
 import MSMEList from "@/components/guest/MSMEList";
 import GuestPagePagination from "./GuestPagePagination";
-import type { MSMEWithSectorName } from "@/types/MSME";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+
+import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+import { Loader2, Search } from "lucide-react";
+
+import type { Sector } from "@/types/sector";
+import type { MSME } from "@/types/MSME";
 
 export default function GuestPage() {
   const {
@@ -33,6 +37,7 @@ export default function GuestPage() {
     isLoading,
     fetchPagedMSMEs,
   } = useMSMEContext();
+
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<
     string[]
@@ -44,10 +49,10 @@ export default function GuestPage() {
   const [searchActive, setSearchActive] = useState(false);
 
   const msmesWithSectorNames = useMemo(() => {
-    return (pagedMSMEs || []).map((msme) => ({
+    return (pagedMSMEs || []).map((msme: MSME) => ({
       ...msme,
       sectorName:
-        sectors.find((sector) => sector.id === msme.sectorId)?.name ??
+        sectors.find((sector: Sector) => sector.id === msme.sectorId)?.name ??
         "Unknown Sector",
     }));
   }, [pagedMSMEs, sectors]);
@@ -72,7 +77,8 @@ export default function GuestPage() {
       try {
         await searchMSMEs(query);
       } catch (error) {
-        console.error("Error during searchMSMEs: ", error);
+        console.error("Error during search:", error);
+        toast.error("Search failed. Please try again.");
       }
     },
     [searchMSMEs, fetchPagedMSMEs],
@@ -90,26 +96,29 @@ export default function GuestPage() {
     [searchMSMEsDebounced],
   );
 
-  const sortMSMEs = (msmes: MSMEWithSectorName[], sortType: string) => {
-    switch (sortType) {
-      case "name":
-        return [...msmes].sort((a, b) =>
-          (a.companyName || "").localeCompare(b.companyName || ""),
-        );
-      case "sector":
-        return [...msmes].sort((a, b) =>
-          (a.sectorName || "").localeCompare(b.sectorName || ""),
-        );
-      case "municipality":
-        return [...msmes].sort((a, b) =>
-          (a.cityMunicipalityAddress || "").localeCompare(
-            b.cityMunicipalityAddress || "",
-          ),
-        );
-      default:
-        return msmes;
-    }
-  };
+  const sortMSMEs = useCallback(
+    async (order: string) => {
+      setSort(order);
+
+      try {
+        const isDescending = order === "z-a"; // Determine if sorting is descending
+
+        if (selectedSector) {
+          // Fetch MSMEs by sector with the current sort order
+          await fetchMSMEsBySector(selectedSector, 1, isDescending);
+        } else {
+          // Fetch all paged MSMEs with the current sort order
+          await fetchPagedMSMEs(1, isDescending);
+        }
+
+        setCurrentPage(1); // Reset to the first page
+      } catch (error) {
+        console.error("Error sorting MSMEs:", error);
+        toast.error("Failed to sort MSMEs. Please try again.");
+      }
+    },
+    [fetchPagedMSMEs, fetchMSMEsBySector, selectedSector],
+  );
 
   const displayedMSME = useMemo(() => {
     let filtered = msmesWithSectorNames;
@@ -124,8 +133,12 @@ export default function GuestPage() {
       );
     }
 
-    return sortMSMEs(filtered, sort);
-  }, [msmesWithSectorNames, sort, selectedSector, selectedMunicipalities]);
+    return filtered;
+  }, [msmesWithSectorNames, selectedSector, selectedMunicipalities]);
+
+  useEffect(() => {
+    void sortMSMEs(sort);
+  }, [sort, sortMSMEs]);
 
   const handlePageChange = useCallback(
     async (page: number) => {
@@ -136,7 +149,7 @@ export default function GuestPage() {
           return;
         }
       } else {
-        fetchPagedMSMEs(page)
+        fetchPagedMSMEs(page, sort === "z-a")
           .then(() => {
             setCurrentPage(page);
           })
@@ -146,18 +159,18 @@ export default function GuestPage() {
           });
       }
     },
-    [selectedSector, fetchMSMEsBySector, fetchPagedMSMEs],
+    [selectedSector, fetchMSMEsBySector, fetchPagedMSMEs, sort],
   );
 
   const handleSectorChange = useCallback(
     async (sector: string) => {
       if (sector === "All") {
         setSelectedSector(null);
-        await fetchPagedMSMEs(1);
+        await fetchPagedMSMEs(1, sort === "z-a");
       } else {
         setSelectedSector(sector);
         setCurrentPage(1);
-        await fetchMSMEsBySector(sector, 1);
+        await fetchMSMEsBySector(sector, 1, sort === "z-a");
       }
       setSearchQuery("");
       setSearchActive(false);
@@ -165,7 +178,13 @@ export default function GuestPage() {
         searchMSMEsDebounced("");
       }
     },
-    [searchQuery, searchMSMEsDebounced, fetchMSMEsBySector, fetchPagedMSMEs],
+    [
+      searchQuery,
+      searchMSMEsDebounced,
+      fetchMSMEsBySector,
+      fetchPagedMSMEs,
+      sort,
+    ],
   );
 
   const resetFilters = useCallback(async () => {
@@ -178,14 +197,31 @@ export default function GuestPage() {
     setIsFilterOpen(false);
   }, [fetchPagedMSMEs]);
 
-  const handleMunicipalitySelection = useCallback((municipality: string) => {
-    setSelectedMunicipalities((prev) =>
-      prev.includes(municipality)
-        ? prev.filter((item) => item !== municipality)
-        : [...prev, municipality],
-    );
-    setCurrentPage(1);
-  }, []);
+  const handleMunicipalitySelection = useCallback(
+    async (municipality: string) => {
+      // Update the selected municipalities
+      setSelectedMunicipalities((prev) =>
+        prev.includes(municipality)
+          ? prev.filter((item) => item !== municipality)
+          : [...prev, municipality],
+      );
+
+      setCurrentPage(1);
+
+      // Re-fetch MSMEs with the current sort order
+      try {
+        const isDescending = sort === "z-a"; // Determine if sorting is descending
+        await fetchPagedMSMEs(1, isDescending); // Pass the sort order as a parameter
+      } catch (error) {
+        console.error(
+          "Error fetching MSMEs after municipality selection:",
+          error,
+        );
+        toast.error("Failed to fetch MSMEs. Please try again.");
+      }
+    },
+    [fetchPagedMSMEs, sort],
+  );
 
   useEffect(() => {
     void fetchPagedMSMEs(1);
@@ -193,30 +229,38 @@ export default function GuestPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner />
+      <div className="flex min-h-screen items-center justify-center bg-amber-50">
+        <div className="flex flex-col items-center justify-center rounded-xl bg-white p-8 shadow-lg">
+          <Spinner className="h-12 w-12 text-amber-600" />
+          <p className="mt-4 text-center font-medium text-amber-800">
+            Loading MSME details...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-amber-50">
       <Header />
+
       <main
         className={cn(
-          "bg-[#8B4513] p-8 transition-all duration-300",
+          "bg-gradient-to-b from-[#8B4513] to-amber-700 p-8 shadow-md transition-all duration-300",
           searchActive ? "bg-opacity-90" : "bg-opacity-100",
         )}
       >
         <div className="mx-auto max-w-6xl">
-          <h1 className="mb-6 text-center text-4xl font-bold text-white">
+          <h1 className="mb-4 text-center text-4xl font-bold text-white drop-shadow-md">
             Discover Local MSMEs
           </h1>
-          <p className="mb-8 text-center text-lg text-white">
+          <div className="mx-auto mb-8 h-1 w-24 rounded bg-amber-300"></div>
+          <p className="mb-10 text-center text-lg text-amber-100">
             A curated collection of the best local micro, small, and medium
             enterprises. Support local businesses hand-picked for you.
           </p>
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+
+          <div className="flex flex-col items-center justify-between gap-6 rounded-xl bg-white/10 p-6 backdrop-blur-sm sm:flex-row">
             <SearchSection
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -233,7 +277,7 @@ export default function GuestPage() {
       </main>
 
       {isFilterOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex justify-end bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300">
           <MunicipalityFilter
             setIsFilterOpen={setIsFilterOpen}
             searchQuery={searchQuery}
@@ -257,16 +301,19 @@ export default function GuestPage() {
           !isChangingPage &&
           !isChangingSector &&
           searchActive && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="mb-2 text-xl font-semibold text-gray-800">
+            <div className="flex flex-col items-center justify-center rounded-xl bg-white p-12 py-16 text-center shadow-md">
+              <div className="mb-4 rounded-full bg-amber-100 p-4">
+                <Search className="h-10 w-10 text-amber-600" />
+              </div>
+              <p className="mb-2 text-2xl font-semibold text-gray-800">
                 No MSMEs found
               </p>
-              <p className="text-gray-600">
+              <p className="mb-6 text-gray-600">
                 Try adjusting your search or filters
               </p>
               <button
                 onClick={resetFilters}
-                className="mt-4 rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                className="rounded-md bg-amber-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-amber-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
               >
                 Reset All Filters
               </button>
@@ -274,29 +321,33 @@ export default function GuestPage() {
           )}
 
         {isSearching || isChangingPage || isChangingSector ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-12">
-            <Loader2 className="h-10 w-10 animate-spin text-amber-600" />
-            <p className="text-lg font-medium text-amber-800">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-white p-12 py-16 shadow-md">
+            <Loader2 className="h-12 w-12 animate-spin text-amber-600" />
+            <p className="mt-4 text-xl font-medium text-amber-800">
               {isSearching ? "Searching MSMEs..." : "Loading MSMEs..."}
             </p>
           </div>
         ) : (
           <div
             className={cn(
-              "transition-opacity duration-300",
+              "transition-all duration-500",
               displayedMSME.length === 0 ? "opacity-0" : "opacity-100",
             )}
           >
-            <MSMEList msmes={displayedMSME} />
+            <div className="rounded-xl bg-white p-6 shadow-md">
+              <MSMEList msmes={displayedMSME} />
+            </div>
           </div>
         )}
 
         {totalPages > 1 && !searchActive && (
-          <GuestPagePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            handlePageChange={handlePageChange}
-          />
+          <div className="mt-8">
+            <GuestPagePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              handlePageChange={handlePageChange}
+            />
+          </div>
         )}
       </div>
       <Footer />
