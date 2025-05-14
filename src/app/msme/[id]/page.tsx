@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -13,8 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import MapComponent from "@/components/map/MapComponent";
-
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import {
   ArrowLeft,
   MapPin,
@@ -37,6 +35,19 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>();
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+  });
+
+  useEffect(() => {
+    if (MSME?.latitude && MSME?.longitude) {
+      setMapCenter({
+        lat: MSME.latitude,
+        lng: MSME.longitude,
+      });
+    }
+  }, [MSME]);
 
   useEffect(() => {
     const addVisitorCount = async () => {
@@ -392,28 +403,28 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
 
-                {MSME.latitude && MSME.longitude && (
-                  <div className="rounded-xl border border-amber-100 bg-white p-6 shadow-sm">
-                    <h3 className="mb-4 text-lg font-bold text-[#8B4513]">
-                      Location
-                    </h3>
-                    <div className="overflow-hidden rounded-lg border border-amber-100 shadow-sm">
-                      <div className="h-[250px] w-full">
-                        <MapComponent
-                          latitude={MSME.latitude}
-                          longitude={MSME.longitude}
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-3 flex justify-end">
+                {MSME.latitude && MSME.longitude && isLoaded && (
+                  <div className="container mx-auto p-4">
+                    <GoogleMap
+                      mapContainerStyle={{
+                        width: "100%",
+                        height: "400px",
+                      }}
+                      center={mapCenter}
+                      zoom={12}
+                    >
+                      {mapCenter && <Marker position={mapCenter} />}
+                    </GoogleMap>
+                    <div className="mt-2">
                       <a
                         href={`https://www.google.com/maps?q=${MSME.latitude},${MSME.longitude}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-amber-600 hover:text-amber-800 hover:underline"
+                        className="text-sm text-primary hover:underline"
                       >
-                        View in Google Maps
-                        <ExternalLink className="h-3 w-3" />
+                        <p className="font-bold text-[#8B4513]">
+                          View in Google Maps
+                        </p>
                       </a>
                     </div>
                   </div>
@@ -455,6 +466,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
                   )}
                 </div>
 
+                {/* is this needed? */}
                 <div className="rounded-xl border border-amber-100 bg-white p-6 shadow-sm">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold text-[#8B4513]">
