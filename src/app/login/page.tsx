@@ -203,7 +203,7 @@ export default function LoginPage() {
             <div className="absolute -right-4 top-1/2 h-3/4 w-3/4 -translate-y-1/2 rounded-3xl opacity-20"></div>
             <div className="relative flex h-full w-full items-center justify-center">
               <Image
-                src="/Produkta1.png"
+                src="/ProdukTa1.png"
                 alt="ProdukTa Logo"
                 width={400}
                 height={400}
