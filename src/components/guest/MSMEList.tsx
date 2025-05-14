@@ -23,7 +23,7 @@ export default function MSMEList({ msmes }: MSMEListProps) {
                   <CardHeader className="relative p-0">
                     <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent" />
                     <Image
-                      src={`${msme.productGallery?.[0] ?? "/placeholder.png"}`}
+                      src={`${msme.productGallery?.[0] ?? "/placeholder-image.png"}`}
                       alt={msme.companyName}
                       width={400}
                       height={240}
@@ -31,7 +31,7 @@ export default function MSMEList({ msmes }: MSMEListProps) {
                     />
                     {msme.companyLogo && (
                       <Image
-                        src={`${msme.companyLogo ?? "/placeholder.png"}`}
+                        src={`${msme.companyLogo ?? "/no_image_placeholder.jpg"}`}
                         alt={msme.companyName}
                         width={56}
                         height={56}
