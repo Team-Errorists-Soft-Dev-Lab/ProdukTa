@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import type { MSME } from "@/types/MSME";
 import { deleteImage } from "@/utils/supabase/storage";
 import { useDebouncedCallback } from "use-debounce";
+// import { set } from "zod";
 
 type CreateMSME = Omit<MSME, "id">;
 
@@ -39,6 +40,7 @@ interface ApiResponse<T> {
 interface MSMEContextType {
   sectors: Sector[];
   msmes: MSME[];
+  singleMSME: MSME | null;
   pagedMSMEs: MSME[];
   totalPages: number;
   isLoading: boolean;
@@ -54,6 +56,7 @@ interface MSMEContextType {
     page: number,
     isDesc?: boolean,
   ) => Promise<void>;
+  fetchSingleMSME: (msmeId: number) => Promise<void>;
   handleAddMSME: (msme: CreateMSME) => Promise<MSME>;
   handleUpdateMSME: (msme: MSME) => Promise<void>;
   handleDeleteMSME: (msmeId: number) => Promise<void>;
@@ -76,6 +79,7 @@ const MSMEContext = createContext<MSMEContextType | undefined>(undefined);
 export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [msmes, setMSMEs] = useState<MSME[]>([]);
+  const [singleMSME, setSingleMSME] = useState<MSME | null>(null);
   const [pagedMSMEs, setPagedMSMEs] = useState<MSME[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState<boolean>();
@@ -216,6 +220,27 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchSingleMSME = async (id: number) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/msme/edit-msme/${id}`);
+      if (!response.ok) {
+        const error = (await response.json()) as ApiResponse<null>;
+        throw new Error(error.message ?? "Failed to fetch MSME");
+      }
+      const data = (await response.json()) as MSME;
+      setSingleMSME(data);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error fetching single MSME:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to fetch MSME",
+      );
+      throw error;
+    }
+  };
+
   const fetchSectors = async () => {
     try {
       setIsLoading(true);
@@ -236,7 +261,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     void fetchMSMEs();
     void fetchPagedMSMEs(1);
     void fetchSectors();
-  }, []);
+  });
 
   const handleAddMSME = async (msme: CreateMSME) => {
     try {
@@ -254,7 +279,6 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       const newMSME = (await response.json()) as MSME;
       setMSMEs((prev) => [...prev, newMSME]);
 
-      toast.success("MSME added successfully");
       return newMSME;
     } catch (error) {
       console.error("Error adding MSME:", error);
@@ -337,6 +361,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       value={{
         sectors,
         msmes: msmes || [],
+        singleMSME,
         pagedMSMEs,
         totalPages,
         isLoading: isLoading || false,
@@ -346,6 +371,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
         error: null,
         fetchPagedMSMEs,
         fetchMSMEsBySector,
+        fetchSingleMSME,
         searchMSMEs,
         searchMSMEsDebounced,
         handleAddMSME,
