@@ -194,7 +194,7 @@ const DropzoneContent = ({ className }: { className?: string }) => {
       {files.length > 0 && !exceedMaxFiles && (
         <div className="mt-2">
           <Button
-            variant="outline"
+            variant="default"
             onClick={onUpload}
             disabled={files.some((file) => file.errors.length !== 0) || loading}
           >

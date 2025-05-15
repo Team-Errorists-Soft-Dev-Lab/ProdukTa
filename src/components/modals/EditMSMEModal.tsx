@@ -34,6 +34,8 @@ import {
   DropzoneEmptyState,
 } from "@/components/ui/dropzone";
 
+const libraries: ("places" | "maps")[] = ["places", "maps"];
+
 export default function EditMSMEModal({
   isOpen,
   onClose,
@@ -67,6 +69,7 @@ export default function EditMSMEModal({
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    libraries,
   });
 
   const productImagesUpload = useSupabaseUpload({

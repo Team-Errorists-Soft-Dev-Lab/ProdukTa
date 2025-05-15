@@ -8,8 +8,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="h-full">
+      <body className="h-full overflow-hidden">
         <AuthProvider>{children}</AuthProvider>
         <Toaster richColors position="bottom-right" closeButton />
       </body>

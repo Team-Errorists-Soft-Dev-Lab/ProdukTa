@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,7 +20,7 @@ import {
   FileDown,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import AddMSMEModal from "@/components/modals/AddMSMEModal";
+// import AddMSMEModal from "@/components/modals/AddMSMEModal";
 import EditMSMEModal from "@/components/modals/EditMSMEModal";
 import type { MSME } from "@/types/MSME";
 import { MSMETableView } from "@/components/msme/MSMETable";
@@ -57,11 +58,12 @@ import type { MSMEWithProducts } from "@/lib/msme-utils";
 import Link from "next/link";
 
 export default function ManageMSME() {
+  const router = useRouter();
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
-  const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
+  // const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
   const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
   const [currentMSME, setCurrentMSME] = useState<MSMEWithProducts | null>(null);
   const [sortState, setSortState] = useState<SortState>({
@@ -370,7 +372,7 @@ export default function ManageMSME() {
                       Select & Export
                     </Button>
                     <Button
-                      onClick={() => setIsAddMSMEModalOpen(true)}
+                      onClick={() => router.push("/superadmin/msme/add-msme")}
                       className="bg-emerald-600 hover:bg-emerald-700"
                     >
                       <Plus className="mr-2 h-4 w-4" />
@@ -444,10 +446,10 @@ export default function ManageMSME() {
         </CardContent>
       </div>
 
-      <AddMSMEModal
+      {/* <AddMSMEModal
         isOpen={isAddMSMEModalOpen}
         onClose={() => setIsAddMSMEModalOpen(false)}
-      />
+      /> */}
       <EditMSMEModal
         isOpen={isEditMSMEModalOpen}
         onClose={() => setIsEditMSMEModalOpen(false)}

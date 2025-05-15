@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 import { cn } from "@/lib/utils";
 import { LocationSelect } from "@/components/forms/LocationSelect";
@@ -35,6 +35,8 @@ import {
   DropzoneContent,
   DropzoneEmptyState,
 } from "@/components/ui/dropzone";
+
+const libraries: ("places" | "maps")[] = ["places", "maps"];
 
 export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const { sectors, handleAddMSME } = useMSMEContext();
@@ -119,6 +121,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    libraries,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
