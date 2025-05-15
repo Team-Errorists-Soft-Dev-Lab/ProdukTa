@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,8 +20,6 @@ import {
   FileDown,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-import AdminAddMSMEModal from "@/components/modals/AdminAddMSMEModal";
-import AdminEditMSMEModal from "@/components/modals/AdminEditMSMEModal";
 import type { MSME } from "@/types/MSME";
 import { MSMETableView } from "@/components/admin/MSMETable";
 import { cn } from "@/lib/utils";
@@ -55,9 +54,6 @@ export default function MSMEPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
-  const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
-  const [currentMSME, setCurrentMSME] = useState<MSME | null>(null);
   const [sortState, setSortState] = useState<SortState>({
     column: "",
     direction: "default",
@@ -71,6 +67,7 @@ export default function MSMEPage({
   const [selectAll, setSelectAll] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const { sectorName } = params;
+  const router = useRouter();
 
   const Sector = sectors.find(
     (sector) =>
@@ -181,8 +178,7 @@ export default function MSMEPage({
   const endIndex = Math.min(currentPage * itemsPerPage, filteredMSMEs.length);
 
   const handleEdit = (msme: MSME) => {
-    setCurrentMSME(msme);
-    setIsEditMSMEModalOpen(true);
+    router.push(`/admin/msme/edit/${msme.id}`);
   };
 
   // Add this useEffect to reset to page 1 when filters/search change
@@ -426,7 +422,9 @@ export default function MSMEPage({
                       Select & Export
                     </Button>
                     <Button
-                      onClick={() => setIsAddMSMEModalOpen(true)}
+                      onClick={() =>
+                        router.push(`/admin/msme/addmsme/${sectorName}`)
+                      }
                       className="bg-[#996439] hover:bg-[#ce9261]"
                     >
                       <Plus className="mr-2 h-4 w-4" />
@@ -499,16 +497,6 @@ export default function MSMEPage({
           </div>
         </CardContent>
       </div>
-
-      <AdminAddMSMEModal
-        isOpen={isAddMSMEModalOpen}
-        onClose={() => setIsAddMSMEModalOpen(false)}
-      />
-      <AdminEditMSMEModal
-        isOpen={isEditMSMEModalOpen}
-        onClose={() => setIsEditMSMEModalOpen(false)}
-        msme={currentMSME}
-      />
     </div>
   );
 }
