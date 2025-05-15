@@ -62,6 +62,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(
     null,
   );
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
 
   // Generate years for select (from 1900 to current year)
   const currentYear = new Date().getFullYear();
@@ -104,6 +105,7 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
   };
 
   const handleLogoUpload = async (croppedFile: File) => {
+    setIsLogoUploading(true);
     try {
       const fileName = `logo-${Date.now()}`;
       const url = await uploadImage(croppedFile, fileName);
@@ -112,6 +114,8 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
       setLogoFile(croppedFile);
     } catch {
       toast.error("Failed to upload logo");
+    } finally {
+      setIsLogoUploading(false);
     }
   };
 
@@ -283,27 +287,33 @@ export default function AddMSMEModal({ isOpen, onClose }: AddMSMEModalProps) {
                         width={64}
                         height={64}
                       />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
-                        onClick={() => {
-                          setCompanyLogo("");
-                          setLogoUrl("");
-                          setLogoFile(null);
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
                   )}
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsCropModalOpen(true)}
+                    onClick={() => {
+                      if (logoUrl) {
+                        setCompanyLogo("");
+                        setLogoUrl("");
+                        setLogoFile(null);
+                        setIsCropModalOpen(true);
+                      } else {
+                        setIsCropModalOpen(true);
+                      }
+                    }}
+                    disabled={isLogoUploading}
                   >
-                    {companyLogo ? "Change Logo" : "Upload Logo"}
+                    {isLogoUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : logoUrl ? (
+                      "Change Logo"
+                    ) : (
+                      "Upload Logo"
+                    )}
                   </Button>
                 </div>
               </div>

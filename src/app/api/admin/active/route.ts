@@ -25,8 +25,6 @@ export async function GET() {
       );
     }
 
-    console.log("Admins fetched:", admins);
-
     return NextResponse.json({ admins });
   } catch (error) {
     console.error("Error fetching active admins:", error);

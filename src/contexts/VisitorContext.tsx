@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import type { MSME } from "@/types/MSME";
@@ -30,36 +30,38 @@ export const VisitorProvider = ({ children }: { children: ReactNode }) => {
   const [isLoadingVisitors, setIsLoadingVisitors] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchVisitors = async (sectorName: string) => {
-    setIsLoadingVisitors(true);
-    setError(null);
+  const fetchVisitors = useMemo(
+    () => async (sectorName: string) => {
+      setIsLoadingVisitors(true);
+      setError(null);
 
-    try {
-      const response = await fetch(`/api/admin/visitors/${sectorName}`);
-      if (!response.ok) {
-        const errorMessage = `Failed to fetch visitors: ${response.statusText}`;
-        throw new Error(errorMessage);
+      try {
+        const response = await fetch(`/api/admin/visitors/${sectorName}`);
+        if (!response.ok) {
+          const errorMessage = `Failed to fetch visitors: ${response.statusText}`;
+          throw new Error(errorMessage);
+        }
+
+        const data = (await response.json()) as VisitorResponse;
+
+        if (data.error) {
+          setVisitors(null);
+          toast.error(data.error);
+        } else {
+          setVisitors(data.results);
+        }
+      } catch (err) {
+        console.error("Error fetching visitors:", err);
+        setError(
+          err instanceof Error ? err : new Error("Unknown error occurred"),
+        );
+        toast.error("Failed to fetch visitor data.");
+      } finally {
+        setIsLoadingVisitors(false);
       }
-
-      const data = (await response.json()) as VisitorResponse;
-
-      if (data.error) {
-        setVisitors(null);
-        toast.error(data.error);
-      } else {
-        setVisitors(data.results);
-        toast.success("Visitor data fetched successfully.");
-      }
-    } catch (err) {
-      console.error("Error fetching visitors:", err);
-      setError(
-        err instanceof Error ? err : new Error("Unknown error occurred"),
-      );
-      toast.error("Failed to fetch visitor data.");
-    } finally {
-      setIsLoadingVisitors(false);
-    }
-  };
+    },
+    [],
+  );
 
   return (
     <VisitorContext.Provider

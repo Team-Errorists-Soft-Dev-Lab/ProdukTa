@@ -7,15 +7,24 @@ export async function GET(
 ) {
   try {
     const sector = params.sectorName;
-    const page = params.page;
-    console.log("Sector Name:", sector);
+    const page = parseInt(params.page as unknown as string, 10);
+
     if (!sector) {
       return Response.json({ error: "Sector is required" }, { status: 400 });
+    }
+
+    if (isNaN(page) || page < 1) {
+      return Response.json({ error: "Invalid page number" }, { status: 400 });
     }
 
     const pageSize = 15;
     const offset = (page - 1) * pageSize;
 
+    // Check for the optional "desc" query parameter
+    const url = new URL(req.url);
+    const isDescending = url.searchParams.get("desc") === "true";
+
+    // Find the sector by name
     const getSector = await prisma.sector.findFirst({
       where: {
         name: {
@@ -25,12 +34,19 @@ export async function GET(
       },
     });
 
-    // get all MSMEs from a specific sector
+    if (!getSector) {
+      return Response.json({ error: "Sector not found" }, { status: 404 });
+    }
+
+    // Fetch MSMEs for the sector with sorting
     const result = (await prisma.mSME.findMany({
       where: {
         sectorId: {
-          equals: getSector?.id,
+          equals: getSector.id,
         },
+      },
+      orderBy: {
+        companyName: isDescending ? "desc" : "asc", // Sort by companyName
       },
       take: pageSize,
       skip: offset,
@@ -43,10 +59,11 @@ export async function GET(
       );
     }
 
+    // Count total MSMEs for the sector
     const totalMSMEs = await prisma.mSME.count({
       where: {
         sectorId: {
-          equals: getSector?.id,
+          equals: getSector.id,
         },
       },
     });
@@ -55,35 +72,8 @@ export async function GET(
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
 
+    // Handle cases where the page exceeds total pages
     if (page > totalPages) {
-      return Response.json({
-        msmes: [],
-        meta: {
-          totalItems: totalMSMEs,
-          currentPage: page,
-          totalPages,
-          itemsPerPage: pageSize,
-          hasNextPage: false,
-          hasPreviousPage: page > 1,
-        },
-      });
-    }
-
-    if (totalMSMEs === 0) {
-      return Response.json({
-        msmes: [],
-        meta: {
-          totalItems: 0,
-          currentPage: 1,
-          totalPages: 0,
-          itemsPerPage: pageSize,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      });
-    }
-
-    if (offset >= totalMSMEs) {
       return Response.json({
         msmes: [],
         meta: {
@@ -109,7 +99,10 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error(error);
-    return Response.json({ error: "Failed to fetch visitor data" });
+    console.error("Error fetching MSMEs by sector:", error);
+    return Response.json(
+      { error: "Failed to fetch MSMEs by sector" },
+      { status: 500 },
+    );
   }
 }
