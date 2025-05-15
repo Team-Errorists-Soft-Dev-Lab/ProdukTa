@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, X } from "lucide-react";
 import ImageCarousel from "./ImageCarousel";
 
 const Partners = () => {
@@ -104,42 +104,46 @@ const Partners = () => {
         <ImageCarousel />
       </motion.div>
 
-      {/* Popup Modal */}
-      {isPopupOpen && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
+      {/* Popup Modal with AnimatePresence for proper animation handling */}
+      <AnimatePresence>
+        {isPopupOpen && (
           <motion.div
-            className="relative z-50 w-[500px] rounded-xl bg-white p-10 text-center shadow-2xl md:w-[600px] md:p-12 lg:w-[800px]"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 100 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <button
-              className="absolute right-6 top-6 text-xl text-gray-500 hover:text-gray-800"
-              onClick={() => setIsPopupOpen(false)}
+            <motion.div
+              className="relative max-h-[90vh] w-[90%] overflow-y-auto rounded-xl bg-white p-6 text-center shadow-2xl sm:w-[85%] sm:p-8 md:w-[70%] md:max-w-[600px] md:p-10 lg:max-w-[700px]"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 100 }}
             >
-              ✕
-            </button>
-            <h1 className="mb-6 text-4xl font-semibold text-[#8B4513]">
-              Thanks to our developers!
-            </h1>
-            <div className="mt-10 text-base text-neutral-700">
-              <p className="text-base font-semibold">Developers:</p>
-              <p className="text-base">Aaron Ciervo</p>
-              <p className="text-base">Manaf Kassim</p>
-              <p className="text-base">Matthew Ledesma</p>
-              <p className="mt-6 text-base font-semibold">Scrum Master:</p>
-              <p className="text-base">Jezrewel Grino</p>
-              <p className="mt-6 text-base font-semibold">Product Owner:</p>
-              <p className="text-base">Faith Nina Marie Magsael</p>
-            </div>
+              <button
+                className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 sm:right-4 sm:top-4"
+                onClick={() => setIsPopupOpen(false)}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+              <h1 className="mb-6 mt-2 text-2xl font-semibold text-[#8B4513] sm:text-3xl md:text-4xl">
+                Thanks to our developers!
+              </h1>
+              <div className="mt-6 text-base text-neutral-700">
+                <p className="text-base font-semibold">Developers:</p>
+                <p className="text-base">Aaron Ciervo</p>
+                <p className="text-base">Manaf Kassim</p>
+                <p className="text-base">Matthew Ledesma</p>
+                <p className="mt-6 text-base font-semibold">Scrum Master:</p>
+                <p className="text-base">Jezrewel Grino</p>
+                <p className="mt-6 text-base font-semibold">Product Owner:</p>
+                <p className="text-base">Faith Nina Marie Magsael</p>
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

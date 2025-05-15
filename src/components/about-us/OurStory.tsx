@@ -48,11 +48,7 @@ export default function OurStory() {
   ];
 
   return (
-    <div
-      id="our-story"
-      className="relative -mt-12 py-16"
-      style={{ backgroundColor: bgColor }}
-    >
+    <div id="our-story" className="relative -mt-12 py-16">
       <div className="relative mx-auto max-w-5xl px-8">
         <Swiper
           modules={[Navigation, Pagination]}
