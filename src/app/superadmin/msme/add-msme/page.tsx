@@ -79,8 +79,7 @@ export default function AddMSMEPage() {
   // Product gallery upload state (using useSupabaseUpload hook)
   const productImagesUpload = useSupabaseUpload({
     bucketName: "msme-images", // Make sure this matches your Supabase bucket
-    // path: `product-gallery/${companyName.replace(/\s+/g, '-').toLowerCase() || 'unknown-msme'}`, // Dynamic path
-    path: "products",
+    path: `./`,
     maxFileSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 5,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
@@ -230,13 +229,17 @@ export default function AddMSMEPage() {
       }
 
       // Get the uploaded product image URLs
-      const imageUrls = productImagesUpload.successes.map((fileName) => {
+      // Get the uploaded product image URLs
+      const imageUrls = productImagesUpload.successes.map((fileName, index) => {
+        // Format the filename with company name and timestamp for uniqueness
+        const formattedName = `product-${Date.now()}-${index}`;
+
         // Ensure the URL is properly formatted
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         if (fileName.includes("storage/v1/object/public")) {
           return fileName;
         }
-        return `${supabaseUrl}/storage/v1/object/public/msme-images/products-${fileName}`;
+        return `${supabaseUrl}/storage/v1/object/public/msme-images/${formattedName}`;
       });
 
       await handleAddMSME({

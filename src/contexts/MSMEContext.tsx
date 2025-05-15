@@ -220,10 +220,10 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const fetchSingleMSME = async (id: number) => {
+  const fetchSingleMSME = async (msmeId: number) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/msme/edit-msme/${id}`);
+      const response = await fetch(`/api/msme/${msmeId}`);
       if (!response.ok) {
         const error = (await response.json()) as ApiResponse<null>;
         throw new Error(error.message ?? "Failed to fetch MSME");
@@ -261,7 +261,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     void fetchMSMEs();
     void fetchPagedMSMEs(1);
     void fetchSectors();
-  });
+  }, [fetchPagedMSMEs]);
 
   const handleAddMSME = async (msme: CreateMSME) => {
     try {
@@ -273,7 +273,9 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
 
       if (!response.ok) {
         const error = (await response.json()) as ApiResponse<null>;
-        throw new Error(error.message ?? "Failed to add MSME");
+        throw new Error(
+          error.message ?? "Failed to add MSME: Please try again",
+        );
       }
 
       const newMSME = (await response.json()) as MSME;

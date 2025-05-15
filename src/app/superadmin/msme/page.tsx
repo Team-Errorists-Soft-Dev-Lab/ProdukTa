@@ -114,7 +114,7 @@ export default function ManageMSME() {
   const handleEdit = (msme: MSME) => {
     // setCurrentMSME(msme as MSMEWithProducts);
     // setIsEditMSMEModalOpen(true);
-    router.push(`/superadmin/msme/${msme.id}`);
+    router.push(`/superadmin/msme/edit-msme/${msme.id}`);
   };
 
   const filteredMSMEs = sortMSMEs(

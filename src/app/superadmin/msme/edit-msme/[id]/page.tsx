@@ -52,7 +52,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const { sectors, singleMSME, handleUpdateMSME, fetchSingleMSME } =
     useMSMEContext();
 
-  const [isLoadingMSME, setIsLoadingMSME] = useState(false); // Should be true while fetching
+  const [isLoadingMSME, setIsLoadingMSME] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -86,10 +86,10 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const [isReplacingImages, setIsReplacingImages] = useState(false);
   const productImagesUpload = useSupabaseUpload({
     bucketName: "msme-images",
-    path: "products",
+    path: "./",
     maxFileSize: 10 * 1000 * 1000, // 10MB
     maxFiles: 5,
-    allowedMimeTypes: ["image/*"],
+    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
     upsert: true,
   });
 
@@ -117,58 +117,60 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (params.id) {
-      const fetchMSMEDetails = async () => {
-        // setIsLoadingMSME(true);
+      setIsLoadingMSME(true);
+      const fetchData = async () => {
         try {
           await fetchSingleMSME(parseInt(params.id));
-
-          if (!singleMSME) {
-            throw new Error("Failed to fetch MSME details");
-          }
-          setCompanyName(singleMSME.companyName);
-          setCompanyDescription(singleMSME.companyDescription);
-          setCurrentCompanyLogo(singleMSME.companyLogo || "");
-          setLogoPreviewUrl(singleMSME.companyLogo || "");
-          setContactPerson(singleMSME.contactPerson);
-          setContactNumber(singleMSME.contactNumber);
-          setEmail(singleMSME.email);
-          setProvinceAddress(singleMSME.provinceAddress);
-          setCityMunicipalityAddress(singleMSME.cityMunicipalityAddress);
-          setBarangayAddress(singleMSME.barangayAddress);
-          setYearEstablished(singleMSME.yearEstablished?.toString() || "");
-          setDTINumber(singleMSME.dti_number?.toString() || "");
-          setSectorId(singleMSME.sectorId);
-          setMajorProductLines(singleMSME.majorProductLines || []);
-          setFacebookPage(singleMSME.facebookPage || "");
-          setInstagramPage(singleMSME.instagramPage || "");
-
-          setCurrentProductGallery(singleMSME.productGallery || []);
-          setIsReplacingImages(
-            !(
-              singleMSME.productGallery && singleMSME.productGallery.length > 0
-            ),
-          );
-
-          setLatitude(singleMSME.latitude || null);
-          setLongitude(singleMSME.longitude || null);
-          if (singleMSME.latitude && singleMSME.longitude) {
-            setMarker({ lat: singleMSME.latitude, lng: singleMSME.longitude });
-            setMapZoom(15);
-          } else {
-            setMapZoom(10); // Default zoom if no location
-          }
         } catch (err) {
-          console.error(err);
-          toast.error("Failed to load MSME data.");
+          console.error("Failed to fetch MSME", err);
         } finally {
           setIsLoadingMSME(false);
         }
       };
-      void fetchMSMEDetails();
+      void fetchData();
     }
-    console.log("MSME data fetched:", singleMSME);
-    console.log("current MSME id:", params.id);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id]);
+
+  useEffect(() => {
+    if (singleMSME) {
+      try {
+        setCompanyName(singleMSME.companyName);
+        setCompanyDescription(singleMSME.companyDescription);
+        setCurrentCompanyLogo(singleMSME.companyLogo || "");
+        setLogoPreviewUrl(singleMSME.companyLogo || "");
+        setContactPerson(singleMSME.contactPerson);
+        setContactNumber(singleMSME.contactNumber);
+        setEmail(singleMSME.email);
+        setProvinceAddress(singleMSME.provinceAddress);
+        setCityMunicipalityAddress(singleMSME.cityMunicipalityAddress);
+        setBarangayAddress(singleMSME.barangayAddress);
+        setYearEstablished(singleMSME.yearEstablished?.toString() || "");
+        setDTINumber(singleMSME.dti_number?.toString() || "");
+        setSectorId(singleMSME.sectorId);
+        setMajorProductLines(singleMSME.majorProductLines || []);
+        setFacebookPage(singleMSME.facebookPage || "");
+        setInstagramPage(singleMSME.instagramPage || "");
+
+        setCurrentProductGallery(singleMSME.productGallery || []);
+        setIsReplacingImages(
+          !(singleMSME.productGallery && singleMSME.productGallery.length > 0),
+        );
+
+        setLatitude(singleMSME.latitude || null);
+        setLongitude(singleMSME.longitude || null);
+        if (singleMSME.latitude && singleMSME.longitude) {
+          setMarker({ lat: singleMSME.latitude, lng: singleMSME.longitude });
+          setMapZoom(15);
+        } else {
+          setMapZoom(10); // Default zoom if no location
+        }
+      } catch (error) {
+        console.error("Error setting MSME data:", error);
+        toast.error("Failed to load MSME data");
+      }
+    }
+  }, [singleMSME]);
 
   const defaultMapCenter = useMemo(
     () => ({
@@ -302,21 +304,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         finalProductGallery = uploadedImageUrls;
         // Delete old images from storage that were part of msmeData.productGallery but not in currentProductGallery (if any remained)
         // This step is complex if we only update local state for deletion.
-        // For simplicity, if replacing, we assume all old ones are gone.
-        // A more robust solution would track deletions explicitly.
         // For now, if isReplacingImages = true, we only use newly uploaded ones.
-        // The original images that were part of msmeData.productGallery should be deleted if not part of `uploadedImageUrls`.
-        // This part needs careful handling of which images to delete from storage.
-        // The current `handleDeleteExistingImage` deletes from storage immediately.
-        // So, `currentProductGallery` reflects images that are still in storage.
-        // If `isReplacingImages` is true, it means user wants to use *only* new uploads.
-        // So, all images in `msmeData.productGallery` (original list) should be deleted if not in `uploadedImageUrls`.
-        // This is tricky. Let's adjust: if replacing, currentProductGallery should be cleared first.
-        // The current logic in EditMSMEModal is:
-        // updatedGallery = isReplacingImages ? imageUrls : [...(msme.productGallery || []), ...imageUrls];
-        // This means if replacing, it ONLY uses new ones. If not, it APPENDS.
-        // We need to ensure images deleted via `handleDeleteExistingImage` are truly gone.
-        // `currentProductGallery` holds the state of images *after* potential deletions.
         if (isReplacingImages) {
           finalProductGallery = uploadedImageUrls;
           // Delete images that were in msmeData.productGallery but are not in uploadedImageUrls
@@ -360,7 +348,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         longitude,
       });
 
-      toast.success("MSME updated successfully!");
       router.push("/superadmin/msme");
     } catch (error) {
       console.error("Error updating MSME:", error);
