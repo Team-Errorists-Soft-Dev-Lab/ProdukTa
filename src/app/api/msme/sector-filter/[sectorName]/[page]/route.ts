@@ -1,5 +1,4 @@
 import { prisma } from "@/utils/prisma/client";
-import { type MSME } from "@/types/MSME";
 
 export async function GET(
   req: Request,
@@ -20,11 +19,13 @@ export async function GET(
     const pageSize = 15;
     const offset = (page - 1) * pageSize;
 
-    // Check for the optional "desc" query parameter
     const url = new URL(req.url);
     const isDescending = url.searchParams.get("desc") === "true";
+    const municipalitiesParams = url.searchParams.get("municipalities");
+    const municipalitiesSelected = municipalitiesParams
+      ?.split(",")
+      .filter(Boolean);
 
-    // Find the sector by name
     const getSector = await prisma.sector.findFirst({
       where: {
         name: {
@@ -38,41 +39,34 @@ export async function GET(
       return Response.json({ error: "Sector not found" }, { status: 404 });
     }
 
-    // Fetch MSMEs for the sector with sorting
-    const result = (await prisma.mSME.findMany({
-      where: {
-        sectorId: {
-          equals: getSector.id,
+    const [result, totalMSMEs] = await Promise.all([
+      prisma.mSME.findMany({
+        where: {
+          sectorId: { equals: getSector.id },
+          cityMunicipalityAddress: {
+            in: municipalitiesSelected,
+            mode: "insensitive",
+          },
         },
-      },
-      orderBy: {
-        companyName: isDescending ? "desc" : "asc", // Sort by companyName
-      },
-      take: pageSize,
-      skip: offset,
-    })) as MSME[];
-
-    if (!result || result.length === 0) {
-      return Response.json(
-        { error: "No MSMEs found for this sector" },
-        { status: 404 },
-      );
-    }
-
-    // Count total MSMEs for the sector
-    const totalMSMEs = await prisma.mSME.count({
-      where: {
-        sectorId: {
-          equals: getSector.id,
+        orderBy: { companyName: isDescending ? "desc" : "asc" },
+        take: pageSize,
+        skip: offset,
+      }),
+      prisma.mSME.count({
+        where: {
+          sectorId: { equals: getSector.id },
+          cityMunicipalityAddress: {
+            in: municipalitiesSelected,
+            mode: "insensitive",
+          },
         },
-      },
-    });
+      }),
+    ]);
 
     const totalPages = Math.ceil(totalMSMEs / pageSize);
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
 
-    // Handle cases where the page exceeds total pages
     if (page > totalPages) {
       return Response.json({
         msmes: [],
