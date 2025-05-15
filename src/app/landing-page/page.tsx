@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reference from "@/components/landing-page/Reference";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
+import { Loader2 } from "lucide-react";
 
 const DynamicBarChart2 = dynamic(
   () => import("@/components/landing-page/BarChart"),
@@ -196,17 +197,13 @@ export default function LandingPage() {
             </div>
           )}
 
-          {isLoading && !chartData.length ? (
-            <div className="grid grid-cols-1 justify-items-center gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {Array(6)
-                .fill(0)
-                .map((_, index) => (
-                  <div
-                    key={index}
-                    className="h-[300px] w-full animate-pulse rounded-lg bg-muted p-6"
-                  ></div>
-                ))}
-            </div>
+          {isLoading ? (
+            <section className="flex justify-center bg-[#f9f8f4] py-10">
+              <div className="flex w-full max-w-6xl flex-col items-center justify-center py-10">
+                <Loader2 className="h-12 w-12 animate-spin text-[#8B4513]" />
+                <p className="mt-4 text-[#120f0c]/80">Loading MSME data...</p>
+              </div>
+            </section>
           ) : (
             <div className="grid grid-cols-1 justify-items-center gap-6 md:grid-cols-2 lg:grid-cols-3">
               {chartData.slice(0, 6).map((chart, index) => (
