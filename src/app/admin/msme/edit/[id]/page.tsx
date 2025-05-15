@@ -47,6 +47,11 @@ import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 // Define the libraries for Google Maps API
 const libraries: ("places" | "maps")[] = ["places", "maps"];
 
+interface DuplicateCheckResponse {
+  isDuplicateCompanyName: boolean;
+  isDuplicateDTINumber: boolean;
+}
+
 export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { msmes, sectors, handleUpdateMSME } = useMSMEContext();
@@ -235,12 +240,58 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const checkDuplicates = async () => {
+    try {
+      const response = await fetch("/api/msme/check-duplicate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          companyName: companyName.trim(),
+          dtiNumber: dtiNumber.trim(),
+          currentMsmeId: msmeId, // Include current MSME ID to exclude from check
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to check for duplicates");
+      }
+
+      const data = (await response.json()) as DuplicateCheckResponse;
+      const newErrors: Record<string, string> = { ...errors };
+
+      if (data.isDuplicateCompanyName) {
+        newErrors.companyName = "This company name already exists";
+        toast.error("A company with this name already exists");
+      }
+      if (data.isDuplicateDTINumber) {
+        newErrors.dtiNumber = "This DTI number is already registered";
+        toast.error("This DTI number is already registered");
+      }
+
+      setErrors(newErrors);
+      return !data.isDuplicateCompanyName && !data.isDuplicateDTINumber;
+    } catch (error) {
+      console.error("Error checking duplicates:", error);
+      toast.error("Failed to check for duplicates");
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) {
       toast.error("Please fill in all required fields correctly.");
       return;
     }
+
+    // Check for duplicates before proceeding
+    const isDuplicatesFree = await checkDuplicates();
+    if (!isDuplicatesFree) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -261,16 +312,12 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         return `${supabaseUrl}/storage/v1/object/public/msme-images/products-${fileName}`;
       });
 
-      // Merge existing product gallery with new uploads
-      const existingGallery = msmeToEdit?.productGallery || [];
-      const updatedGallery = [...existingGallery, ...imageUrls];
-
       await handleUpdateMSME({
         id: msmeId,
         companyName,
         companyDescription,
         companyLogo: logoUrl,
-        productGallery: updatedGallery,
+        productGallery: imageUrls,
         contactPerson,
         contactNumber,
         email,
@@ -280,23 +327,16 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         yearEstablished: parseInt(yearEstablished),
         dti_number: parseInt(dtiNumber),
         sectorId: sectorId!,
-        majorProductLines,
+        createdAt: new Date(),
+        majorProductLines: [],
         longitude: longitude === null ? 0 : longitude,
         latitude: latitude === null ? 0 : latitude,
         facebookPage,
         instagramPage,
-        createdAt: msmeToEdit?.createdAt || new Date(),
       });
 
       toast.success("MSME updated successfully!");
-
-      // Find the sector name to redirect back to the sector page
-      const sector = sectors.find((s) => s.id === sectorId);
-      const sectorName = sector
-        ? sector.name.toLowerCase().replace(/\s+/g, "")
-        : "";
-
-      router.push(`/admin/msme/${sectorName}`);
+      router.push("/admin/msme");
     } catch (error) {
       console.error("Error updating MSME:", error);
       toast.error("Failed to update MSME");

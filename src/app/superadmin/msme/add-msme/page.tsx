@@ -47,6 +47,11 @@ import {
 // Define the libraries for Google Maps API
 const libraries: ("places" | "maps")[] = ["places", "maps"];
 
+interface DuplicateCheckResponse {
+  isDuplicateCompanyName: boolean;
+  isDuplicateDTINumber: boolean;
+}
+
 export default function AddMSMEPage() {
   const router = useRouter();
   const { sectors, handleAddMSME } = useMSMEContext();
@@ -213,12 +218,57 @@ export default function AddMSMEPage() {
     }
   };
 
+  const checkDuplicates = async () => {
+    try {
+      const response = await fetch("/api/msme/check-duplicate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          companyName: companyName.trim(),
+          dtiNumber: dtiNumber.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to check for duplicates");
+      }
+
+      const data = (await response.json()) as DuplicateCheckResponse;
+      const newErrors: Record<string, string> = { ...errors };
+
+      if (data.isDuplicateCompanyName) {
+        newErrors.companyName = "This company name already exists";
+        toast.error("A company with this name already exists");
+      }
+      if (data.isDuplicateDTINumber) {
+        newErrors.dtiNumber = "This DTI number is already registered";
+        toast.error("This DTI number is already registered");
+      }
+
+      setErrors(newErrors);
+      return !data.isDuplicateCompanyName && !data.isDuplicateDTINumber;
+    } catch (error) {
+      console.error("Error checking duplicates:", error);
+      toast.error("Failed to check for duplicates");
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) {
       toast.error("Please fill in all required fields correctly.");
       return;
     }
+
+    // Check for duplicates before proceeding
+    const isDuplicatesFree = await checkDuplicates();
+    if (!isDuplicatesFree) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -264,6 +314,7 @@ export default function AddMSMEPage() {
       router.push("/superadmin/msme");
     } catch (error) {
       console.error("Error adding MSME:", error);
+      toast.error("Failed to add MSME");
     } finally {
       setIsSubmitting(false);
     }

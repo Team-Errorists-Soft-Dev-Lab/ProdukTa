@@ -47,6 +47,11 @@ import {
 // Define the libraries for Google Maps API
 const libraries: ("places" | "maps")[] = ["places", "maps"];
 
+interface DuplicateCheckResponse {
+  isDuplicateCompanyName: boolean;
+  isDuplicateDTINumber: boolean;
+}
+
 export default function AddMSMEPage({
   params,
 }: {
@@ -173,6 +178,44 @@ export default function AddMSMEPage({
     return Object.keys(newErrors).length === 0;
   };
 
+  const checkDuplicates = async () => {
+    try {
+      const response = await fetch("/api/msme/check-duplicate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          companyName: companyName.trim(),
+          dtiNumber: dtiNumber.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to check for duplicates");
+      }
+
+      const data = (await response.json()) as DuplicateCheckResponse;
+      const newErrors: Record<string, string> = { ...errors };
+
+      if (data.isDuplicateCompanyName) {
+        newErrors.companyName = "This company name already exists";
+        toast.error("A company with this name already exists");
+      }
+      if (data.isDuplicateDTINumber) {
+        newErrors.dtiNumber = "This DTI number is already registered";
+        toast.error("This DTI number is already registered");
+      }
+
+      setErrors(newErrors);
+      return !data.isDuplicateCompanyName && !data.isDuplicateDTINumber;
+    } catch (error) {
+      console.error("Error checking duplicates:", error);
+      toast.error("Failed to check for duplicates");
+      return false;
+    }
+  };
+
   const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
@@ -237,6 +280,13 @@ export default function AddMSMEPage({
       toast.error("Please fill in all required fields correctly.");
       return;
     }
+
+    // Check for duplicates before proceeding
+    const isDuplicatesFree = await checkDuplicates();
+    if (!isDuplicatesFree) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
