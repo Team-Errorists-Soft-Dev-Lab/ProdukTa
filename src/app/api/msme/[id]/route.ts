@@ -2,15 +2,23 @@ import { prisma } from "@/utils/prisma/client";
 import { NextResponse } from "next/server";
 import type { MSME } from "@/types/MSME";
 
+interface MSMEWithSector extends MSME {
+  sectorName: string;
+  sectors: object;
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } },
 ) {
   try {
-    const body = (await request.json()) as MSME;
+    const body = (await request.json()) as MSMEWithSector;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, createdAt, sectors, sectorName, ...dataWithoutId } = body;
     const updatedMSME = await prisma.mSME.update({
       where: { id: Number(params.id) },
-      data: body,
+      data: dataWithoutId,
     });
 
     return NextResponse.json(updatedMSME);

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
 // import AddMSMEModal from "@/components/modals/AddMSMEModal";
-import EditMSMEModal from "@/components/modals/EditMSMEModal";
+// import EditMSMEModal from "@/components/modals/EditMSMEModal";
 import type { MSME } from "@/types/MSME";
 import { MSMETableView } from "@/components/msme/MSMETable";
 import { cn } from "@/lib/utils";
@@ -54,7 +54,7 @@ import {
   filterMSMEs,
   sortMSMEs,
 } from "@/lib/msme-utils";
-import type { MSMEWithProducts } from "@/lib/msme-utils";
+// import type { MSMEWithProducts } from "@/lib/msme-utils";
 import Link from "next/link";
 
 export default function ManageMSME() {
@@ -64,8 +64,8 @@ export default function ManageMSME() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
   // const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
-  const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
-  const [currentMSME, setCurrentMSME] = useState<MSMEWithProducts | null>(null);
+  // const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
+  // const [currentMSME, setCurrentMSME] = useState<MSMEWithProducts | null>(null);
   const [sortState, setSortState] = useState<SortState>({
     column: "",
     direction: "default",
@@ -112,8 +112,9 @@ export default function ManageMSME() {
   };
 
   const handleEdit = (msme: MSME) => {
-    setCurrentMSME(msme as MSMEWithProducts);
-    setIsEditMSMEModalOpen(true);
+    // setCurrentMSME(msme as MSMEWithProducts);
+    // setIsEditMSMEModalOpen(true);
+    router.push(`/superadmin/msme/edit-msme/${msme.id}`);
   };
 
   const filteredMSMEs = sortMSMEs(
@@ -450,11 +451,11 @@ export default function ManageMSME() {
         isOpen={isAddMSMEModalOpen}
         onClose={() => setIsAddMSMEModalOpen(false)}
       /> */}
-      <EditMSMEModal
+      {/* <EditMSMEModal
         isOpen={isEditMSMEModalOpen}
         onClose={() => setIsEditMSMEModalOpen(false)}
         msme={currentMSME}
-      />
+      /> */}
     </div>
   );
 }

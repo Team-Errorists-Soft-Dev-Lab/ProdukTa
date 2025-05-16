@@ -23,9 +23,13 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as MSME;
+    // Destructure id out, and keep the rest of the fields
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...dataWithoutId } = body;
+
     const newMSME = await prisma.mSME.create({
       data: {
-        ...body,
+        ...dataWithoutId,
         longitude: body.longitude ?? 0,
         latitude: body.latitude ?? 0,
       },
