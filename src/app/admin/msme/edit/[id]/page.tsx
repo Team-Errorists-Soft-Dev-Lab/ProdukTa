@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import {
   Loader2,
+  X,
   UploadCloud,
   Building,
   Info,
@@ -36,13 +37,12 @@ import { uploadImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-// import type { MSME } from "@/types/MSME";
-import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import {
   Dropzone,
   DropzoneContent,
   DropzoneEmptyState,
 } from "@/components/ui/dropzone";
+import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 
 // Define the libraries for Google Maps API
 const libraries: ("places" | "maps")[] = ["places", "maps"];
@@ -52,17 +52,22 @@ interface DuplicateCheckResponse {
   isDuplicateDTINumber: boolean;
 }
 
-export default function AddMSMEPage() {
+export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { sectors, handleAddMSME } = useMSMEContext();
+  const { msmes, sectors, handleUpdateMSME } = useMSMEContext();
+  const { id } = params;
+  const msmeId = parseInt(id);
+
+  // Find the MSME to edit
+  const msmeToEdit = msmes.find((msme) => msme.id === msmeId);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Form state
+  // Form state initialized with existing MSME data
   const [companyName, setCompanyName] = useState("");
   const [companyDescription, setCompanyDescription] = useState("");
-  const [companyLogo, setCompanyLogo] = useState(""); // URL of the uploaded logo
+  const [companyLogo, setCompanyLogo] = useState("");
   const [contactPerson, setContactPerson] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
@@ -76,15 +81,51 @@ export default function AddMSMEPage() {
   const [facebookPage, setFacebookPage] = useState("");
   const [instagramPage, setInstagramPage] = useState("");
 
+  // Load existing MSME data when component mounts
+  useEffect(() => {
+    if (msmeToEdit) {
+      setCompanyName(msmeToEdit.companyName);
+      setCompanyDescription(msmeToEdit.companyDescription);
+      setCompanyLogo(msmeToEdit.companyLogo || "");
+      setContactPerson(msmeToEdit.contactPerson);
+      setContactNumber(msmeToEdit.contactNumber);
+      setEmail(msmeToEdit.email);
+      setProvinceAddress(msmeToEdit.provinceAddress || "");
+      setCityMunicipalityAddress(msmeToEdit.cityMunicipalityAddress || "");
+      setBarangayAddress(msmeToEdit.barangayAddress || "");
+      setYearEstablished(msmeToEdit.yearEstablished?.toString() || "");
+      setDTINumber(msmeToEdit.dti_number?.toString() || "");
+      setSectorId(msmeToEdit.sectorId);
+      setMajorProductLines(msmeToEdit.majorProductLines || []);
+      setFacebookPage(msmeToEdit.facebookPage || "");
+      setInstagramPage(msmeToEdit.instagramPage || "");
+
+      // Set map location if coordinates exist
+      if (msmeToEdit.latitude && msmeToEdit.longitude) {
+        setLatitude(msmeToEdit.latitude);
+        setLongitude(msmeToEdit.longitude);
+        setMarker({ lat: msmeToEdit.latitude, lng: msmeToEdit.longitude });
+      }
+
+      // Set logo preview
+      if (msmeToEdit.companyLogo) {
+        setLogoUrl(msmeToEdit.companyLogo);
+      }
+    } else {
+      // MSME not found, redirect back
+      toast.error("MSME not found");
+      router.push("/admin/msme");
+    }
+  }, [msmeToEdit, router]);
+
   // Logo upload state
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
-  const [logoUrl, setLogoUrl] = useState(""); // Preview URL for logo before/during crop
+  const [logoUrl, setLogoUrl] = useState(""); // Preview URL for logo
 
   // Product gallery upload state (using useSupabaseUpload hook)
   const productImagesUpload = useSupabaseUpload({
-    bucketName: "msme-images", // Make sure this matches your Supabase bucket
-    // path: `product-gallery/${companyName.replace(/\s+/g, '-').toLowerCase() || 'unknown-msme'}`, // Dynamic path
+    bucketName: "msme-images",
     path: "products",
     maxFileSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 5,
@@ -93,13 +134,12 @@ export default function AddMSMEPage() {
   });
 
   // Map state
-  const [latitude, setLatitude] = useState<number | null>(10.7202); // Default to Iloilo City approx.
+  const [latitude, setLatitude] = useState<number | null>(10.7202);
   const [longitude, setLongitude] = useState<number | null>(122.5621);
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(
     null,
   );
-  const [mapZoom, setMapZoom] = useState(10);
-  const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [mapZoom] = useState(10);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -115,31 +155,6 @@ export default function AddMSMEPage() {
       ),
     [currentYear],
   );
-
-  const resetForm = () => {
-    setCompanyName("");
-    setCompanyDescription("");
-    setCompanyLogo("");
-    setContactPerson("");
-    setContactNumber("");
-    setEmail("");
-    setProvinceAddress("");
-    setCityMunicipalityAddress("");
-    setBarangayAddress("");
-    setYearEstablished("");
-    setDTINumber("");
-    setSectorId(null);
-    setMajorProductLines([]);
-    setFacebookPage("");
-    setInstagramPage("");
-    setLogoFile(null);
-    setLogoUrl("");
-    setLatitude(10.7202);
-    setLongitude(122.5621);
-    setMarker(null);
-    setMapZoom(10);
-    setErrors({});
-  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -167,45 +182,52 @@ export default function AddMSMEPage() {
     setSectorId(Number(value));
   };
 
-  // const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files?.[0]) {
-  //     const file = e.target.files[0];
-  //     setLogoFile(file);
-  //     setLogoUrl(URL.createObjectURL(file)); // For preview in crop modal
-  //     setIsCropModalOpen(true);
-  //     e.target.value = ""; // Reset file input
-  //   }
-  // };
-
-  const handleLogoUpload = async (croppedFile: File) => {
-    setIsLogoUploading(true);
-    try {
-      const fileName = `logo-${Date.now()}`;
-      const url = await uploadImage(croppedFile, fileName);
-      setCompanyLogo(url);
-      setLogoUrl(url);
-      setLogoFile(croppedFile);
-    } catch {
-      toast.error("Failed to upload logo");
-    } finally {
-      setIsLogoUploading(false);
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
+      setLogoFile(file);
+      setLogoUrl(URL.createObjectURL(file)); // For preview in crop modal
+      setIsCropModalOpen(true);
+      e.target.value = ""; // Reset file input
     }
   };
 
-  // const handleRemoveLogo = async () => {
-  //   if (companyLogo) {
-  //     try {
-  //       // Optional: Delete from Supabase storage
-  //       // const path = companyLogo.substring(companyLogo.indexOf('/logos/') + 1);
-  //       // await deleteImage(path, "msme-images");
-  //     } catch (error) {
-  //       console.warn("Could not delete old logo from storage:", error);
-  //     }
-  //   }
-  //   setCompanyLogo("");
-  //   setLogoUrl("");
-  //   setLogoFile(null);
-  // };
+  const handleLogoUpload = async (croppedFile: File) => {
+    setIsCropModalOpen(false);
+    if (!croppedFile) {
+      setLogoFile(null);
+      setLogoUrl("");
+      return;
+    }
+
+    const fileName = `logo-${Date.now()}`;
+    try {
+      const uploadedLogoUrl = await uploadImage(croppedFile, fileName);
+      setCompanyLogo(uploadedLogoUrl); // Store the final URL
+      setLogoUrl(uploadedLogoUrl); // Update preview to final URL
+      setErrors((prev) => ({ ...prev, companyLogo: "" })); // Clear logo error
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      toast.error("Failed to upload logo. Please try again.");
+      setCompanyLogo("");
+      setLogoUrl("");
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (companyLogo) {
+      try {
+        // Optional: Delete from Supabase storage
+        // const path = companyLogo.substring(companyLogo.indexOf('/logos/') + 1);
+        // await deleteImage(path, "msme-images");
+      } catch (error) {
+        console.warn("Could not delete old logo from storage:", error);
+      }
+    }
+    setCompanyLogo("");
+    setLogoUrl("");
+    setLogoFile(null);
+  };
 
   const handleMapClick = (event: google.maps.MapMouseEvent) => {
     if (event.latLng) {
@@ -228,6 +250,7 @@ export default function AddMSMEPage() {
         body: JSON.stringify({
           companyName: companyName.trim(),
           dtiNumber: dtiNumber.trim(),
+          currentMsmeId: msmeId, // Include current MSME ID to exclude from check
         }),
       });
 
@@ -289,7 +312,8 @@ export default function AddMSMEPage() {
         return `${supabaseUrl}/storage/v1/object/public/msme-images/products-${fileName}`;
       });
 
-      await handleAddMSME({
+      await handleUpdateMSME({
+        id: msmeId,
         companyName,
         companyDescription,
         companyLogo: logoUrl,
@@ -307,14 +331,15 @@ export default function AddMSMEPage() {
         majorProductLines: [],
         longitude: longitude === null ? 0 : longitude,
         latitude: latitude === null ? 0 : latitude,
+        facebookPage,
+        instagramPage,
       });
 
-      toast.success("MSME added successfully!");
-      resetForm();
-      router.push("/superadmin/msme");
+      toast.success("MSME updated successfully!");
+      router.push("/admin/msme");
     } catch (error) {
-      console.error("Error adding MSME:", error);
-      toast.error("Failed to add MSME");
+      console.error("Error updating MSME:", error);
+      toast.error("Failed to update MSME");
     } finally {
       setIsSubmitting(false);
     }
@@ -329,23 +354,28 @@ export default function AddMSMEPage() {
 
   return (
     <div className="container mx-auto max-w-4xl p-4 py-6 md:py-10">
-      <header className="mb-6 flex items-center">
-        <Button
-          variant="secondary"
-          onClick={() => router.push("/superadmin/msme")}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-        <div className="pl-12 text-center">
+      <header className="mb-8 flex items-center justify-between">
+        <div>
           <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Add New MSME
+            Edit MSME
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Complete the form below to register a new Micro, Small, or Medium
-            Enterprise.
+            Update information for {companyName}
           </p>
         </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            const sector = sectors.find((s) => s.id === sectorId);
+            const sectorName = sector
+              ? sector.name.toLowerCase().replace(/\s+/g, "")
+              : "";
+            router.push(`/admin/msme/${sectorName}`);
+          }}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to MSMEs
+        </Button>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-10">
@@ -359,7 +389,7 @@ export default function AddMSMEPage() {
             <div className="space-y-6">
               <div>
                 <Label htmlFor="companyName" className="flex items-center">
-                  <Building className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Building className="mr-2 h-4 w-4 text-muted-foreground" />
                   Company Name
                 </Label>
                 <Input
@@ -380,7 +410,7 @@ export default function AddMSMEPage() {
                   htmlFor="companyDescription"
                   className="flex items-center"
                 >
-                  <Info className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Info className="mr-2 h-4 w-4 text-muted-foreground" />
                   Company Description
                 </Label>
                 <Textarea
@@ -399,7 +429,7 @@ export default function AddMSMEPage() {
               </div>
               <div>
                 <Label className="flex items-center">
-                  <UploadCloud className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <UploadCloud className="mr-2 h-4 w-4 text-muted-foreground" />
                   Company Logo
                 </Label>
                 <div className="mt-1.5 flex flex-col items-start gap-3">
@@ -412,7 +442,7 @@ export default function AddMSMEPage() {
                         height={80}
                         className="h-20 w-20 rounded-md border object-cover"
                       />
-                      {/* <Button
+                      <Button
                         type="button"
                         variant="destructive"
                         size="icon"
@@ -420,34 +450,24 @@ export default function AddMSMEPage() {
                         onClick={handleRemoveLogo}
                       >
                         <X className="h-4 w-4" />
-                      </Button> */}
+                      </Button>
                     </div>
                   )}
+                  <Input
+                    id="companyLogoInput"
+                    type="file"
+                    accept="image/png, image/jpeg, image/webp"
+                    onChange={handleLogoFileChange}
+                    className="hidden"
+                  />
                   <Button
                     type="button"
-                    variant="default"
-                    onClick={() => {
-                      if (logoUrl) {
-                        setCompanyLogo("");
-                        setLogoUrl("");
-                        setLogoFile(null);
-                        setIsCropModalOpen(true);
-                      } else {
-                        setIsCropModalOpen(true);
-                      }
-                    }}
-                    disabled={isLogoUploading}
+                    variant="outline"
+                    onClick={() =>
+                      document.getElementById("companyLogoInput")?.click()
+                    }
                   >
-                    {isLogoUploading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : logoUrl ? (
-                      "Change Logo"
-                    ) : (
-                      "Upload Logo"
-                    )}
+                    {logoUrl ? "Change Logo" : "Upload Logo"}
                   </Button>
                 </div>
                 {errors.companyLogo && (
@@ -461,7 +481,7 @@ export default function AddMSMEPage() {
             <div className="space-y-6">
               <div>
                 <Label htmlFor="contactPerson" className="flex items-center">
-                  <User className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
                   Contact Person
                 </Label>
                 <Input
@@ -479,7 +499,7 @@ export default function AddMSMEPage() {
               </div>
               <div>
                 <Label htmlFor="contactNumber" className="flex items-center">
-                  <Phone className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
                   Contact Number
                 </Label>
                 <div className="relative mt-1.5">
@@ -492,11 +512,10 @@ export default function AddMSMEPage() {
                     value={contactNumber}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, "");
-                      // Remove leading zero if present
                       const normalizedValue = value.startsWith("0")
                         ? value.slice(1)
                         : value;
-                      setContactNumber(normalizedValue.slice(0, 10)); // Limit to 10 digits after +63
+                      setContactNumber(normalizedValue.slice(0, 10));
                       if (errors.contactNumber) {
                         setErrors({ ...errors, contactNumber: "" });
                       }
@@ -516,13 +535,13 @@ export default function AddMSMEPage() {
                   </p>
                 ) : (
                   <p className="mt-1 text-sm text-gray-500">
-                    Format: +63 followed by 10 digits (e.g., +63 917 123 4567)
+                    Format: +63 followed by 10 digits
                   </p>
                 )}
               </div>
               <div>
                 <Label htmlFor="email" className="flex items-center">
-                  <Mail className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
                   Email Address
                 </Label>
                 <Input
@@ -578,11 +597,9 @@ export default function AddMSMEPage() {
                   required
                 />
               </div>
-            </div>
-            <div className="space-y-6">
               <div>
                 <Label htmlFor="yearEstablished" className="flex items-center">
-                  <Calendar className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                   Year Established
                 </Label>
                 <Select
@@ -606,9 +623,11 @@ export default function AddMSMEPage() {
                   </p>
                 )}
               </div>
+            </div>
+            <div className="space-y-6">
               <div>
                 <Label htmlFor="dtiNumber" className="flex items-center">
-                  <Hash className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Hash className="mr-2 h-4 w-4 text-muted-foreground" />
                   DTI Number
                 </Label>
                 <Input
@@ -626,13 +645,12 @@ export default function AddMSMEPage() {
               </div>
               <div>
                 <Label htmlFor="sectorId" className="flex items-center">
-                  <Tag className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
                   Sector
                 </Label>
                 <Select
-                  onValueChange={handleSectorChange}
                   value={sectorId?.toString()}
-                  required
+                  onValueChange={handleSectorChange}
                 >
                   <SelectTrigger className="mt-1.5">
                     <SelectValue placeholder="Select sector" />
@@ -667,7 +685,7 @@ export default function AddMSMEPage() {
                   htmlFor="majorProductLines"
                   className="flex items-center"
                 >
-                  <Info className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Info className="mr-2 h-4 w-4 text-muted-foreground" />
                   Major Product Lines
                 </Label>
                 <Textarea
@@ -687,8 +705,43 @@ export default function AddMSMEPage() {
                 )}
               </div>
               <div>
+                <Label className="flex items-center">
+                  <UploadCloud className="mr-2 h-4 w-4 text-muted-foreground" />
+                  Add Product Images (up to 5 images, max 10MB each)
+                </Label>
+                <Dropzone className="mt-2" {...productImagesUpload}>
+                  <DropzoneEmptyState />
+                  <DropzoneContent />
+                </Dropzone>
+
+                {/* Display existing product images */}
+                {msmeToEdit?.productGallery &&
+                  msmeToEdit.productGallery.length > 0 && (
+                    <div className="mt-4">
+                      <Label className="mb-2 block">
+                        Existing Product Images
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {msmeToEdit.productGallery.map((img, index) => (
+                          <div key={index} className="relative">
+                            <Image
+                              src={img}
+                              alt={`Product ${index + 1}`}
+                              width={80}
+                              height={80}
+                              className="h-20 w-20 rounded-md border object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div>
                 <Label htmlFor="facebookPage" className="flex items-center">
-                  <Facebook className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <Facebook className="mr-2 h-4 w-4 text-muted-foreground" />
                   Facebook Page (Optional)
                 </Label>
                 <Input
@@ -701,7 +754,7 @@ export default function AddMSMEPage() {
               </div>
               <div>
                 <Label htmlFor="instagramPage" className="flex items-center">
-                  <InstagramIcon className="mr-2 h-6 w-4 text-muted-foreground" />
+                  <InstagramIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                   Instagram Profile (Optional)
                 </Label>
                 <Input
@@ -711,18 +764,6 @@ export default function AddMSMEPage() {
                   className="mt-1.5"
                   placeholder="e.g., https://instagram.com/juansbakeshop"
                 />
-              </div>
-            </div>
-            <div className="space-y-6">
-              <div>
-                <Label className="flex items-center">
-                  <UploadCloud className="mr-2 h-6 w-4 text-muted-foreground" />
-                  Product Images (up to 5 images, max 10MB each)
-                </Label>
-                <Dropzone className="mt-2" {...productImagesUpload}>
-                  <DropzoneEmptyState />
-                  <DropzoneContent />
-                </Dropzone>
               </div>
             </div>
           </div>
@@ -775,14 +816,24 @@ export default function AddMSMEPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/superadmin/msme")}
+            onClick={() => {
+              const sector = sectors.find((s) => s.id === sectorId);
+              const sectorName = sector
+                ? sector.name.toLowerCase().replace(/\s+/g, "")
+                : "";
+              router.push(`/admin/msme/${sectorName}`);
+            }}
             disabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-[#996439] hover:bg-[#ce9261]"
+          >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Add MSME
+            Update MSME
           </Button>
         </div>
       </form>
