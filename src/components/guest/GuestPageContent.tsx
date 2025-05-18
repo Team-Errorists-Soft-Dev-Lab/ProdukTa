@@ -60,9 +60,16 @@ export default function GuestPage() {
   const handleSearch = useCallback(
     async (query: string) => {
       if (query.trim() === "") {
-        setSearchActive(false);
-        await fetchPagedMSMEs(1);
-        return;
+        if (selectedSector) {
+          setCurrentPage(1);
+          await fetchMSMEsBySector(selectedSector, 1, sort === "z-a");
+          setSearchActive(false);
+          return;
+        } else {
+          await fetchPagedMSMEs(1);
+          setSearchActive(false);
+          return;
+        }
       }
 
       if (query.length < 2) {
@@ -81,7 +88,7 @@ export default function GuestPage() {
         toast.error("Search failed. Please try again.");
       }
     },
-    [searchMSMEs, fetchPagedMSMEs],
+    [searchMSMEs, fetchPagedMSMEs, selectedSector, fetchMSMEsBySector, sort],
   );
 
   const handleInputChange = useCallback(
@@ -91,9 +98,14 @@ export default function GuestPage() {
       } else if (!query || query.trim() === "") {
         setSearchActive(false);
       }
-      searchMSMEsDebounced(query);
+
+      if (selectedSector) {
+        searchMSMEsDebounced(query, selectedSector);
+      } else {
+        searchMSMEsDebounced(query);
+      }
     },
-    [searchMSMEsDebounced],
+    [searchMSMEsDebounced, selectedSector],
   );
 
   const sortMSMEs = useCallback(
@@ -144,7 +156,7 @@ export default function GuestPage() {
     async (page: number) => {
       if (selectedSector !== null) {
         if (selectedSector) {
-          await fetchMSMEsBySector(selectedSector, page);
+          await fetchMSMEsBySector(selectedSector, page, sort === "z-a");
           setCurrentPage(page);
           return;
         }
