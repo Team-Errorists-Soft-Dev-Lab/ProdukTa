@@ -131,14 +131,13 @@ const Partners = () => {
                 Thanks to our developers!
               </h1>
               <div className="mt-6 text-base text-neutral-700">
-                <p className="text-base font-semibold">Developers:</p>
-                <p className="text-base">Aaron Ciervo</p>
-                <p className="text-base">Manaf Kassim</p>
-                <p className="text-base">Matthew Ledesma</p>
-                <p className="mt-6 text-base font-semibold">Scrum Master:</p>
-                <p className="text-base">Jezrewel Grino</p>
-                <p className="mt-6 text-base font-semibold">Product Owner:</p>
-                <p className="text-base">Faith Nina Marie Magsael</p>
+                <p className="text-lg font-semibold">Aaron Ciervo</p>
+                <p className="text-lg font-semibold">Manaf Kassim</p>
+                <p className="text-lg font-semibold">Matthew Ledesma</p>
+                <p className="text-lg font-semibold">Jezerwel Griño</p>
+                <p className="text-lg font-semibold">
+                  Faith Nina Marie Magsael
+                </p>
               </div>
             </motion.div>
           </motion.div>
