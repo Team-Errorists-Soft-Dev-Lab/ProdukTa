@@ -112,8 +112,6 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
             ? `/api/msme/paginated-msme/${page}?${params.toString()}`
             : `/api/msme/paginated-msme/${page}`;
 
-        console.log("URL: ", url);
-
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 
@@ -158,7 +156,6 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
     (searchQuery: string, selectedSector?: string) => {
       if (!searchQuery || searchQuery.trim() === "") {
         if (selectedSector) {
-          console.log("selected sector: ", selectedSector);
           setIsSearching(false);
           void fetchMSMEsBySector(selectedSector, 1);
           return;

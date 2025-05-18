@@ -60,16 +60,15 @@ export default function GuestPage() {
   const handleSearch = useCallback(
     async (query: string) => {
       if (query.trim() === "") {
+        setCurrentPage(1);
         if (selectedSector) {
-          setCurrentPage(1);
           await fetchMSMEsBySector(selectedSector, 1, sort === "z-a");
-          setSearchActive(false);
-          return;
         } else {
           await fetchPagedMSMEs(1);
-          setSearchActive(false);
-          return;
         }
+        setCurrentPage(1); // <-- Always reset after fetch
+        setSearchActive(false);
+        return;
       }
 
       if (query.length < 2) {
@@ -80,6 +79,7 @@ export default function GuestPage() {
         return;
       }
 
+      setCurrentPage(1);
       setSearchActive(true);
       try {
         await searchMSMEs(query);
@@ -93,15 +93,19 @@ export default function GuestPage() {
 
   const handleInputChange = useCallback(
     (query: string) => {
+      setCurrentPage(1);
       if (query && query.trim().length >= 2) {
         setSearchActive(true);
       } else if (!query || query.trim() === "") {
+        setCurrentPage(1);
         setSearchActive(false);
       }
 
       if (selectedSector) {
+        setCurrentPage(1);
         searchMSMEsDebounced(query, selectedSector);
       } else {
+        setCurrentPage(1);
         searchMSMEsDebounced(query);
       }
     },
@@ -154,21 +158,17 @@ export default function GuestPage() {
 
   const handlePageChange = useCallback(
     async (page: number) => {
+      setCurrentPage(page); // <-- Set immediately when page changes
       if (selectedSector !== null) {
         if (selectedSector) {
           await fetchMSMEsBySector(selectedSector, page, sort === "z-a");
-          setCurrentPage(page);
           return;
         }
       } else {
-        fetchPagedMSMEs(page, sort === "z-a")
-          .then(() => {
-            setCurrentPage(page);
-          })
-          .catch((error) => {
-            console.error("Error fetching paged MSMEs:", error);
-            toast.error("Failed to fetch paged MSMEs");
-          });
+        fetchPagedMSMEs(page, sort === "z-a").catch((error) => {
+          console.error("Error fetching paged MSMEs:", error);
+          toast.error("Failed to fetch paged MSMEs");
+        });
       }
     },
     [selectedSector, fetchMSMEsBySector, fetchPagedMSMEs, sort],

@@ -121,7 +121,6 @@ export default function LandingPage() {
         }
 
         const jsonData = (await response.json()) as ApiResponse;
-        console.log("API Response:", jsonData);
         const data: ApiResponse = validateApiResponse(jsonData);
 
         // Transform API data to match the chart data structure
@@ -166,12 +165,6 @@ export default function LandingPage() {
 
     void fetchMSMEData();
   }, []);
-
-  useEffect(() => {
-    if (chartData) {
-      console.log("Chart Data:", chartData);
-    }
-  }, [chartData]);
 
   return (
     <div className="min-h-screen bg-background">

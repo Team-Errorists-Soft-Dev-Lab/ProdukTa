@@ -88,10 +88,7 @@ export default function AllMSMEs() {
   };
 
   const handleExportData = () => {
-    const selectedData = allMSMEs.filter((msme) =>
-      selectedMSMEs.includes(msme.id),
-    );
-    console.log("Exporting data:", selectedData);
+    allMSMEs.filter((msme) => selectedMSMEs.includes(msme.id));
   };
 
   const renderPaginationItems = () => {
