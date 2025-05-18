@@ -35,78 +35,46 @@ const features = [
 
 export default function HowItWorks() {
   return (
-    <section className="mt-0 bg-[#f9f8f4] py-2">
-      <div className="mx-auto max-w-5xl px-3">
+    <section className="bg-[#FBF9F6] py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.h2
-          className="mb-12 text-3xl font-bold text-[#8B4513]"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ type: "spring", stiffness: 100 }}
+          className="mb-14 text-left text-4xl font-semibold tracking-tight text-[#8B4513] sm:text-5xl"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
           How It Works
         </motion.h2>
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
               <Link
                 key={feature.title}
                 href={feature.link}
-                className="group"
+                className="group block"
                 tabIndex={0}
               >
                 <motion.div
-                  className="flex cursor-pointer flex-col items-start rounded-lg bg-white p-6 text-left shadow-md transition-all duration-200 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-[#8B4513]"
-                  whileHover={{ scale: 1.1 }}
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  className="flex h-full cursor-pointer flex-col items-start rounded-xl bg-white p-6 text-left shadow-lg transition-shadow duration-300 ease-in-out group-hover:shadow-xl"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{
-                    type: "spring",
-                    stiffness: 100,
+                    duration: 0.5,
                     delay: index * 0.1,
                   }}
                   viewport={{ once: true }}
                 >
-                  <motion.div
-                    className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#8B4513]"
-                    initial={{ opacity: 0, x: -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 100,
-                      delay: index * 0.15,
-                    }}
-                    viewport={{ once: true }}
-                  >
-                    <IconComponent className="h-6 w-6 text-[#ffffff]" />
-                  </motion.div>
-                  <motion.h3
-                    className="mb-2 text-xl font-semibold text-[#8B4513]"
-                    initial={{ opacity: 0, x: -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 100,
-                      delay: index * 0.2,
-                    }}
-                    viewport={{ once: true }}
-                  >
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-lg bg-[#8B4513] p-3">
+                    <IconComponent className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="mb-2 text-2xl font-medium text-[#8B4513]">
                     {feature.title}
-                  </motion.h3>
-                  <motion.p
-                    className="text-base text-muted-foreground"
-                    initial={{ opacity: 0, x: -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 100,
-                      delay: index * 0.25,
-                    }}
-                    viewport={{ once: true }}
-                  >
+                  </h3>
+                  <p className="text-base text-gray-600">
                     {feature.description}
-                  </motion.p>
+                  </p>
                 </motion.div>
               </Link>
             );
