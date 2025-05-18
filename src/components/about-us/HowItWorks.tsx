@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Search, Compass, BarChart2, Download } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -7,24 +8,28 @@ const features = [
     description:
       "Quickly find MSMEs by sector, municipality, or specific keywords using our intuitive search tool.",
     icon: Search,
+    link: "/guest",
   },
   {
     title: "Explore",
     description:
       "Dive into detailed profiles of MSMEs, including their products, services, and locations.",
     icon: Compass,
+    link: "/guest",
   },
   {
     title: "Analyze",
     description:
       "Gain valuable insights with interactive charts and data, including sector trends and municipal rankings.",
     icon: BarChart2,
+    link: "/#data-section",
   },
   {
     title: "Export",
     description:
       "Download organized reports of MSME data for personal or professional use.",
     icon: Download,
+    link: "/guest-export",
   },
 ];
 
@@ -45,59 +50,65 @@ export default function HowItWorks() {
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
-              <motion.div
+              <Link
                 key={feature.title}
-                className="flex flex-col items-start rounded-lg bg-white p-6 text-left shadow-md"
-                whileHover={{ scale: 1.1 }}
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 100,
-                  delay: index * 0.1,
-                }}
-                viewport={{ once: true }}
+                href={feature.link}
+                className="group"
+                tabIndex={0}
               >
                 <motion.div
-                  className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#8B4513]"
+                  className="flex cursor-pointer flex-col items-start rounded-lg bg-white p-6 text-left shadow-md transition-all duration-200 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-[#8B4513]"
+                  whileHover={{ scale: 1.1 }}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{
                     type: "spring",
                     stiffness: 100,
-                    delay: index * 0.15,
+                    delay: index * 0.1,
                   }}
                   viewport={{ once: true }}
                 >
-                  <IconComponent className="h-6 w-6 text-[#ffffff]" />
+                  <motion.div
+                    className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#8B4513]"
+                    initial={{ opacity: 0, x: -50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 100,
+                      delay: index * 0.15,
+                    }}
+                    viewport={{ once: true }}
+                  >
+                    <IconComponent className="h-6 w-6 text-[#ffffff]" />
+                  </motion.div>
+                  <motion.h3
+                    className="mb-2 text-xl font-semibold text-[#8B4513]"
+                    initial={{ opacity: 0, x: -50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 100,
+                      delay: index * 0.2,
+                    }}
+                    viewport={{ once: true }}
+                  >
+                    {feature.title}
+                  </motion.h3>
+                  <motion.p
+                    className="text-base text-muted-foreground"
+                    initial={{ opacity: 0, x: -50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 100,
+                      delay: index * 0.25,
+                    }}
+                    viewport={{ once: true }}
+                  >
+                    {feature.description}
+                  </motion.p>
                 </motion.div>
-                <motion.h3
-                  className="mb-2 text-xl font-semibold text-[#8B4513]"
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    delay: index * 0.2,
-                  }}
-                  viewport={{ once: true }}
-                >
-                  {feature.title}
-                </motion.h3>
-                <motion.p
-                  className="text-base text-muted-foreground"
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    delay: index * 0.25,
-                  }}
-                  viewport={{ once: true }}
-                >
-                  {feature.description}
-                </motion.p>
-              </motion.div>
+              </Link>
             );
           })}
         </div>
