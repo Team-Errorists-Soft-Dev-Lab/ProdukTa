@@ -116,8 +116,6 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
             ? `/api/msme/paginated-msme/${page}?${params.toString()}`
             : `/api/msme/paginated-msme/${page}`;
 
-        console.log("URL: ", url);
-
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 

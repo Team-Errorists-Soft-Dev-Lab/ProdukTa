@@ -199,8 +199,8 @@ export default function MSMEPage({
             className={cn(
               "min-w-9 rounded-md",
               currentPage === pageNum
-                ? "bg-emerald-600 text-white hover:bg-emerald-600"
-                : "text-emerald-600 hover:bg-emerald-600",
+                ? "bg-[#996439] text-white hover:bg-[#996439]"
+                : "text-[#996439] hover:bg-[#996439]",
             )}
           >
             {pageNum}
@@ -225,14 +225,14 @@ export default function MSMEPage({
         }
         items.push(
           <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
+            <PaginationEllipsis className="text-[#996439]" />
           </PaginationItem>,
         );
       } else if (currentPage >= totalPages - 2) {
         // Near end
         items.push(
           <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
+            <PaginationEllipsis className="text-[#996439]" />
           </PaginationItem>,
         );
         for (let i = totalPages - 3; i < totalPages; i++) {
@@ -242,7 +242,7 @@ export default function MSMEPage({
         // In middle
         items.push(
           <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
+            <PaginationEllipsis className="text-[#996439]" />
           </PaginationItem>,
         );
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
@@ -250,7 +250,7 @@ export default function MSMEPage({
         }
         items.push(
           <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis className="text-emerald-600" />
+            <PaginationEllipsis className="text-[#996439]" />
           </PaginationItem>,
         );
       }
@@ -296,7 +296,7 @@ export default function MSMEPage({
                       setSearchTerm(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="pl-10 focus-visible:outline-emerald-600"
+                    className="pl-10 focus-visible:outline-[#996439]"
                   />
                   <Search
                     className="absolute left-3 top-2.5 text-gray-400"
@@ -468,7 +468,7 @@ export default function MSMEPage({
                             setCurrentPage((prev) => Math.max(prev - 1, 1))
                           }
                           className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                            "rounded-md border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white",
                             currentPage === 1 &&
                               "pointer-events-none opacity-50",
                           )}
@@ -483,7 +483,7 @@ export default function MSMEPage({
                             )
                           }
                           className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                            "rounded-md border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white",
                             currentPage === totalPages &&
                               "pointer-events-none opacity-50",
                           )}

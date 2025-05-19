@@ -99,7 +99,7 @@ const sectorIcons: Record<string, React.ReactNode> = {
 
 // Replace the getLocations function with this hardcoded object
 const ILOILO_LOCATIONS = {
-  "Iloilo City": ["City Proper", "Jaro", "La Paz", "Mandurriao", "Molo"],
+  "Iloilo City": ["Iloilo City", "Jaro", "La Paz", "Mandurriao", "Molo"],
   "1st District": [
     "Guimbal",
     "Igbaras",
@@ -137,7 +137,7 @@ const ILOILO_LOCATIONS = {
     "Dingle",
     "Dueñas",
     "Dumangas",
-    "Passi",
+    "Passi City",
     "San Enrique",
   ],
   "5th District": [
