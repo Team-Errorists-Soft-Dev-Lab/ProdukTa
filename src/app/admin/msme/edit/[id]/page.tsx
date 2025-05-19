@@ -131,6 +131,10 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     maxFiles: 5,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
     upsert: true,
+    generateFileName: (file, index) => {
+      const extension = file.name.split(".").pop();
+      return `product-${companyName.replace(/\s+/g, "-")}-${Date.now()}-${index}.${extension}`;
+    },
   });
 
   // Map state
@@ -309,7 +313,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         if (fileName.includes("storage/v1/object/public")) {
           return fileName;
         }
-        return `${supabaseUrl}/storage/v1/object/public/msme-images/products-${fileName}`;
+        return `${supabaseUrl}/storage/v1/object/public/msme-images/${fileName}`;
       });
 
       await handleUpdateMSME({
