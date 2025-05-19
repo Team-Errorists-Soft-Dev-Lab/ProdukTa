@@ -58,6 +58,7 @@ interface MSMEContextType {
     searchQuery: string,
     isDesc?: boolean,
     selectedMunicipalities?: string[],
+    selectedSector?: string,
   ) => void;
   fetchMSMEsBySector: (
     sectorName: string,
@@ -164,8 +165,19 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       searchQuery: string,
       isDesc?: boolean,
       selectedMunicipalities?: string[],
+      selectedSector?: string,
     ) => {
       if (!searchQuery || searchQuery.trim() === "") {
+        if (selectedSector) {
+          setIsSearching(false);
+          void fetchMSMEsBySector(
+            selectedSector,
+            1,
+            isDesc,
+            selectedMunicipalities,
+          );
+          return;
+        }
         setIsSearching(false);
         void fetchPagedMSMEs(1, isDesc, selectedMunicipalities);
         return;

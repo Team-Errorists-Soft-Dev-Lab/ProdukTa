@@ -64,7 +64,12 @@ export default function GuestPage() {
       if (query.trim() === "") {
         setCurrentPage(1);
         if (selectedSector) {
-          await fetchMSMEsBySector(selectedSector, 1, sort === "z-a");
+          await fetchMSMEsBySector(
+            selectedSector,
+            1,
+            sort === "z-a",
+            selectedMunicipalities,
+          );
         } else {
           await fetchPagedMSMEs(1);
         }
@@ -90,7 +95,14 @@ export default function GuestPage() {
         toast.error("Search failed. Please try again.");
       }
     },
-    [searchMSMEs, fetchPagedMSMEs, selectedSector, fetchMSMEsBySector, sort],
+    [
+      searchMSMEs,
+      fetchPagedMSMEs,
+      fetchMSMEsBySector,
+      selectedSector,
+      selectedMunicipalities,
+      sort,
+    ],
   );
 
   const handleInputChange = useCallback(
@@ -102,9 +114,19 @@ export default function GuestPage() {
         setCurrentPage(1);
         setSearchActive(false);
       }
-      searchMSMEsDebounced(query, sort === "z-a", selectedMunicipalities);
+
+      if (selectedSector) {
+        searchMSMEsDebounced(
+          query,
+          sort === "z-a",
+          selectedMunicipalities,
+          selectedSector,
+        );
+      } else {
+        searchMSMEsDebounced(query, sort === "z-a", selectedMunicipalities);
+      }
     },
-    [searchMSMEsDebounced, sort, selectedMunicipalities],
+    [searchMSMEsDebounced, sort, selectedMunicipalities, selectedSector],
   );
 
   const sortMSMEs = useCallback(
@@ -166,11 +188,15 @@ export default function GuestPage() {
       setCurrentPage(page);
       if (selectedSector !== null) {
         if (selectedSector) {
-          await fetchMSMEsBySector(selectedSector, page, sort === "z-a");
+          await fetchMSMEsBySector(
+            selectedSector,
+            page,
+            sort === "z-a",
+            selectedMunicipalities,
+          );
           return;
         }
       } else {
-        console.log("selected Municipalities: ", selectedMunicipalities);
         void fetchPagedMSMEs(page, sort === "z-a", selectedMunicipalities);
       }
     },
