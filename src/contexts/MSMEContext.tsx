@@ -54,7 +54,11 @@ interface MSMEContextType {
     municipalities?: string[],
   ) => Promise<void>;
   searchMSMEs: (searchQuery: string) => Promise<void>;
-  searchMSMEsDebounced: (searchQuery: string) => void;
+  searchMSMEsDebounced: (
+    searchQuery: string,
+    isDesc?: boolean,
+    selectedMunicipalities?: string[],
+  ) => void;
   fetchMSMEsBySector: (
     sectorName: string,
     page: number,
@@ -155,10 +159,14 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const searchMSMEsDebounced = useDebouncedCallback(
-    (searchQuery: string) => {
+    (
+      searchQuery: string,
+      isDesc?: boolean,
+      selectedMunicipalities?: string[],
+    ) => {
       if (!searchQuery || searchQuery.trim() === "") {
         setIsSearching(false);
-        void fetchPagedMSMEs(1);
+        void fetchPagedMSMEs(1, isDesc, selectedMunicipalities);
         return;
       }
 

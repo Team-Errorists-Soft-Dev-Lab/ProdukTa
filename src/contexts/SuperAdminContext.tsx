@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { PendingAdmin, Admin } from "@/types/superadmin";
 import { toast } from "sonner";
+import { fetchWithTimeout } from "@/lib/utils";
 
 interface Sector {
   id: number;

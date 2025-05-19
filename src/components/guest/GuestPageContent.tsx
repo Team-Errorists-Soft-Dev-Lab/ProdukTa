@@ -47,6 +47,8 @@ export default function GuestPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchActive, setSearchActive] = useState(false);
+  const [municipalitySearchQuery, setMunicipalitySearchQuery] =
+    useState<string>("");
 
   const msmesWithSectorNames = useMemo(() => {
     return (pagedMSMEs || []).map((msme: MSME) => ({
@@ -91,9 +93,9 @@ export default function GuestPage() {
       } else if (!query || query.trim() === "") {
         setSearchActive(false);
       }
-      searchMSMEsDebounced(query);
+      searchMSMEsDebounced(query, sort === "z-a", selectedMunicipalities);
     },
-    [searchMSMEsDebounced],
+    [searchMSMEsDebounced, sort, selectedMunicipalities],
   );
 
   const sortMSMEs = useCallback(
@@ -105,10 +107,15 @@ export default function GuestPage() {
 
         if (selectedSector) {
           // Fetch MSMEs by sector with the current sort order
-          await fetchMSMEsBySector(selectedSector, 1, isDescending);
+          await fetchMSMEsBySector(
+            selectedSector,
+            1,
+            isDescending,
+            selectedMunicipalities,
+          );
         } else {
           // Fetch all paged MSMEs with the current sort order
-          await fetchPagedMSMEs(1, isDescending);
+          await fetchPagedMSMEs(1, isDescending, selectedMunicipalities);
         }
 
         setCurrentPage(1); // Reset to the first page
@@ -117,7 +124,12 @@ export default function GuestPage() {
         toast.error("Failed to sort MSMEs. Please try again.");
       }
     },
-    [fetchPagedMSMEs, fetchMSMEsBySector, selectedSector],
+    [
+      fetchPagedMSMEs,
+      fetchMSMEsBySector,
+      selectedSector,
+      selectedMunicipalities,
+    ],
   );
 
   const displayedMSME = useMemo(() => {
@@ -162,11 +174,21 @@ export default function GuestPage() {
     [selectedSector, fetchMSMEsBySector, fetchPagedMSMEs, sort],
   );
 
+  const resetFilters = useCallback(async () => {
+    setSelectedSector(null);
+    setSelectedMunicipalities([]);
+    setSearchQuery("");
+    setMunicipalitySearchQuery("");
+    setSearchActive(false);
+    setCurrentPage(1);
+    await fetchPagedMSMEs(1);
+    setIsFilterOpen(false);
+  }, [fetchPagedMSMEs]);
+
   const handleSectorChange = useCallback(
     async (sector: string) => {
       if (sector === "All") {
-        setSelectedSector(null);
-        await fetchPagedMSMEs(1, sort === "z-a");
+        void resetFilters();
       } else {
         setSelectedSector(sector);
         setCurrentPage(1);
@@ -178,24 +200,8 @@ export default function GuestPage() {
         searchMSMEsDebounced("");
       }
     },
-    [
-      searchQuery,
-      searchMSMEsDebounced,
-      fetchMSMEsBySector,
-      fetchPagedMSMEs,
-      sort,
-    ],
+    [searchQuery, searchMSMEsDebounced, fetchMSMEsBySector, sort, resetFilters],
   );
-
-  const resetFilters = useCallback(async () => {
-    setSelectedSector(null);
-    setSelectedMunicipalities([]);
-    setSearchQuery("");
-    setSearchActive(false);
-    setCurrentPage(1);
-    await fetchPagedMSMEs(1);
-    setIsFilterOpen(false);
-  }, [fetchPagedMSMEs]);
 
   const handleMunicipalitySelection = useCallback(
     async (municipality: string) => {
@@ -275,8 +281,8 @@ export default function GuestPage() {
         <div className="fixed inset-0 z-50 flex justify-end bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300">
           <MunicipalityFilter
             setIsFilterOpen={setIsFilterOpen}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
+            searchQuery={municipalitySearchQuery}
+            setSearchQuery={setMunicipalitySearchQuery}
             handleMunicipalitySelection={handleMunicipalitySelection}
             resetFilters={resetFilters}
             selectedMunicipalities={selectedMunicipalities}
