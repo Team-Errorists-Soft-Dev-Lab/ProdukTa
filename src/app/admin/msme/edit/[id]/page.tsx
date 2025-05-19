@@ -619,12 +619,18 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                   value={yearEstablished}
                   onValueChange={setYearEstablished}
                 >
-                  <SelectTrigger id="yearEstablished" className="mt-1.5">
+                  <SelectTrigger
+                    id="yearEstablished"
+                    className={cn(
+                      "mt-1.5",
+                      errors.yearEstablished && "border-destructive",
+                    )}
+                  >
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
                   <SelectContent>
                     {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
+                      <SelectItem key={year} value={year}>
                         {year}
                       </SelectItem>
                     ))}
