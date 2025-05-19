@@ -178,7 +178,9 @@ export default function LandingPage() {
       <Header />
       <main>
         <Hero />
-        <DataSection />
+        <div id="data-section" className="scroll-smooth">
+          <DataSection />
+        </div>
 
         <section className="mx-auto max-w-7xl px-4 py-12 md:px-8">
           <div className="mb-8">

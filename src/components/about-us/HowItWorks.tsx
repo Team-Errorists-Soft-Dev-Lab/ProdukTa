@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Search, Compass, BarChart2, Download } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -7,97 +8,75 @@ const features = [
     description:
       "Quickly find MSMEs by sector, municipality, or specific keywords using our intuitive search tool.",
     icon: Search,
+    link: "/guest",
   },
   {
     title: "Explore",
     description:
       "Dive into detailed profiles of MSMEs, including their products, services, and locations.",
     icon: Compass,
+    link: "/guest",
   },
   {
     title: "Analyze",
     description:
       "Gain valuable insights with interactive charts and data, including sector trends and municipal rankings.",
     icon: BarChart2,
+    link: "/#data-section",
   },
   {
     title: "Export",
     description:
       "Download organized reports of MSME data for personal or professional use.",
     icon: Download,
+    link: "/guest-export",
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="mt-0 bg-[#f9f8f4] py-2">
-      <div className="mx-auto max-w-5xl px-3">
+    <section className="bg-[#FBF9F6] py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.h2
-          className="mb-12 text-3xl font-bold text-[#8B4513]"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ type: "spring", stiffness: 100 }}
+          className="mb-14 text-left text-4xl font-semibold tracking-tight text-[#8B4513] sm:text-5xl"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
           How It Works
         </motion.h2>
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
-              <motion.div
+              <Link
                 key={feature.title}
-                className="flex flex-col items-start rounded-lg bg-white p-6 text-left shadow-md"
-                whileHover={{ scale: 1.1 }}
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 100,
-                  delay: index * 0.1,
-                }}
-                viewport={{ once: true }}
+                href={feature.link}
+                className="group block"
+                tabIndex={0}
               >
                 <motion.div
-                  className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#8B4513]"
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  className="flex h-full cursor-pointer flex-col items-start rounded-xl bg-white p-6 text-left shadow-lg transition-shadow duration-300 ease-in-out group-hover:shadow-xl"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    delay: index * 0.15,
+                    duration: 0.5,
+                    delay: index * 0.1,
                   }}
                   viewport={{ once: true }}
                 >
-                  <IconComponent className="h-6 w-6 text-[#ffffff]" />
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-lg bg-[#8B4513] p-3">
+                    <IconComponent className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="mb-2 text-2xl font-medium text-[#8B4513]">
+                    {feature.title}
+                  </h3>
+                  <p className="text-base text-gray-600">
+                    {feature.description}
+                  </p>
                 </motion.div>
-                <motion.h3
-                  className="mb-2 text-xl font-semibold text-[#8B4513]"
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    delay: index * 0.2,
-                  }}
-                  viewport={{ once: true }}
-                >
-                  {feature.title}
-                </motion.h3>
-                <motion.p
-                  className="text-base text-muted-foreground"
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    delay: index * 0.25,
-                  }}
-                  viewport={{ once: true }}
-                >
-                  {feature.description}
-                </motion.p>
-              </motion.div>
+              </Link>
             );
           })}
         </div>
