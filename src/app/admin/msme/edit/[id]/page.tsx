@@ -303,7 +303,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         if (fileName.includes("storage/v1/object/public")) {
           return fileName;
         }
-        return `${supabaseUrl}/storage/v1/object/public/msme-images/products-${fileName}`;
+        return `${supabaseUrl}/storage/v1/object/public/msme-images/products/${fileName}`;
       });
 
       await handleUpdateMSME({
