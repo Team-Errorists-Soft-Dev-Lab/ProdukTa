@@ -57,3 +57,20 @@ export function getSectorIcon(sectorName: string): LucideIcon {
   // Return default icon if no match found
   return Building2;
 }
+
+function doFail() {
+  throw new Error("failed");
+}
+
+export async function fetchWithTimeout<T>(url: string, timeout?: number) {
+  if (!timeout) {
+    const response = await fetch(url);
+    return response.json() as T;
+  }
+
+  const t = setTimeout(doFail, timeout);
+  const request = await fetch(url);
+
+  clearTimeout(t);
+  return request.json() as T;
+}
