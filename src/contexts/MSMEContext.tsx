@@ -54,7 +54,7 @@ interface MSMEContextType {
     municipalities?: string[],
   ) => Promise<void>;
   searchMSMEs: (searchQuery: string) => Promise<void>;
-  searchMSMEsDebounced: (searchQuery: string) => void;
+  searchMSMEsDebounced: (searchQuery: string, selectedSector?: string) => void;
   fetchMSMEsBySector: (
     sectorName: string,
     page: number,
@@ -112,8 +112,6 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
             ? `/api/msme/paginated-msme/${page}?${params.toString()}`
             : `/api/msme/paginated-msme/${page}`;
 
-        console.log("URL: ", url);
-
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 
@@ -155,8 +153,14 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const searchMSMEsDebounced = useDebouncedCallback(
-    (searchQuery: string) => {
+    (searchQuery: string, selectedSector?: string) => {
       if (!searchQuery || searchQuery.trim() === "") {
+        if (selectedSector) {
+          setIsSearching(false);
+          void fetchMSMEsBySector(selectedSector, 1);
+          return;
+        }
+
         setIsSearching(false);
         void fetchPagedMSMEs(1);
         return;

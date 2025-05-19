@@ -53,7 +53,6 @@ export default function Dashboard() {
       try {
         const response = await fetch("/api/admin/export");
         const data = (await response.json()) as ExportDataProps;
-        console.log("Export data:", data);
 
         // Transform the `monthlyExportCounts` into the desired format
         const formatted = Object.entries(data.monthlyExportCounts).map(
