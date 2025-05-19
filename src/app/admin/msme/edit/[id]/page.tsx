@@ -179,9 +179,9 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSectorChange = (value: string) => {
-    setSectorId(Number(value));
-  };
+  // const handleSectorChange = (value: string) => {
+  //   setSectorId(Number(value));
+  // };
 
   // const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   if (e.target.files?.[0]) {
@@ -657,30 +657,19 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                 )}
               </div>
               <div>
-                <Label htmlFor="sectorId" className="flex items-center">
+                <Label htmlFor="sectorDisplay" className="flex items-center">
                   <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
                   Sector
                 </Label>
-                <Select
-                  value={sectorId?.toString()}
-                  onValueChange={handleSectorChange}
-                >
-                  <SelectTrigger className="mt-1.5">
-                    <SelectValue placeholder="Select sector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sectors.map((s) => (
-                      <SelectItem key={s.id} value={s.id.toString()}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.sectorId && (
-                  <p className="mt-1 text-xs text-destructive">
-                    {errors.sectorId}
-                  </p>
-                )}
+                <div className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground ring-offset-background">
+                  {sectors.find((s) => s.id === sectorId)?.name ||
+                    "Unknown Sector"}
+                </div>
+                <input
+                  type="hidden"
+                  name="sectorId"
+                  value={sectorId?.toString() || ""}
+                />
               </div>
             </div>
           </div>
