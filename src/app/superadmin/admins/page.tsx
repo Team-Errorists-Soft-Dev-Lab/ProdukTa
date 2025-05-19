@@ -51,6 +51,7 @@ export default function ManageAdmins() {
     handleAcceptAdmin,
     handleRejectAdmin,
     handleDeleteAdmin,
+    fetchAdmins,
   } = useSuperAdminContext();
 
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -75,8 +76,9 @@ export default function ManageAdmins() {
   );
 
   // Simulate loading state for better UX
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsLoading(true);
+    await fetchAdmins();
     setTimeout(() => {
       setIsLoading(false);
     }, 800);

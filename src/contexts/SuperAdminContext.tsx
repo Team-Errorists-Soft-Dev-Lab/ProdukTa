@@ -37,6 +37,7 @@ interface SuperAdminContextType {
   handleAcceptAdmin: (adminId: number) => Promise<void>;
   handleRejectAdmin: (adminId: number) => Promise<void>;
   handleDeleteAdmin: (adminId: number) => Promise<void>;
+  fetchAdmins: () => Promise<void>;
 }
 
 const SuperAdminContext = createContext<SuperAdminContextType | undefined>(
@@ -188,6 +189,7 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
         handleAcceptAdmin,
         handleRejectAdmin,
         handleDeleteAdmin,
+        fetchAdmins,
       }}
     >
       {children}
