@@ -36,7 +36,7 @@ export const municipalities = {
     "Dingle",
     "Dueñas",
     "Dumangas",
-    "Passi",
+    "Passi City",
     "San Enrique",
   ],
   "5th District": [
@@ -54,7 +54,7 @@ export const municipalities = {
   ],
   "Iloilo City": [
     "Arevalo",
-    "City Proper",
+    "Iloilo City",
     "Jaro",
     "La Paz",
     "Lapuz",
