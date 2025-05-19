@@ -215,14 +215,20 @@ export default function GuestPage() {
     setMunicipalitySearchQuery("");
     setSearchActive(false);
     setCurrentPage(1);
-    await fetchPagedMSMEs(1);
+    if (selectedSector) {
+      await fetchMSMEsBySector(selectedSector, 1);
+    } else {
+      await fetchPagedMSMEs(1);
+    }
     setIsFilterOpen(false);
-  }, [fetchPagedMSMEs]);
+  }, [fetchPagedMSMEs, fetchMSMEsBySector, selectedSector]);
 
   const handleSectorChange = useCallback(
     async (sector: string) => {
       if (sector === "All") {
-        void resetFilters();
+        setSelectedSector(null);
+        setCurrentPage(1);
+        await fetchPagedMSMEs(1);
       } else {
         setSelectedSector(sector);
         setCurrentPage(1);
@@ -243,8 +249,8 @@ export default function GuestPage() {
       searchQuery,
       searchMSMEsDebounced,
       fetchMSMEsBySector,
+      fetchPagedMSMEs,
       sort,
-      resetFilters,
       selectedMunicipalities,
     ],
   );
