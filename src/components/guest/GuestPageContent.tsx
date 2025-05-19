@@ -178,11 +178,18 @@ export default function GuestPage() {
     async (sector: string) => {
       if (sector === "All") {
         setSelectedSector(null);
-        await fetchPagedMSMEs(1, sort === "z-a");
+        setSelectedMunicipalities([]);
+        setCurrentPage(1);
+        await fetchPagedMSMEs(1, sort === "z-a", selectedMunicipalities);
       } else {
         setSelectedSector(sector);
         setCurrentPage(1);
-        await fetchMSMEsBySector(sector, 1, sort === "z-a");
+        await fetchMSMEsBySector(
+          sector,
+          1,
+          sort === "z-a",
+          selectedMunicipalities,
+        );
       }
       setSearchQuery("");
       setSearchActive(false);
@@ -196,6 +203,7 @@ export default function GuestPage() {
       fetchMSMEsBySector,
       fetchPagedMSMEs,
       sort,
+      selectedMunicipalities,
     ],
   );
 
