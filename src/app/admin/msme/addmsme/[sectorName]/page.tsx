@@ -101,11 +101,15 @@ export default function AddMSMEPage({
   const productImagesUpload = useSupabaseUpload({
     bucketName: "msme-images", // Make sure this matches your Supabase bucket
     // path: `product-gallery/${companyName.replace(/\s+/g, '-').toLowerCase() || 'unknown-msme'}`, // Dynamic path
-    path: "products",
+    path: "./",
     maxFileSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 5,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
     upsert: true,
+    generateFileName: (file, index) => {
+      const extension = file.name.split(".").pop();
+      return `product-${companyName.replace(/\s+/g, "-")}-${Date.now()}-${index}.${extension}`;
+    },
   });
 
   // Map state
@@ -300,7 +304,7 @@ export default function AddMSMEPage({
         if (fileName.includes("storage/v1/object/public")) {
           return fileName;
         }
-        return `${supabaseUrl}/storage/v1/object/public/msme-images/products/${fileName}`;
+        return `${supabaseUrl}/storage/v1/object/public/msme-images/${fileName}`;
       });
 
       await handleAddMSME({

@@ -89,6 +89,10 @@ export default function AddMSMEPage() {
     maxFiles: 5,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
     upsert: true,
+    generateFileName: (file, index) => {
+      const extension = file.name.split(".").pop();
+      return `product-${companyName.replace(/\s+/g, "-")}-${Date.now()}-${index}.${extension}`;
+    },
   });
 
   // Map state
@@ -280,16 +284,16 @@ export default function AddMSMEPage() {
 
       // Get the uploaded product image URLs
       // Get the uploaded product image URLs
-      const imageUrls = productImagesUpload.successes.map((fileName, index) => {
-        // Format the filename with company name and timestamp for uniqueness
-        const formattedName = `product-${Date.now()}-${index}`;
-
-        // Ensure the URL is properly formatted
+      const imageUrls = productImagesUpload.successes.map((fileName) => {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+        // If it's already a full URL, just return it
         if (fileName.includes("storage/v1/object/public")) {
           return fileName;
         }
-        return `${supabaseUrl}/storage/v1/object/public/msme-images/${formattedName}`;
+
+        // Otherwise, construct the URL properly
+        return `${supabaseUrl}/storage/v1/object/public/msme-images/${fileName}`;
       });
 
       await handleAddMSME({

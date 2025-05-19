@@ -52,6 +52,10 @@ type UseSupabaseUploadOptions = {
    * When set to false, an error is thrown if the object already exists. Defaults to `false`
    */
   upsert?: boolean;
+  /**
+   *
+   */
+  generateFileName?: (file: File, index: number) => string;
 };
 
 type UseSupabaseUploadReturn = ReturnType<typeof useSupabaseUpload>;
@@ -65,6 +69,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     maxFiles = 1,
     cacheControl = 3600,
     upsert = false,
+    generateFileName,
   } = options;
 
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -132,17 +137,25 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
         : files;
 
     const responses = await Promise.all(
-      filesToUpload.map(async (file) => {
+      filesToUpload.map(async (file, index) => {
+        // Generate custom filename if the option is provided
+        const fileName = generateFileName
+          ? generateFileName(file, index)
+          : file.name;
+
+        // Use the generated fileName for upload
         const { error } = await supabase.storage
           .from(bucketName)
-          .upload(!!path ? `${path}/${file.name}` : file.name, file, {
+          .upload(!!path ? `${path}/${fileName}` : fileName, file, {
             cacheControl: cacheControl.toString(),
             upsert,
           });
+
         if (error) {
           return { name: file.name, message: error.message };
         } else {
-          return { name: file.name, message: undefined };
+          // Return both the original file name and the generated file name for proper tracking
+          return { name: file.name, uploadedAs: fileName, message: undefined };
         }
       }),
     );
@@ -152,13 +165,26 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     setErrors(responseErrors);
 
     const responseSuccesses = responses.filter((x) => x.message === undefined);
+    // Store the generated filenames instead of original names for successful uploads
     const newSuccesses = Array.from(
-      new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
+      new Set([
+        ...successes,
+        ...responseSuccesses.map((x) => x.uploadedAs || x.name),
+      ]),
     );
     setSuccesses(newSuccesses);
 
     setLoading(false);
-  }, [files, path, bucketName, errors, successes]);
+  }, [
+    errors,
+    files,
+    successes,
+    generateFileName,
+    bucketName,
+    path,
+    cacheControl,
+    upsert,
+  ]);
 
   useEffect(() => {
     if (files.length === 0) {
@@ -179,7 +205,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
         setFiles(newFiles);
       }
     }
-  }, [files.length, setFiles, maxFiles]);
+  }, [files.length, setFiles, maxFiles, files]);
 
   return {
     files,

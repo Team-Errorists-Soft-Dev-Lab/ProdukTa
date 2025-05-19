@@ -87,10 +87,14 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const productImagesUpload = useSupabaseUpload({
     bucketName: "msme-images",
     path: "./",
-    maxFileSize: 10 * 1000 * 1000, // 10MB
+    maxFileSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 5,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
     upsert: true,
+    generateFileName: (file, index) => {
+      const extension = file.name.split(".").pop();
+      return `product-${companyName.replace(/\s+/g, "-")}-${Date.now()}-${index}.${extension}`;
+    },
   });
 
   // Map state
@@ -294,8 +298,14 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
       const uploadedImageUrls = productImagesUpload.successes.map(
         (fileName) => {
           const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-          if (fileName.includes("storage/v1/object/public")) return fileName;
-          return `${supabaseUrl}/storage/v1/object/public/msme-images/products/${fileName}`;
+
+          // If it's already a full URL, just return it
+          if (fileName.includes("storage/v1/object/public")) {
+            return fileName;
+          }
+
+          // Otherwise, construct the URL properly
+          return `${supabaseUrl}/storage/v1/object/public/msme-images/${fileName}`;
         },
       );
 
