@@ -126,7 +126,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   // Product gallery upload state (using useSupabaseUpload hook)
   const productImagesUpload = useSupabaseUpload({
     bucketName: "msme-images",
-    path: "products",
+    path: "./",
     maxFileSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 5,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],

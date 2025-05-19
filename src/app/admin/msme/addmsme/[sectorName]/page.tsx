@@ -101,7 +101,7 @@ export default function AddMSMEPage({
   const productImagesUpload = useSupabaseUpload({
     bucketName: "msme-images", // Make sure this matches your Supabase bucket
     // path: `product-gallery/${companyName.replace(/\s+/g, '-').toLowerCase() || 'unknown-msme'}`, // Dynamic path
-    path: "products",
+    path: "./",
     maxFileSize: 5 * 1024 * 1024, // 5MB
     maxFiles: 5,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
@@ -333,7 +333,7 @@ export default function AddMSMEPage({
 
       toast.success("MSME added successfully!");
       resetForm();
-      router.push("/superadmin/msme");
+      router.push("/admin/msme");
     } catch (error) {
       console.error("Error adding MSME:", error);
       toast.error(`Failed to add MSME"}`);
