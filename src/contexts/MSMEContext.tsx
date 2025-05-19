@@ -111,6 +111,8 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
           params.append("municipalities", municipalities.join(","));
         }
 
+        console.log("municipalities: ", municipalities);
+
         const url =
           params.toString().length > 0
             ? `/api/msme/paginated-msme/${page}?${params.toString()}`
@@ -120,6 +122,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
         if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 
         const data = (await response.json()) as PagedMSMEsResponse;
+        console.log("data: ", data);
         setPagedMSMEs(data.msmes);
         setTotalPages(data.meta.totalPages);
       } catch (error) {

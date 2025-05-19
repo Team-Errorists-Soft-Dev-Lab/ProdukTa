@@ -170,19 +170,22 @@ export default function GuestPage() {
           return;
         }
       } else {
-        fetchPagedMSMEs(page, sort === "z-a").catch((error) => {
-          console.error("Error fetching paged MSMEs:", error);
-          toast.error("Failed to fetch paged MSMEs");
-        });
+        console.log("selected Municipalities: ", selectedMunicipalities);
+        void fetchPagedMSMEs(page, sort === "z-a", selectedMunicipalities);
       }
     },
-    [selectedSector, fetchMSMEsBySector, fetchPagedMSMEs, sort],
+    [
+      fetchPagedMSMEs,
+      fetchMSMEsBySector,
+      sort,
+      selectedMunicipalities,
+      selectedSector,
+    ],
   );
 
   const resetFilters = useCallback(async () => {
-    setSelectedSector(null);
+    // setSelectedSector(null);
     setSelectedMunicipalities([]);
-    setSearchQuery("");
     setMunicipalitySearchQuery("");
     setSearchActive(false);
     setCurrentPage(1);
