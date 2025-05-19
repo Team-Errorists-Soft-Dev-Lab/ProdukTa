@@ -114,14 +114,15 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     } else {
       // MSME not found, redirect back
       toast.error("MSME not found");
-      router.push("/admin/msme");
+      router.push(`/admin/msme/${sectors[0]?.name}`);
     }
-  }, [msmeToEdit, router]);
+  }, [msmeToEdit, router, sectors]);
 
   // Logo upload state
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState(""); // Preview URL for logo
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
 
   // Product gallery upload state (using useSupabaseUpload hook)
   const productImagesUpload = useSupabaseUpload({
@@ -182,35 +183,28 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     setSectorId(Number(value));
   };
 
-  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      const file = e.target.files[0];
-      setLogoFile(file);
-      setLogoUrl(URL.createObjectURL(file)); // For preview in crop modal
-      setIsCropModalOpen(true);
-      e.target.value = ""; // Reset file input
-    }
-  };
+  // const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files?.[0]) {
+  //     const file = e.target.files[0];
+  //     setLogoFile(file);
+  //     setLogoUrl(URL.createObjectURL(file)); // For preview in crop modal
+  //     setIsCropModalOpen(true);
+  //     e.target.value = ""; // Reset file input
+  //   }
+  // };
 
   const handleLogoUpload = async (croppedFile: File) => {
-    setIsCropModalOpen(false);
-    if (!croppedFile) {
-      setLogoFile(null);
-      setLogoUrl("");
-      return;
-    }
-
-    const fileName = `logo-${Date.now()}`;
+    setIsLogoUploading(true);
     try {
-      const uploadedLogoUrl = await uploadImage(croppedFile, fileName);
-      setCompanyLogo(uploadedLogoUrl); // Store the final URL
-      setLogoUrl(uploadedLogoUrl); // Update preview to final URL
-      setErrors((prev) => ({ ...prev, companyLogo: "" })); // Clear logo error
-    } catch (error) {
-      console.error("Error uploading logo:", error);
-      toast.error("Failed to upload logo. Please try again.");
-      setCompanyLogo("");
-      setLogoUrl("");
+      const fileName = `logo-${Date.now()}`;
+      const url = await uploadImage(croppedFile, fileName);
+      setCompanyLogo(url);
+      setLogoUrl(url);
+      setLogoFile(croppedFile);
+    } catch {
+      toast.error("Failed to upload logo");
+    } finally {
+      setIsLogoUploading(false);
     }
   };
 
@@ -336,7 +330,9 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
       });
 
       toast.success("MSME updated successfully!");
-      router.push("/admin/msme");
+      router.push(
+        `/admin/msme/${sectors.find((s) => s.id === sectorId)?.name}`,
+      );
     } catch (error) {
       console.error("Error updating MSME:", error);
       toast.error("Failed to update MSME");
@@ -453,21 +449,38 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                       </Button>
                     </div>
                   )}
-                  <Input
+                  {/* <Input
                     id="companyLogoInput"
                     type="file"
                     accept="image/png, image/jpeg, image/webp"
                     onChange={handleLogoFileChange}
                     className="hidden"
-                  />
+                  /> */}
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={() =>
-                      document.getElementById("companyLogoInput")?.click()
-                    }
+                    variant="default"
+                    onClick={() => {
+                      if (logoUrl) {
+                        setCompanyLogo("");
+                        setLogoUrl("");
+                        setLogoFile(null);
+                        setIsCropModalOpen(true);
+                      } else {
+                        setIsCropModalOpen(true);
+                      }
+                    }}
+                    disabled={isLogoUploading}
                   >
-                    {logoUrl ? "Change Logo" : "Upload Logo"}
+                    {isLogoUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : logoUrl ? (
+                      "Change Logo"
+                    ) : (
+                      "Upload Logo"
+                    )}
                   </Button>
                 </div>
                 {errors.companyLogo && (

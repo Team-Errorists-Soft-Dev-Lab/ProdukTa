@@ -115,6 +115,7 @@ export default function AddMSMEPage({
     null,
   );
   const [mapZoom, setMapZoom] = useState(10);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -216,35 +217,30 @@ export default function AddMSMEPage({
     }
   };
 
-  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      const file = e.target.files[0];
-      setLogoFile(file);
-      setLogoUrl(URL.createObjectURL(file)); // For preview in crop modal
-      setIsCropModalOpen(true);
-      e.target.value = ""; // Reset file input
-    }
-  };
+  // const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files?.[0]) {
+  //     const file = e.target.files[0];
+  //     setLogoFile(file);
+  //     setLogoUrl(URL.createObjectURL(file)); // For preview in crop modal
+  //     setIsCropModalOpen(true);
+  //     e.target.value = ""; // Reset file input
+  //   }
+  // };
 
   const handleLogoUpload = async (croppedFile: File) => {
-    setIsCropModalOpen(false);
-    if (!croppedFile) {
-      setLogoFile(null);
-      setLogoUrl("");
-      return;
-    }
-
-    const fileName = `logo-${Date.now()}`;
+    setIsLogoUploading(true);
     try {
-      const uploadedLogoUrl = await uploadImage(croppedFile, fileName);
-      setCompanyLogo(uploadedLogoUrl); // Store the final URL
-      setLogoUrl(uploadedLogoUrl); // Update preview to final URL
-      setErrors((prev) => ({ ...prev, companyLogo: "" })); // Clear logo error
-    } catch (error) {
-      console.error("Error uploading logo:", error);
-      toast.error("Failed to upload logo. Please try again.");
-      setCompanyLogo("");
-      setLogoUrl("");
+      const fileName = `logo-${Date.now()}`;
+      const url = await uploadImage(croppedFile, fileName);
+      setCompanyLogo(url);
+      setLogoUrl(url);
+      setLogoFile(croppedFile);
+    } catch {
+      toast.error("Failed to upload logo");
+    } finally {
+      setIsLogoUploading(false);
     }
   };
 
@@ -329,7 +325,7 @@ export default function AddMSMEPage({
 
       toast.success("MSME added successfully!");
       resetForm();
-      router.push("/superadmin/msme");
+      router.push(`/admin/msme/${sectorName}`);
     } catch (error) {
       console.error("Error adding MSME:", error);
       toast.error(`Failed to add MSME"}`);
@@ -359,7 +355,7 @@ export default function AddMSMEPage({
         </div>
         <Button
           variant="outline"
-          onClick={() => router.push("/superadmin/msme")}
+          onClick={() => router.push(`/admin/msme/${sectorName}`)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to MSMEs
@@ -441,21 +437,32 @@ export default function AddMSMEPage({
                       </Button>
                     </div>
                   )}
-                  <Input
-                    id="companyLogoInput"
-                    type="file"
-                    accept="image/png, image/jpeg, image/webp"
-                    onChange={handleLogoFileChange}
-                    className="hidden"
-                  />
+
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={() =>
-                      document.getElementById("companyLogoInput")?.click()
-                    }
+                    variant="default"
+                    onClick={() => {
+                      if (logoUrl) {
+                        setCompanyLogo("");
+                        setLogoUrl("");
+                        setLogoFile(null);
+                        setIsCropModalOpen(true);
+                      } else {
+                        setIsCropModalOpen(true);
+                      }
+                    }}
+                    disabled={isLogoUploading}
                   >
-                    {logoUrl ? "Change Logo" : "Upload Logo"}
+                    {isLogoUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : logoUrl ? (
+                      "Change Logo"
+                    ) : (
+                      "Upload Logo"
+                    )}
                   </Button>
                 </div>
                 {errors.companyLogo && (
@@ -780,7 +787,7 @@ export default function AddMSMEPage({
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/superadmin/msme")}
+            onClick={() => router.push(`/admin/msme/${sectorName}`)}
             disabled={isSubmitting}
           >
             Cancel
