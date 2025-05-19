@@ -158,7 +158,7 @@ export default function GuestPage() {
 
   const handlePageChange = useCallback(
     async (page: number) => {
-      setCurrentPage(page); // <-- Set immediately when page changes
+      setCurrentPage(page);
       if (selectedSector !== null) {
         if (selectedSector) {
           await fetchMSMEsBySector(selectedSector, page, sort === "z-a");
