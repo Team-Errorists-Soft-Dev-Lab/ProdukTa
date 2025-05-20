@@ -26,11 +26,17 @@ export default function AdminLayout({
       <MSMEProvider>
         <ExportDetailsProvider>
           <VisitorProvider>
-            <div className="flex h-full overflow-hidden bg-gray-100">
-              <Sidebar />
-              <div className="flex flex-1 flex-col overflow-hidden">
-                <Navbar />
-                <main className="bg-gray-100 p-2">{children}</main>
+            <div className="flex h-screen bg-gray-100">
+              <div className="overflow-hidden">
+                <Sidebar />
+              </div>
+              <div className="flex flex-1 flex-col overflow-auto">
+                <div className="sticky bottom-0 top-0 z-30">
+                  <Navbar />
+                </div>
+                <main className="overflow-auto bg-gray-100 p-2">
+                  {children}
+                </main>
               </div>
             </div>
           </VisitorProvider>

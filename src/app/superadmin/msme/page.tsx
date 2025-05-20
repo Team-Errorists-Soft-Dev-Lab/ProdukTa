@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,6 @@ import {
   FileDown,
 } from "lucide-react";
 import { useMSMEContext } from "@/contexts/MSMEContext";
-// import AddMSMEModal from "@/components/modals/AddMSMEModal";
-// import EditMSMEModal from "@/components/modals/EditMSMEModal";
 import type { MSME } from "@/types/MSME";
 import { MSMETableView } from "@/components/msme/MSMETable";
 import { cn } from "@/lib/utils";
@@ -54,7 +52,6 @@ import {
   filterMSMEs,
   sortMSMEs,
 } from "@/lib/msme-utils";
-// import type { MSMEWithProducts } from "@/lib/msme-utils";
 import Link from "next/link";
 
 export default function ManageMSME() {
@@ -63,9 +60,6 @@ export default function ManageMSME() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
-  // const [isAddMSMEModalOpen, setIsAddMSMEModalOpen] = useState(false);
-  // const [isEditMSMEModalOpen, setIsEditMSMEModalOpen] = useState(false);
-  // const [currentMSME, setCurrentMSME] = useState<MSMEWithProducts | null>(null);
   const [sortState, setSortState] = useState<SortState>({
     column: "",
     direction: "default",
@@ -112,8 +106,6 @@ export default function ManageMSME() {
   };
 
   const handleEdit = (msme: MSME) => {
-    // setCurrentMSME(msme as MSMEWithProducts);
-    // setIsEditMSMEModalOpen(true);
     router.push(`/superadmin/msme/edit-msme/${msme.id}`);
   };
 
@@ -211,7 +203,7 @@ export default function ManageMSME() {
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-auto p-4 md:p-6">
+    <div className="flex h-full flex-col p-4 md:p-6">
       <div className="flex h-full flex-col">
         <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
           <div className="flex items-center gap-2">
@@ -229,7 +221,7 @@ export default function ManageMSME() {
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-visible px-0">
+        <CardContent className="flex flex-1 flex-col overflow-hidden px-0">
           <div className="mb-4 flex-none">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -384,8 +376,8 @@ export default function ManageMSME() {
               </div>
             </div>
           </div>
-          <div className="flex h-[calc(100%-4rem)] flex-col overflow-auto">
-            <div className="flex-1">
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex-1 overflow-auto">
               <MSMETableView
                 msmes={paginatedMSMEs}
                 isLoading={isLoading}
@@ -403,7 +395,7 @@ export default function ManageMSME() {
             </div>
 
             {totalPages > 1 && (
-              <div className="flex-none border-t bg-white py-4">
+              <div className="flex-none border-t bg-white">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-500">
                     Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
@@ -446,16 +438,6 @@ export default function ManageMSME() {
           </div>
         </CardContent>
       </div>
-
-      {/* <AddMSMEModal
-        isOpen={isAddMSMEModalOpen}
-        onClose={() => setIsAddMSMEModalOpen(false)}
-      /> */}
-      {/* <EditMSMEModal
-        isOpen={isEditMSMEModalOpen}
-        onClose={() => setIsEditMSMEModalOpen(false)}
-        msme={currentMSME}
-      /> */}
     </div>
   );
 }
