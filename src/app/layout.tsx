@@ -9,7 +9,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className="h-full overflow-y-auto">
+      <body className="h-full overflow-y-hidden">
         <AuthProvider>{children}</AuthProvider>
         <Toaster richColors position="bottom-right" closeButton />
       </body>

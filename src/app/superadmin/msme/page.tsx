@@ -211,7 +211,7 @@ export default function ManageMSME() {
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
+    <div className="h-screen max-h-screen overflow-auto p-4 md:p-6">
       <div className="flex h-full flex-col">
         <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
           <div className="flex items-center gap-2">
@@ -384,8 +384,8 @@ export default function ManageMSME() {
               </div>
             </div>
           </div>
-          <div className="flex h-[calc(100%-4rem)] flex-col overflow-hidden">
-            <div className="flex-1 overflow-auto">
+          <div className="flex h-[calc(100%-4rem)] flex-col overflow-auto">
+            <div className="flex-1">
               <MSMETableView
                 msmes={paginatedMSMEs}
                 isLoading={isLoading}

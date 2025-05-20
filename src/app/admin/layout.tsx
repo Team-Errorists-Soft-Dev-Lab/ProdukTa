@@ -28,7 +28,7 @@ export default function AdminLayout({
           <VisitorProvider>
             <div className="flex h-full overflow-hidden bg-gray-100">
               <Sidebar />
-              <div className="flex flex-1 flex-col overflow-y-auto">
+              <div className="flex flex-1 flex-col overflow-hidden">
                 <Navbar />
                 <main className="bg-gray-100 p-2">{children}</main>
               </div>
