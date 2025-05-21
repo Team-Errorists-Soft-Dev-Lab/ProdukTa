@@ -21,7 +21,9 @@ export default function SuperAdminLayout({
         <div className="flex h-screen overflow-hidden bg-gray-100">
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-auto">
-            <main className="flex-1 overflow-auto bg-gray-100">{children}</main>
+            <main className="relative flex-1 overflow-auto bg-gray-100">
+              {children}
+            </main>
           </div>
         </div>
       </MSMEProvider>
