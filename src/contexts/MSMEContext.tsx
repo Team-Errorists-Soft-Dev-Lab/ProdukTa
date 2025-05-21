@@ -54,7 +54,12 @@ interface MSMEContextType {
     municipalities?: string[],
   ) => Promise<void>;
   searchMSMEs: (searchQuery: string) => Promise<void>;
-  searchMSMEsDebounced: (searchQuery: string, selectedSector?: string) => void;
+  searchMSMEsDebounced: (
+    searchQuery: string,
+    isDesc?: boolean,
+    selectedMunicipalities?: string[],
+    selectedSector?: string,
+  ) => void;
   fetchMSMEsBySector: (
     sectorName: string,
     page: number,
@@ -107,6 +112,8 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
           params.append("municipalities", municipalities.join(","));
         }
 
+        console.log("municipalities: ", municipalities);
+
         const url =
           params.toString().length > 0
             ? `/api/msme/paginated-msme/${page}?${params.toString()}`
@@ -116,6 +123,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
         if (!response.ok) throw new Error("Failed to fetch paged MSMEs");
 
         const data = (await response.json()) as PagedMSMEsResponse;
+        console.log("data: ", data);
         setPagedMSMEs(data.msmes);
         setTotalPages(data.meta.totalPages);
       } catch (error) {
@@ -153,16 +161,25 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const searchMSMEsDebounced = useDebouncedCallback(
-    (searchQuery: string, selectedSector?: string) => {
+    (
+      searchQuery: string,
+      isDesc?: boolean,
+      selectedMunicipalities?: string[],
+      selectedSector?: string,
+    ) => {
       if (!searchQuery || searchQuery.trim() === "") {
         if (selectedSector) {
           setIsSearching(false);
-          void fetchMSMEsBySector(selectedSector, 1);
+          void fetchMSMEsBySector(
+            selectedSector,
+            1,
+            isDesc,
+            selectedMunicipalities,
+          );
           return;
         }
-
         setIsSearching(false);
-        void fetchPagedMSMEs(1);
+        void fetchPagedMSMEs(1, isDesc, selectedMunicipalities);
         return;
       }
 
