@@ -254,7 +254,11 @@ export default function Dashboard() {
                 <Spinner />
               </div>
             ) : (
-              <ExportsLineChart data={lineChartData} option={option} />
+              <ExportsLineChart
+                data={lineChartData}
+                option={option}
+                color={"#059669"}
+              />
             )}
           </CardContent>
         </Card>

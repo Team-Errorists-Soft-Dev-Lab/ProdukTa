@@ -53,7 +53,7 @@ export default function MSMEPage({
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(8);
   const [sortState, setSortState] = useState<SortState>({
     column: "",
     direction: "default",
@@ -265,7 +265,7 @@ export default function MSMEPage({
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden">
+    <div className="flex h-full flex-col">
       <div className="flex h-full flex-col">
         <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
           <div className="flex items-center gap-2">
@@ -283,7 +283,7 @@ export default function MSMEPage({
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-visible px-0">
+        <CardContent className="flex flex-1 flex-col overflow-hidden px-0">
           <div className="mb-4 flex-none">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -435,7 +435,7 @@ export default function MSMEPage({
               </div>
             </div>
           </div>
-          <div className="flex h-[calc(100%-4rem)] flex-col overflow-hidden">
+          <div className="flex flex-1 flex-col overflow-hidden pb-16">
             <div className="flex-1 overflow-auto">
               <MSMETableView
                 msmes={paginatedMSMEs}
@@ -452,49 +452,53 @@ export default function MSMEPage({
                 onSelectAll={handleSelectAll}
               />
             </div>
-
-            {totalPages > 1 && (
-              <div className="flex-none border-t bg-white py-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
-                    entries
-                  </div>
-                  <Pagination>
-                    <PaginationContent className="gap-2">
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() =>
-                            setCurrentPage((prev) => Math.max(prev - 1, 1))
-                          }
-                          className={cn(
-                            "rounded-md border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white",
-                            currentPage === 1 &&
-                              "pointer-events-none opacity-50",
-                          )}
-                        />
-                      </PaginationItem>
-                      {renderPaginationItems()}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() =>
-                            setCurrentPage((prev) =>
-                              Math.min(prev + 1, totalPages),
-                            )
-                          }
-                          className={cn(
-                            "rounded-md border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white",
-                            currentPage === totalPages &&
-                              "pointer-events-none opacity-50",
-                          )}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              </div>
-            )}
           </div>
+          {totalPages > 1 && (
+            <div
+              className="fixed bottom-0 z-50 border-t bg-white py-4"
+              style={{
+                left: "16rem", // 16rem = 256px = w-64
+                width: "calc(100vw - 16rem)",
+              }}
+            >
+              <div className="flex w-full flex-col items-center justify-center gap-2">
+                <div className="text-sm text-gray-500">
+                  Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
+                  entries
+                </div>
+                <Pagination>
+                  <PaginationContent className="gap-2">
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        className={cn(
+                          "rounded-md border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white",
+                          currentPage === 1 && "pointer-events-none opacity-50",
+                        )}
+                      />
+                    </PaginationItem>
+                    {renderPaginationItems()}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages),
+                          )
+                        }
+                        className={cn(
+                          "rounded-md border-[#996439] text-[#996439] hover:bg-[#996439] hover:text-white",
+                          currentPage === totalPages &&
+                            "pointer-events-none opacity-50",
+                        )}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            </div>
+          )}
         </CardContent>
       </div>
     </div>
