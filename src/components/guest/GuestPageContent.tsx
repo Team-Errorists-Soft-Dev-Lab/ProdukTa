@@ -228,7 +228,7 @@ export default function GuestPage() {
       if (sector === "All") {
         setSelectedSector(null);
         setCurrentPage(1);
-        await fetchPagedMSMEs(1);
+        await fetchPagedMSMEs(1, sort === "z-a", selectedMunicipalities);
       } else {
         setSelectedSector(sector);
         setCurrentPage(1);
