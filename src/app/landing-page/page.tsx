@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import Reference from "@/components/landing-page/Reference";
 import { SECTOR_COLORS } from "@/lib/sector-colors";
 import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const DynamicBarChart2 = dynamic(
   () => import("@/components/landing-page/BarChart"),
@@ -167,53 +168,133 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#fafafa] via-[#f9f8f4] to-[#f5f4f0]">
       <Header />
-      <main>
+      <main className="relative">
         <Hero />
         <div id="data-section" className="scroll-smooth">
           <DataSection />
         </div>
 
-        <section className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-          <div className="mb-8">
-            <h2 className="mb-2 text-center text-3xl font-bold text-[#8B4513]">
+        <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 md:px-8 md:py-16 lg:py-20">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute left-0 top-20 h-64 w-64 rounded-full bg-gradient-to-r from-[#8B4513]/5 to-transparent blur-3xl" />
+            <div className="absolute bottom-20 right-0 h-64 w-64 rounded-full bg-gradient-to-l from-[#8B4513]/5 to-transparent blur-3xl" />
+
+            {/* Mobile-specific decorative elements */}
+            <div className="from-[#8B4513]/8 absolute left-4 top-16 h-20 w-20 rounded-full bg-gradient-to-br to-transparent blur-2xl md:hidden" />
+            <div className="from-[#8B4513]/6 absolute bottom-16 right-6 h-16 w-16 rounded-full bg-gradient-to-tl to-transparent blur-xl md:hidden" />
+          </div>
+
+          <div className="relative mb-8 text-center md:mb-12">
+            <motion.div
+              className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/60 px-4 py-2 backdrop-blur-sm sm:mb-6 sm:px-6"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <div className="h-2 w-2 animate-pulse rounded-full bg-[#8B4513]" />
+              <span className="text-xs font-semibold text-[#8B4513] sm:text-sm">
+                Data Insights
+              </span>
+            </motion.div>
+
+            <motion.h2
+              className="mb-3 bg-gradient-to-r from-[#8B4513] via-[#8B4513] to-[#6d3610] bg-clip-text text-3xl font-bold text-transparent sm:text-4xl md:mb-4 md:text-5xl"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
               Sector Distribution Analysis
-            </h2>
-            <p className="mx-auto max-w-2xl text-center text-[#8B4513] text-muted-foreground">
+            </motion.h2>
+
+            <motion.p
+              className="mx-auto max-w-3xl text-base text-neutral-600 sm:text-lg md:text-xl"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
               Visualizing MSME distribution across different sectors and
-              locations
-            </p>
+              locations to understand the economic landscape of Iloilo
+            </motion.p>
           </div>
 
           {error && (
-            <div className="mb-8 rounded-lg bg-red-50 p-6 text-center">
-              <p className="text-red-500">{error}</p>
-            </div>
+            <motion.div
+              className="mb-6 rounded-xl border border-red-100 bg-red-50/80 p-4 text-center backdrop-blur-sm sm:mb-8 sm:rounded-2xl sm:p-6"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-sm font-medium text-red-600 sm:text-base">
+                {error}
+              </p>
+            </motion.div>
           )}
 
           {isLoading ? (
-            <section className="flex justify-center bg-[#f9f8f4] py-10">
-              <div className="flex w-full max-w-6xl flex-col items-center justify-center py-10">
-                <Loader2 className="h-12 w-12 animate-spin text-[#8B4513]" />
-                <p className="mt-4 text-[#120f0c]/80">Loading MSME data...</p>
+            <motion.div
+              className="flex justify-center py-12 md:py-16"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/60 p-8 backdrop-blur-sm sm:rounded-2xl sm:p-12">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                >
+                  <Loader2 className="h-10 w-10 text-[#8B4513] sm:h-12 sm:w-12" />
+                </motion.div>
+                <p className="mt-3 text-base text-[#120f0c]/80 sm:mt-4 sm:text-lg">
+                  Loading chart data...
+                </p>
               </div>
-            </section>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-1 justify-items-center gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <motion.div
+              className="grid grid-cols-1 justify-items-center gap-4 sm:gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
               {chartData.slice(0, 6).map((chart, index) => (
-                <div key={index} className="w-full rounded-lg bg-card p-4">
+                <motion.div
+                  key={index}
+                  className="group w-full rounded-xl border border-white/20 bg-white/60 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/80 hover:shadow-xl sm:rounded-2xl sm:p-6 md:hover:-translate-y-2"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.05,
+                  }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
                   <DynamicBarChart2
                     data={chart.data}
                     label={chart.label}
                     color={chart.color}
                   />
-                </div>
+                </motion.div>
               ))}
 
               {chartData.length === 7 && (
-                <div className="col-span-1 mx-auto flex w-full max-w-md justify-center md:col-span-2 lg:col-span-3">
-                  <div className="w-full rounded-lg bg-card p-4">
+                <motion.div
+                  className="col-span-1 mx-auto flex w-full max-w-md justify-center md:col-span-2 lg:col-span-3"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="w-full rounded-xl border border-white/20 bg-white/60 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:bg-white/80 hover:shadow-xl sm:rounded-2xl sm:p-6">
                     {chartData[6] && (
                       <DynamicBarChart2
                         data={chartData[6].data}
@@ -222,9 +303,9 @@ export default function LandingPage() {
                       />
                     )}
                   </div>
-                </div>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
           )}
         </section>
 
