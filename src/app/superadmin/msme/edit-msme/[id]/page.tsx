@@ -66,7 +66,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const [provinceAddress, setProvinceAddress] = useState("");
   const [cityMunicipalityAddress, setCityMunicipalityAddress] = useState("");
   const [barangayAddress, setBarangayAddress] = useState("");
-  const [yearEstablished, setYearEstablished] = useState<string>("");
+  const [yearEstablished, setYearEstablished] = useState("");
   const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
   const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
@@ -659,8 +659,8 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
               </div>
               <div>
                 <Label htmlFor="dtiNumber" className="flex items-center">
-                  <Hash className="mr-2 h-6 w-4 text-muted-foreground" /> DTI
-                  Number <span className="ml-1 text-red-500">*</span>
+                  <Hash className="mr-2 h-6 w-4 text-muted-foreground" />
+                  DTI Number <span className="ml-1 text-red-500">*</span>
                 </Label>
                 <Input
                   id="dtiNumber"
@@ -682,8 +682,8 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
               </div>
               <div>
                 <Label htmlFor="sectorId" className="flex items-center">
-                  <Tag className="mr-2 h-6 w-4 text-muted-foreground" /> Sector{" "}
-                  <span className="ml-1 text-red-500">*</span>
+                  <Tag className="mr-2 h-6 w-4 text-muted-foreground" />
+                  Sector <span className="ml-1 text-red-500">*</span>
                 </Label>
                 <Select
                   onValueChange={handleSectorChange}
