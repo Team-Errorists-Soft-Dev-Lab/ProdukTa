@@ -75,10 +75,12 @@ h6 {
 
 /* Pagination dots color */
 .swiper-pagination-bullet {
-  @apply bg-[#996439] opacity-70 !important;
+  background-color: rgba(139, 69, 19, 0.3) !important;
+  opacity: 1 !important;
 }
 
 /* Active pagination dot */
 .swiper-pagination-bullet-active {
-  @apply bg-[#704d2d] opacity-100 !important;
+  background-color: rgb(139, 69, 19) !important;
+  opacity: 1 !important;
 }
