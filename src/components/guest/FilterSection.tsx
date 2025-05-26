@@ -204,15 +204,20 @@ export function SectorFilter({
                   const Icon = getSectorIcon(
                     sector.name,
                   ) as React.ComponentType;
+                  const isSelected = selectedSector.includes(sector.name);
                   return (
                     <div
                       key={sector.id}
-                      className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-[#8B4513] hover:text-white"
+                      className={`flex cursor-pointer items-center gap-2 px-2 py-1 ${
+                        isSelected
+                          ? "bg-[#8B4513] text-white"
+                          : "hover:bg-[#8B4513] hover:text-white"
+                      }`}
                       onClick={() => toggleSector(sector.name)}
                     >
                       <Checkbox
-                        checked={selectedSector.includes(sector.name)}
-                        className="mr-2"
+                        checked={isSelected}
+                        className="mr-2 border-white"
                       />
                       {Icon && <Icon />}
                       {sector.name}
@@ -227,26 +232,23 @@ export function SectorFilter({
           <div className="hidden w-full grid-cols-2 gap-2 md:grid lg:hidden xl:grid-cols-3">
             <Button
               variant={selectedSector.length === 0 ? "secondary" : "outline"}
-              className="flex w-full items-center justify-start gap-2 bg-[#bb987a] text-sm text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+              className={`flex w-full items-center justify-start gap-2 text-sm outline-[#bb987a] ${selectedSector.length === 0 ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
               onClick={() => handleSectorChange([])}
             >
               All
             </Button>
             {sectors.map((sector) => {
               const Icon = getSectorIcon(sector.name) as React.ComponentType;
+              const isSelected = selectedSector.includes(sector.name);
               return (
                 <Button
                   key={sector.id}
-                  variant={
-                    selectedSector.includes(sector.name)
-                      ? "secondary"
-                      : "outline"
-                  }
-                  className="flex w-full items-center justify-start gap-2 bg-[#bb987a] text-sm text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+                  variant={isSelected ? "secondary" : "outline"}
+                  className={`flex w-full items-center justify-start gap-2 text-sm outline-[#bb987a] ${isSelected ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
                   onClick={() => toggleSector(sector.name)}
                 >
                   <Checkbox
-                    checked={selectedSector.includes(sector.name)}
+                    checked={isSelected}
                     className="mr-1 border-white"
                   />
                   <Icon />
@@ -260,26 +262,23 @@ export function SectorFilter({
           <div className="hidden w-full flex-wrap gap-2 pb-2 lg:flex xl:flex-nowrap xl:gap-4">
             <Button
               variant={selectedSector.length === 0 ? "secondary" : "outline"}
-              className="min-w-fit flex-grow bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+              className={`min-w-fit flex-grow outline-[#bb987a] ${selectedSector.length === 0 ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
               onClick={() => handleSectorChange([])}
             >
               All
             </Button>
             {sectors.map((sector) => {
               const Icon = getSectorIcon(sector.name) as React.ComponentType;
+              const isSelected = selectedSector.includes(sector.name);
               return (
                 <Button
                   key={sector.id}
-                  variant={
-                    selectedSector.includes(sector.name)
-                      ? "secondary"
-                      : "outline"
-                  }
-                  className="flex min-w-fit flex-grow items-center gap-2 whitespace-nowrap bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+                  variant={isSelected ? "secondary" : "outline"}
+                  className={`flex min-w-fit flex-grow items-center gap-2 whitespace-nowrap outline-[#bb987a] ${isSelected ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
                   onClick={() => toggleSector(sector.name)}
                 >
                   <Checkbox
-                    checked={selectedSector.includes(sector.name)}
+                    checked={isSelected}
                     className="mr-2 border-white"
                   />
                   <Icon />
