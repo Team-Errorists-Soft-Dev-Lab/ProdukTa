@@ -12,20 +12,8 @@ import {
 } from "recharts";
 import type { BarChart2Props } from "@/types/charts";
 
-// Replace the MSMEPerSector array with the hardcoded SECTOR_COLORS object
-export const SECTOR_COLORS = {
-  Coffee: "#000000",
-  Cacao: "#8B4513", // Saddle brown for chocolate
-  Coconut: "#FF0000", // Tropical green for coconut
-  "Processed Foods": "#FFA500", // Burnt orange for food processing
-  "Wearables and Homestyles": "#8A2BE2", // Dark blue for fashion/home
-  Bamboo: "#6B8E23", // Fresh bamboo green
-  "IT-BPM": "#2196F3", // Strong blue for technology
-} as const;
+import { SECTOR_COLORS, type SectorColorKey } from "@/lib/sector-colors";
 
-export type SectorColorKey = keyof typeof SECTOR_COLORS;
-
-// Update the getSectorInfo function to use the SECTOR_COLORS object
 const getSectorInfo = (sectorName: string) => {
   // Check for exact match first
   if (sectorName in SECTOR_COLORS) {

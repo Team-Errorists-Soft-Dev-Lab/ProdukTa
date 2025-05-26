@@ -31,7 +31,7 @@ const SECTOR_ICONS: Record<
   "IT - BPM": Monitor,
 };
 
-// Hard-coded sector colors
+// Enhanced sector colors with gradients
 const SECTOR_COLORS = {
   "Processed Foods": "#FF8C00", // Dark orange
   Bamboo: "#4CAF50",
@@ -120,10 +120,31 @@ export default function DataSection() {
   // Show loading state
   if (isLoading) {
     return (
-      <section className="flex justify-center bg-[#f9f8f4] py-10">
-        <div className="flex w-full max-w-6xl flex-col items-center justify-center py-10">
-          <Loader2 className="h-12 w-12 animate-spin text-[#8B4513]" />
-          <p className="mt-4 text-[#120f0c]/80">Loading MSME data...</p>
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#f9f8f4] via-[#faf9f6] to-[#f5f4f0] py-16">
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #8B4513 1px, transparent 0)",
+            backgroundSize: "20px 20px",
+          }}
+        />
+        <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center justify-center px-4 py-16">
+          <motion.div
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-white/80 shadow-lg backdrop-blur-sm"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            <Loader2 className="h-8 w-8 text-[#8B4513]" />
+          </motion.div>
+          <motion.p
+            className="mt-6 text-lg text-[#120f0c]/80"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            Loading MSME data...
+          </motion.p>
         </div>
       </section>
     );
@@ -132,16 +153,33 @@ export default function DataSection() {
   // Show error state
   if (error) {
     return (
-      <section className="flex justify-center bg-[#f9f8f4] py-10">
-        <div className="flex w-full max-w-6xl flex-col items-center justify-center py-10">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <p className="mt-2 text-red-500">{error}</p>
-          <button
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#f9f8f4] via-[#faf9f6] to-[#f5f4f0] py-16">
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #8B4513 1px, transparent 0)",
+            backgroundSize: "20px 20px",
+          }}
+        />
+        <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center justify-center px-4 py-16">
+          <motion.div
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 shadow-lg"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200 }}
+          >
+            <AlertCircle className="h-8 w-8 text-red-500" />
+          </motion.div>
+          <p className="mt-4 text-lg text-red-600">{error}</p>
+          <motion.button
             onClick={() => window.location.reload()}
-            className="mt-4 rounded-md bg-[#8B4513] px-4 py-2 text-white hover:bg-[#6d3610]"
+            className="mt-6 rounded-full bg-gradient-to-r from-[#8B4513] to-[#6d3610] px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-[#8B4513]/25"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Retry
-          </button>
+          </motion.button>
         </div>
       </section>
     );
@@ -150,28 +188,100 @@ export default function DataSection() {
   return (
     <section
       id="data-section"
-      className="flex justify-center bg-[#f9f8f4] py-4 md:py-8"
+      className="relative overflow-hidden bg-gradient-to-br from-[#f9f8f4] via-[#faf9f6] to-[#f5f4f0] py-12 md:py-16 lg:py-20"
     >
-      <div className="w-full max-w-6xl px-4 md:px-6">
-        <motion.h2
-          className="mb-6 text-center text-2xl font-bold text-[#8B4513] md:text-3xl"
-          initial={{ opacity: 0, y: -20 }}
+      {/* Background Pattern */}
+      <div
+        className="absolute inset-0 opacity-20 md:opacity-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1px 1px, #8B4513 1px, transparent 0)",
+          backgroundSize: "15px 15px",
+        }}
+      />
+
+      {/* Floating decorative elements - adjusted for mobile */}
+      <motion.div
+        className="absolute left-4 top-16 hidden md:left-8 md:top-20 lg:block"
+        animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/60 shadow-lg backdrop-blur-sm md:h-14 md:w-14">
+          <Shirt className="h-6 w-6 text-[#9C27B0] md:h-7 md:w-7" />
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="absolute right-4 top-24 hidden md:right-12 md:top-32 lg:block"
+        animate={{ y: [0, 12, 0], rotate: [0, -5, 0] }}
+        transition={{
+          duration: 5,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2,
+        }}
+      >
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/50 shadow-md backdrop-blur-sm md:h-12 md:w-12">
+          <Coffee className="h-5 w-5 text-[#000000] md:h-6 md:w-6" />
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="absolute bottom-20 left-8 hidden lg:block"
+        animate={{ y: [0, -10, 0], rotate: [0, 8, 0] }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 4,
+        }}
+      >
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/55 shadow-md backdrop-blur-sm">
+          <Palmtree className="h-5 w-5 text-[#FF0000]" />
+        </div>
+      </motion.div>
+
+      <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 md:px-8">
+        {/* Enhanced Header */}
+        <motion.div
+          className="mb-8 text-center md:mb-12"
+          initial={{ opacity: 0, y: -30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 100 }}
           viewport={{ once: true }}
         >
-          MSME Overview
-        </motion.h2>
+          <motion.h2
+            className="mb-3 bg-gradient-to-r from-[#8B4513] via-[#8B4513] to-[#6d3610] bg-clip-text text-3xl font-bold text-transparent sm:text-4xl md:mb-4 md:text-5xl"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            MSME Overview
+          </motion.h2>
+          <motion.p
+            className="mx-auto max-w-2xl text-base text-neutral-600 sm:text-lg"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            Explore the diverse landscape of Micro, Small, and Medium
+            Enterprises driving Iloilo&apos;s economic growth across various
+            sectors
+          </motion.p>
+        </motion.div>
 
+        {/* Enhanced Sector Cards - Mobile-first grid */}
         <motion.div
-          className="mb-6 rounded-lg bg-white p-4 shadow-md"
-          initial={{ opacity: 0, y: 20 }}
+          className="mb-8 rounded-2xl border border-white/20 bg-white/60 p-4 shadow-xl backdrop-blur-sm sm:rounded-3xl sm:p-6 md:mb-12 md:p-8"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
           viewport={{ once: true }}
         >
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-            {msmeData.map((sector) => {
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 md:gap-6 lg:grid-cols-7">
+            {msmeData.map((sector, index) => {
               // Get the icon for this sector or use a default
               const SectorIcon = SECTOR_ICONS[sector.sectorName] || UsersRound;
               // Get the color for this sector or use a default
@@ -183,49 +293,107 @@ export default function DataSection() {
               return (
                 <motion.div
                   key={sector.sectorId}
-                  className="flex flex-col items-center justify-center rounded-lg bg-white/50 p-4 transition-colors hover:bg-white/80"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  className="group relative overflow-hidden rounded-xl bg-white/70 p-3 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/90 hover:shadow-xl sm:rounded-2xl sm:p-4 md:p-6 md:hover:-translate-y-2"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    delay: index * 0.05,
+                  }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <SectorIcon
-                    style={{ color: sectorColor }}
-                    className="mb-3 h-10 w-10"
+                  {/* Gradient overlay */}
+                  <div
+                    className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-10 sm:rounded-2xl"
+                    style={{
+                      background: `linear-gradient(135deg, ${sectorColor}20, ${sectorColor}05)`,
+                    }}
                   />
-                  <RollingNumber value={sector.count} />
-                  <p
-                    className={`sectorName mt-2 text-center text-sm font-medium`}
-                  >
-                    {sector.sectorName}
-                  </p>
+
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <motion.div
+                      className="mb-2 flex h-10 w-10 items-center justify-center rounded-full shadow-md sm:mb-3 sm:h-12 sm:w-12 md:mb-4 md:h-16 md:w-16 md:shadow-lg"
+                      style={{
+                        background: `linear-gradient(135deg, ${sectorColor}15, ${sectorColor}05)`,
+                        border: `2px solid ${sectorColor}20`,
+                      }}
+                      whileHover={{ rotate: 180 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <SectorIcon
+                        style={{ color: sectorColor }}
+                        className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8"
+                      />
+                    </motion.div>
+
+                    <motion.div
+                      className="mb-1 sm:mb-2"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      <span className="text-lg font-bold sm:text-xl md:text-3xl lg:text-4xl">
+                        <RollingNumber value={sector.count} />
+                      </span>
+                    </motion.div>
+
+                    <p className="text-xs font-semibold leading-tight text-neutral-700 sm:text-sm">
+                      {sector.sectorName}
+                    </p>
+                  </div>
                 </motion.div>
               );
             })}
           </div>
         </motion.div>
 
+        {/* Enhanced Total Summary - Mobile optimized */}
         <motion.div
-          className="rounded-lg bg-white p-4 shadow-md md:p-6"
-          initial={{ opacity: 0, y: 20 }}
+          className="rounded-2xl border border-white/20 bg-gradient-to-br from-white/80 to-white/60 p-6 shadow-xl backdrop-blur-sm sm:rounded-3xl sm:p-8 md:p-10"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
           viewport={{ once: true }}
         >
-          <div className="flex flex-col items-center gap-4 md:flex-row">
-            <motion.div whileHover={{ scale: 1.1 }} className="flex-shrink-0">
-              <UsersRound className="h-12 w-12 text-[#8B4513] md:h-16 md:w-16" />
+          <div className="flex flex-col items-center gap-4 sm:gap-6 md:flex-row md:gap-8">
+            <motion.div
+              className="flex-shrink-0"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#8B4513]/20 to-[#8B4513]/10 shadow-lg sm:h-20 sm:w-20 md:h-24 md:w-24">
+                <UsersRound className="h-8 w-8 text-[#8B4513] sm:h-10 sm:w-10 md:h-12 md:w-12" />
+              </div>
             </motion.div>
+
             <div className="flex flex-col text-center md:text-left">
               <motion.div
-                className="flex items-baseline justify-center gap-2 md:justify-start"
+                className="flex items-baseline justify-center gap-2 md:justify-start md:gap-3"
                 whileHover={{ scale: 1.05 }}
               >
-                <span className="text-4xl font-bold text-[#120f0c] md:text-5xl">
+                <span className="bg-gradient-to-r from-[#8B4513] to-[#6d3610] bg-clip-text text-4xl font-bold text-transparent sm:text-5xl md:text-6xl">
                   <RollingNumber value={totalMSMEs} />
                 </span>
+                <span className="text-xl font-semibold text-[#8B4513] sm:text-2xl">
+                  +
+                </span>
               </motion.div>
-              <p className="text-base text-[#120f0c]/80 md:text-lg">
+
+              <p className="text-base font-medium text-neutral-700 sm:text-lg md:text-xl">
                 Total registered MSMEs across all sectors
               </p>
+
+              <motion.p
+                className="mt-1 text-xs text-neutral-500 sm:mt-2 sm:text-sm"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                viewport={{ once: true }}
+              >
+                Driving economic growth and innovation in Iloilo
+              </motion.p>
             </div>
           </div>
         </motion.div>
