@@ -78,6 +78,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState(""); // For preview in crop modal and display
   const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [isAddingImages, setIsAddingImages] = useState(false);
 
   // Product gallery state
   const [currentProductGallery, setCurrentProductGallery] = useState<string[]>(
@@ -287,11 +288,19 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
 
   const handleReplaceAllImages = () => {
     setIsReplacingImages(true);
+    setIsAddingImages(false);
     // Optionally clear existing displayed images if desired, or let Dropzone handle it
+  };
+
+  const handleAddImages = () => {
+    setIsReplacingImages(true); // We still use the dropzone UI
+    setIsAddingImages(true); // But we mark that we're in "add" mode
+    // No need to clear existing files since we want to keep them
   };
 
   const handleCancelReplacement = () => {
     setIsReplacingImages(false);
+    setIsAddingImages(false);
     productImagesUpload.setFiles([]); // Clear any newly staged files
   };
 
@@ -333,28 +342,21 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
 
       let finalProductGallery: string[];
       if (isReplacingImages) {
-        finalProductGallery = uploadedImageUrls;
-        // Delete old images from storage that were part of msmeData.productGallery but not in currentProductGallery (if any remained)
-        // This step is complex if we only update local state for deletion.
-        // For now, if isReplacingImages = true, we only use newly uploaded ones.
-        if (isReplacingImages) {
-          finalProductGallery = uploadedImageUrls;
-          // Delete images that were in msmeData.productGallery but are not in uploadedImageUrls
-          // This is complex. For now, assume if replacing, old ones are gone.
-          // The `handleDeleteExistingImage` already deletes from storage.
-        } else {
+        if (isAddingImages) {
+          // If adding images, combine existing and new uploads
           finalProductGallery = [
             ...currentProductGallery,
             ...uploadedImageUrls,
           ];
+        } else {
+          // If replacing images, only use the new uploads
+          finalProductGallery = uploadedImageUrls;
         }
         // Remove duplicates
         finalProductGallery = Array.from(new Set(finalProductGallery));
       } else {
-        // Append new uploads to the (potentially modified by deletion) current gallery
-        finalProductGallery = Array.from(
-          new Set([...currentProductGallery, ...uploadedImageUrls]),
-        );
+        // Not replacing - use current gallery (which may have been modified by deletions)
+        finalProductGallery = currentProductGallery;
       }
 
       await handleUpdateMSME({
@@ -380,7 +382,10 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         longitude,
       });
       router.push(
-        `/admin/msme/${sectors.find((s) => s.id === sectorId)?.name}`,
+        `/admin/msme/${sectors
+          .find((s) => s.id === sectorId)
+          ?.name.toLocaleLowerCase()
+          .replace(/\s+/g, "")}`,
       );
     } catch (error) {
       console.error("Error updating MSME:", error);
@@ -837,7 +842,17 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                         </div>
                       ))}
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          handleAddImages();
+                        }}
+                        className="text-sm"
+                      >
+                        Add Images
+                      </Button>
                       <Button
                         type="button"
                         variant="outline"
@@ -850,13 +865,51 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    {/* Show existing images when adding new ones */}
+                    {isAddingImages && currentProductGallery.length > 0 && (
+                      <div className="mb-4 space-y-2">
+                        <p className="text-sm font-medium">Current Images:</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {currentProductGallery.map((url, index) => (
+                            <div
+                              key={`existing-add-${index}-${url}`}
+                              className="group relative"
+                            >
+                              <Image
+                                src={url}
+                                alt={`Product image ${index + 1}`}
+                                width={200}
+                                height={96}
+                                className="h-24 w-full rounded-md object-cover"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute right-1 top-1 h-6 w-6 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                                onClick={() =>
+                                  handleDeleteExistingImage(url, index)
+                                }
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="my-3 border-b"></div>
+                        <p className="text-sm font-medium">Add New Images:</p>
+                      </div>
+                    )}
+
                     <Dropzone className="mt-2" {...productImagesUpload}>
                       <DropzoneEmptyState />
                       <DropzoneContent />
                     </Dropzone>
+
                     <p className="text-sm text-muted-foreground">
                       Upload up to 5 new images (max 10MB each).
                     </p>
+
                     {isReplacingImages &&
                       singleMSME?.productGallery &&
                       singleMSME.productGallery.length > 0 && (
@@ -867,7 +920,9 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                             onClick={handleCancelReplacement}
                             className="text-sm"
                           >
-                            Cancel Replacement
+                            {isAddingImages
+                              ? "Cancel Add Images"
+                              : "Cancel Replacement"}
                           </Button>
                         </div>
                       )}
