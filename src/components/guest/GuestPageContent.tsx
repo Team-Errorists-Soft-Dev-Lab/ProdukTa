@@ -324,15 +324,24 @@ export default function GuestPage() {
       </main>
 
       {isFilterOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300">
-          <MunicipalityFilter
-            setIsFilterOpen={setIsFilterOpen}
-            searchQuery={municipalitySearchQuery}
-            setSearchQuery={setMunicipalitySearchQuery}
-            handleMunicipalitySelection={handleMunicipalitySelection}
-            resetFilters={resetFilters}
-            selectedMunicipalities={selectedMunicipalities}
-          />
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300"
+          onClick={() => setIsFilterOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="h-full"
+            style={{ display: "flex" }}
+          >
+            <MunicipalityFilter
+              setIsFilterOpen={setIsFilterOpen}
+              searchQuery={municipalitySearchQuery}
+              setSearchQuery={setMunicipalitySearchQuery}
+              handleMunicipalitySelection={handleMunicipalitySelection}
+              resetFilters={resetFilters}
+              selectedMunicipalities={selectedMunicipalities}
+            />
+          </div>
         </div>
       )}
 
