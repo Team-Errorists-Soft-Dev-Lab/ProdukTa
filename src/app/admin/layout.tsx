@@ -8,6 +8,7 @@ import Navbar from "@/components/AdminNavbar";
 import { MSMEProvider } from "@/contexts/MSMEContext";
 import { ExportDetailsProvider } from "@/contexts/ExportDetailsContext";
 import { VisitorProvider } from "@/contexts/VisitorContext";
+import { SectorGuard } from "@/components/admin/SectorGuard";
 
 export default function AdminLayout({
   children,
@@ -35,7 +36,7 @@ export default function AdminLayout({
                   <Navbar />
                 </div>
                 <main className="relative overflow-auto bg-gray-100 p-2">
-                  {children}
+                  <SectorGuard>{children}</SectorGuard>;
                 </main>
               </div>
             </div>
