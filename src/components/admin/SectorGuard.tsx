@@ -36,7 +36,8 @@ export function SectorGuard({ children }: SectorGuardProps) {
       }
 
       if (user.isSuperadmin) {
-        setAuthorized(true);
+        setAuthorized(false);
+        router.push("/superadmin/dashboard");
         setLoading(false);
         checkInProgress.current = false;
         return;

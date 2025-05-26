@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { redirect } from "next/navigation";
 import { SuperAdminProvider } from "@/contexts/SuperAdminContext";
 import { MSMEProvider } from "@/contexts/MSMEContext";
+import { SuperadminGuard } from "@/components/SuperadminGuard";
 
 export default function SuperAdminLayout({
   children,
@@ -22,7 +23,7 @@ export default function SuperAdminLayout({
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-auto">
             <main className="relative flex-1 overflow-auto bg-gray-100">
-              {children}
+              <SuperadminGuard>{children}</SuperadminGuard>
             </main>
           </div>
         </div>
