@@ -10,7 +10,7 @@ import Header from "@/components/Header";
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#f9f8f4] via-[#faf9f6] to-[#f5f4f0]">
       <Header />
       <main>
         <SupportingLocal />
