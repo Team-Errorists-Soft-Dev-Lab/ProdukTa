@@ -22,7 +22,6 @@ import {
   User,
   Phone,
   Mail,
-  Calendar,
   Hash,
   Tag,
   Facebook,
@@ -44,7 +43,7 @@ import {
   DropzoneContent,
   DropzoneEmptyState,
 } from "@/components/ui/dropzone";
-import { getSectorName } from "@/lib/msme-utils";
+import { fetchMsmeInitialData } from "@/app/actions/msmeYearCity";
 
 const libraries: ("places" | "maps")[] = ["places", "maps"];
 
@@ -73,7 +72,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
   const [facebookPage, setFacebookPage] = useState("");
   const [instagramPage, setInstagramPage] = useState("");
-
+  const [isLoadingInitialFields, setIsLoadingInitialFields] = useState(true);
   // Logo upload state
   // const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
@@ -120,6 +119,29 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     [currentYear],
   );
 
+  useEffect(() => {
+    async function loadInitialFields() {
+      if (params.id) {
+        try {
+          const initialData = await fetchMsmeInitialData(params.id);
+          if (initialData) {
+            if (initialData.cityMunicipalityAddress) {
+              setCityMunicipalityAddress(initialData.cityMunicipalityAddress);
+            }
+            if (initialData.yearEstablished) {
+              setYearEstablished(initialData.yearEstablished.toString());
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load initial MSME data:", error);
+        } finally {
+          setIsLoadingInitialFields(false);
+        }
+      }
+    }
+
+    void loadInitialFields();
+  }, [params.id]);
   useEffect(() => {
     if (params.id) {
       setIsLoadingMSME(true);
@@ -371,10 +393,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleSectorChange = (value: string) => {
-    setSectorId(Number(value));
-  };
-
   if (isLoadingMSME) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -620,12 +638,27 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                   placeholder="Enter province"
                 />
               </div>
-              <LocationSelect
-                value={cityMunicipalityAddress}
-                onValueChange={setCityMunicipalityAddress}
-                required
-                disabled={isSubmitting}
-              />
+              <div className="flex flex-col gap-1.5">
+                {isLoadingInitialFields ? (
+                  <div className="flex h-10 items-center rounded-md border px-3 py-2">
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading...
+                    </span>
+                  </div>
+                ) : (
+                  <LocationSelect
+                    value={cityMunicipalityAddress}
+                    onValueChange={setCityMunicipalityAddress}
+                    disabled={isSubmitting}
+                  />
+                )}
+                {errors.cityMunicipalityAddress && (
+                  <p className="text-sm text-destructive">
+                    {errors.cityMunicipalityAddress}
+                  </p>
+                )}
+              </div>
               <div>
                 <Label htmlFor="barangayAddress">
                   Barangay <span className="ml-1 text-red-500">*</span>
@@ -640,34 +673,41 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
               </div>
             </div>
             <div className="space-y-6">
-              <div>
-                <Label htmlFor="yearEstablished" className="flex items-center">
-                  <Calendar className="mr-2 h-6 w-4 text-muted-foreground" />{" "}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="yearEstablished">
                   Year Established <span className="ml-1 text-red-500">*</span>
                 </Label>
-                <Select
-                  value={yearEstablished}
-                  onValueChange={setYearEstablished}
-                >
-                  <SelectTrigger
-                    id="yearEstablished"
-                    className={cn(
-                      "mt-1.5",
-                      errors.yearEstablished && "border-destructive",
-                    )}
+                {isLoadingInitialFields ? (
+                  <div className="flex h-10 items-center rounded-md border px-3 py-2">
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading...
+                    </span>
+                  </div>
+                ) : (
+                  <Select
+                    value={yearEstablished}
+                    onValueChange={setYearEstablished}
                   >
-                    <SelectValue placeholder="Select year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <SelectTrigger
+                      id="yearEstablished"
+                      className={cn(
+                        errors.yearEstablished && "border-destructive",
+                      )}
+                    >
+                      <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 {errors.yearEstablished && (
-                  <p className="mt-1 text-xs text-destructive">
+                  <p className="text-sm text-destructive">
                     {errors.yearEstablished}
                   </p>
                 )}
