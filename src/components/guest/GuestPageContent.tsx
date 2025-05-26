@@ -38,7 +38,7 @@ export default function GuestPage() {
     fetchPagedMSMEs,
   } = useMSMEContext();
 
-  const [selectedSector, setSelectedSector] = useState<string | null>(null);
+  const [selectedSector, setSelectedSector] = useState<string[]>([]);
   const [selectedMunicipalities, setSelectedMunicipalities] = useState<
     string[]
   >([]);
@@ -63,7 +63,7 @@ export default function GuestPage() {
     async (query: string) => {
       if (query.trim() === "") {
         setCurrentPage(1);
-        if (selectedSector) {
+        if (selectedSector.length > 0) {
           await fetchMSMEsBySector(
             selectedSector,
             1,
@@ -115,7 +115,7 @@ export default function GuestPage() {
         setSearchActive(false);
       }
 
-      if (selectedSector) {
+      if (selectedSector.length > 0) {
         searchMSMEsDebounced(
           query,
           sort === "z-a",
@@ -136,7 +136,7 @@ export default function GuestPage() {
       try {
         const isDescending = order === "z-a"; // Determine if sorting is descending
 
-        if (selectedSector) {
+        if (selectedSector.length > 0) {
           // Fetch MSMEs by sector with the current sort order
           await fetchMSMEsBySector(
             selectedSector,
@@ -166,8 +166,10 @@ export default function GuestPage() {
   const displayedMSME = useMemo(() => {
     let filtered = msmesWithSectorNames;
 
-    if (selectedSector) {
-      filtered = filtered.filter((msme) => msme.sectorName === selectedSector);
+    if (selectedSector.length > 0) {
+      filtered = filtered.filter((msme) =>
+        selectedSector.includes(msme.sectorName),
+      );
     }
 
     if (selectedMunicipalities.length > 0) {
@@ -186,16 +188,14 @@ export default function GuestPage() {
   const handlePageChange = useCallback(
     async (page: number) => {
       setCurrentPage(page);
-      if (selectedSector !== null) {
-        if (selectedSector) {
-          await fetchMSMEsBySector(
-            selectedSector,
-            page,
-            sort === "z-a",
-            selectedMunicipalities,
-          );
-          return;
-        }
+      if (selectedSector.length > 0) {
+        await fetchMSMEsBySector(
+          selectedSector,
+          page,
+          sort === "z-a",
+          selectedMunicipalities,
+        );
+        return;
       } else {
         void fetchPagedMSMEs(page, sort === "z-a", selectedMunicipalities);
       }
@@ -210,30 +210,24 @@ export default function GuestPage() {
   );
 
   const resetFilters = useCallback(async () => {
-    // setSelectedSector(null);
+    setSelectedSector([]);
     setSelectedMunicipalities([]);
     setMunicipalitySearchQuery("");
     setSearchActive(false);
     setCurrentPage(1);
-    if (selectedSector) {
-      await fetchMSMEsBySector(selectedSector, 1);
-    } else {
-      await fetchPagedMSMEs(1);
-    }
+    await fetchPagedMSMEs(1);
     setIsFilterOpen(false);
-  }, [fetchPagedMSMEs, fetchMSMEsBySector, selectedSector]);
+  }, [fetchPagedMSMEs]);
 
   const handleSectorChange = useCallback(
-    async (sector: string) => {
-      if (sector === "All") {
-        setSelectedSector(null);
-        setCurrentPage(1);
+    async (sectors: string[]) => {
+      setSelectedSector(sectors);
+      setCurrentPage(1);
+      if (sectors.length === 0) {
         await fetchPagedMSMEs(1, sort === "z-a", selectedMunicipalities);
       } else {
-        setSelectedSector(sector);
-        setCurrentPage(1);
         await fetchMSMEsBySector(
-          sector,
+          sectors,
           1,
           sort === "z-a",
           selectedMunicipalities,
@@ -264,7 +258,7 @@ export default function GuestPage() {
 
         // Re-fetch MSMEs with the updated municipalities filter
         const isDescending = sort === "z-a";
-        if (selectedSector) {
+        if (selectedSector.length > 0) {
           void fetchMSMEsBySector(selectedSector, 1, isDescending, updated);
         } else {
           void fetchPagedMSMEs(1, isDescending, updated);

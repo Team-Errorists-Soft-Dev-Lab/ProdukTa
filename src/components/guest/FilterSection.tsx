@@ -10,6 +10,16 @@ import { Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { municipalities } from "@/lib/municipalities";
 import { type Sector } from "@/types/sector";
+import {
+  Leaf,
+  Wheat,
+  Palmtree,
+  Coffee as CoffeeIcon,
+  UtensilsCrossed,
+  ShoppingBag,
+  MonitorSmartphone,
+} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface FilterSectionProps {
   setSort: (value: string) => void;
@@ -27,8 +37,8 @@ interface MunicipalityFilterProps {
 
 interface SectorFilterProps {
   sectors: Sector[];
-  selectedSector: string | null;
-  handleSectorChange: (sector: string) => void;
+  selectedSector: string[]; // always an array
+  handleSectorChange: (sectors: string[]) => void;
 }
 
 export function FilterSection({
@@ -141,28 +151,149 @@ export function MunicipalityFilter({
   );
 }
 
+interface SectorFilterProps {
+  sectors: Sector[];
+  selectedSector: string[];
+  handleSectorChange: (sectors: string[]) => void;
+}
+
 export function SectorFilter({
   sectors,
   selectedSector,
   handleSectorChange,
 }: SectorFilterProps) {
+  // Map sectors to icons
+  const sectorIcons: Record<string, React.ReactNode> = {
+    Bamboo: <Leaf className="mr-2 inline-block h-4 w-4 align-text-bottom" />,
+    Cacao: <Wheat className="mr-2 inline-block h-4 w-4 align-text-bottom" />,
+    Coconut: (
+      <Palmtree className="mr-2 inline-block h-4 w-4 align-text-bottom" />
+    ),
+    Coffee: (
+      <CoffeeIcon className="mr-2 inline-block h-4 w-4 align-text-bottom" />
+    ),
+    "Processed Foods": (
+      <UtensilsCrossed className="mr-2 inline-block h-4 w-4 align-text-bottom" />
+    ),
+    "Wearables and Homestyles": (
+      <ShoppingBag className="mr-2 inline-block h-4 w-4 align-text-bottom" />
+    ),
+    "IT-BPM": (
+      <MonitorSmartphone className="mr-2 inline-block h-4 w-4 align-text-bottom" />
+    ),
+  };
+
+  const toggleSector = (sectorName: string) => {
+    if (sectorName === "All") {
+      handleSectorChange([]);
+      return;
+    }
+    if (selectedSector.includes(sectorName)) {
+      handleSectorChange(selectedSector.filter((s) => s !== sectorName));
+    } else {
+      handleSectorChange([...selectedSector, sectorName]);
+    }
+  };
+
   return (
-    <div className="mx-auto w-full overflow-x-auto px-6 py-4">
-      <div className="flex w-full justify-between gap-4 pb-2">
+    <div className="mx-auto w-full overflow-x-auto px-2 py-4 sm:px-6">
+      {/* Dropdown for small screens */}
+      <div className="block md:hidden">
+        <Select
+          value=""
+          onValueChange={(value) => {
+            if (value === "All") {
+              handleSectorChange([]);
+            } else {
+              toggleSector(value);
+            }
+          }}
+        >
+          <SelectTrigger className="w-full bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]">
+            <SelectValue>
+              {selectedSector.length === 0 ? "All" : selectedSector.join(", ")}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <div
+              className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-[#8B4513] hover:text-white"
+              onClick={() => handleSectorChange([])}
+            >
+              <Checkbox
+                checked={selectedSector.length === 0}
+                className="mr-2"
+              />
+              All
+            </div>
+            {sectors.map((sector) => (
+              <div
+                key={sector.id}
+                className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-[#8B4513] hover:text-white"
+                onClick={() => toggleSector(sector.name)}
+              >
+                <Checkbox
+                  checked={selectedSector.includes(sector.name)}
+                  className="mr-2"
+                />
+                {sectorIcons[sector.name] ?? null}
+                {sector.name}
+              </div>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Button grid for medium screens */}
+      <div className="hidden w-full grid-cols-2 gap-2 md:grid lg:hidden xl:grid-cols-3">
         <Button
-          variant={selectedSector === null ? "secondary" : "outline"}
-          className="min-w-fit flex-grow bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
-          onClick={() => handleSectorChange("All")}
+          variant={selectedSector.length === 0 ? "secondary" : "outline"}
+          className="flex w-full items-center justify-start gap-2 bg-[#bb987a] text-sm text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+          onClick={() => handleSectorChange([])}
         >
           All
         </Button>
-        {sectors.slice(0).map((sector) => (
+        {sectors.map((sector) => (
           <Button
             key={sector.id}
-            variant={selectedSector === sector.name ? "secondary" : "outline"}
-            className="min-w-fit flex-grow whitespace-nowrap bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
-            onClick={() => handleSectorChange(sector.name)}
+            variant={
+              selectedSector.includes(sector.name) ? "secondary" : "outline"
+            }
+            className="flex w-full items-center justify-start gap-2 bg-[#bb987a] text-sm text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+            onClick={() => toggleSector(sector.name)}
           >
+            <Checkbox
+              checked={selectedSector.includes(sector.name)}
+              className="mr-1"
+            />
+            {sectorIcons[sector.name] ?? null}
+            <span className="truncate">{sector.name}</span>
+          </Button>
+        ))}
+      </div>
+
+      {/* Button row for large screens */}
+      <div className="hidden w-full flex-wrap gap-2 pb-2 lg:flex xl:flex-nowrap xl:gap-4">
+        <Button
+          variant={selectedSector.length === 0 ? "secondary" : "outline"}
+          className="min-w-fit flex-grow bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+          onClick={() => handleSectorChange([])}
+        >
+          All
+        </Button>
+        {sectors.map((sector) => (
+          <Button
+            key={sector.id}
+            variant={
+              selectedSector.includes(sector.name) ? "secondary" : "outline"
+            }
+            className="flex min-w-fit flex-grow items-center gap-2 whitespace-nowrap bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
+            onClick={() => toggleSector(sector.name)}
+          >
+            <Checkbox
+              checked={selectedSector.includes(sector.name)}
+              className="mr-2"
+            />
+            {sectorIcons[sector.name] ?? null}
             {sector.name}
           </Button>
         ))}

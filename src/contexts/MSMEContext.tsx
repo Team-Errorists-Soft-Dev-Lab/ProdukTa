@@ -58,10 +58,10 @@ interface MSMEContextType {
     searchQuery: string,
     isDesc?: boolean,
     selectedMunicipalities?: string[],
-    selectedSector?: string,
+    selectedSectors?: string[],
   ) => void;
   fetchMSMEsBySector: (
-    sectorName: string,
+    sectorNames: string[],
     page: number,
     isDesc?: boolean,
     municipalities?: string[],
@@ -165,13 +165,13 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
       searchQuery: string,
       isDesc?: boolean,
       selectedMunicipalities?: string[],
-      selectedSector?: string,
+      selectedSectors?: string[],
     ) => {
       if (!searchQuery || searchQuery.trim() === "") {
-        if (selectedSector) {
+        if (selectedSectors && selectedSectors.length > 0) {
           setIsSearching(false);
           void fetchMSMEsBySector(
-            selectedSector,
+            selectedSectors,
             1,
             isDesc,
             selectedMunicipalities,
@@ -203,7 +203,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchMSMEsBySector = useMemo(() => {
     return async (
-      sectorName: string,
+      sectorNames: string[],
       page: number,
       isDesc?: boolean,
       municipalities?: string[],
@@ -217,11 +217,14 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
         if (municipalities && municipalities.length > 0) {
           params.append("municipalities", municipalities.join(","));
         }
+        if (sectorNames && sectorNames.length > 0) {
+          params.append("sectors", sectorNames.join(","));
+        }
 
         const url =
           params.toString().length > 0
-            ? `/api/msme/sector-filter/${sectorName}/${page}?${params.toString()}`
-            : `/api/msme/sector-filter/${sectorName}/${page}`;
+            ? `/api/msme/sector-filter/?page=${page}&${params.toString()}`
+            : `/api/msme/sector-filter/${page}`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
