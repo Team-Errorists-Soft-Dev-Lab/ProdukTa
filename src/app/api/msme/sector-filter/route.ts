@@ -5,8 +5,6 @@ export async function GET(
   { params }: { params: { page: string } },
 ) {
   try {
-    console.log(1);
-
     const url = new URL(req.url);
     const page = Number(url.searchParams.get("page"));
 
@@ -21,10 +19,6 @@ export async function GET(
     const municipalitiesSelected = municipalitiesParams
       ?.split(",")
       .filter(Boolean);
-
-    console.log("Municipalities selected:", municipalitiesSelected);
-    console.log("Is descending:", isDescending);
-    console.log("Page:", page);
 
     // NEW: Get sectors param as comma-separated string
     const sectorsParam = url.searchParams.get("sectors");
