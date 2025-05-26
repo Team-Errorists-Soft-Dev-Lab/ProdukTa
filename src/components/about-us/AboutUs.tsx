@@ -86,7 +86,7 @@ const AboutUs = () => {
               icon: Zap,
               image: "/platform.png",
               description:
-                "Produkta is a digital directory that connects MSMEs with consumers. Businesses can register, showcase their services, and boost visibility, while users easily discover local enterprises by sector and location.",
+                "Produkta is a digital directory that connects MSMEs with consumers. Businesses can showcase their services, products, and boost visibility, while users easily discover local enterprises by sector and location.",
             },
             {
               title: "Our Mission",
