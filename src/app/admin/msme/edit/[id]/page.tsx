@@ -43,7 +43,7 @@ import {
   DropzoneContent,
   DropzoneEmptyState,
 } from "@/components/ui/dropzone";
-import { fetchMsmeInitialData } from "@/app/actions/msmeYearCity";
+import { fetchMsmeInitialData } from "@/lib/msmeYearCity";
 
 const libraries: ("places" | "maps")[] = ["places", "maps"];
 

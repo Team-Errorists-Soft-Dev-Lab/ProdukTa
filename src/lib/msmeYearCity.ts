@@ -7,10 +7,6 @@ type MsmeInitialData = {
   yearEstablished: number | null;
 };
 
-/**
- * Fetches only city/municipality and year established from an MSME
- * for fast initial form load
- */
 export async function fetchMsmeInitialData(
   msmeId: string | number,
 ): Promise<MsmeInitialData | null> {
