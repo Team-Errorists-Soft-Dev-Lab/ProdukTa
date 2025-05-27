@@ -23,7 +23,6 @@ import {
   Phone,
   Mail,
   Calendar,
-  Hash,
   Tag,
   Facebook,
   Instagram as InstagramIcon,
@@ -37,13 +36,13 @@ import { uploadImage, deleteImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-// import type { MSME } from "@/types/MSME";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import {
   Dropzone,
   DropzoneContent,
   DropzoneEmptyState,
 } from "@/components/ui/dropzone";
+import { fetchMsmeInitialData } from "@/lib/msmeYearCity";
 
 const libraries: ("places" | "maps")[] = ["places", "maps"];
 
@@ -72,12 +71,13 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
   const [facebookPage, setFacebookPage] = useState("");
   const [instagramPage, setInstagramPage] = useState("");
+  const [isLoadingInitialFields, setIsLoadingInitialFields] = useState(true);
 
   // Logo upload state
-  // const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState(""); // For preview in crop modal and display
   const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [isAddingImages, setIsAddingImages] = useState(false);
 
   // Product gallery state
   const [currentProductGallery, setCurrentProductGallery] = useState<string[]>(
@@ -118,6 +118,33 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
       ),
     [currentYear],
   );
+
+  useEffect(() => {
+    async function loadInitialFields() {
+      if (params.id) {
+        try {
+          const initialData = await fetchMsmeInitialData(params.id);
+          if (initialData) {
+            if (initialData.cityMunicipalityAddress) {
+              setCityMunicipalityAddress(initialData.cityMunicipalityAddress);
+            }
+            if (initialData.yearEstablished) {
+              setYearEstablished(initialData.yearEstablished.toString());
+            }
+            if (initialData.sectorid) {
+              setSectorId(initialData.sectorid);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load initial MSME data:", error);
+        } finally {
+          setIsLoadingInitialFields(false);
+        }
+      }
+    }
+
+    void loadInitialFields();
+  }, [params.id]);
 
   useEffect(() => {
     if (params.id) {
@@ -265,11 +292,19 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
 
   const handleReplaceAllImages = () => {
     setIsReplacingImages(true);
+    setIsAddingImages(false);
     // Optionally clear existing displayed images if desired, or let Dropzone handle it
+  };
+
+  const handleAddImages = () => {
+    setIsReplacingImages(true); // We still use the dropzone UI
+    setIsAddingImages(true); // But we mark that we're in "add" mode
+    // No need to clear existing files since we want to keep them
   };
 
   const handleCancelReplacement = () => {
     setIsReplacingImages(false);
+    setIsAddingImages(false);
     productImagesUpload.setFiles([]); // Clear any newly staged files
   };
 
@@ -311,28 +346,21 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
 
       let finalProductGallery: string[];
       if (isReplacingImages) {
-        finalProductGallery = uploadedImageUrls;
-        // Delete old images from storage that were part of msmeData.productGallery but not in currentProductGallery (if any remained)
-        // This step is complex if we only update local state for deletion.
-        // For now, if isReplacingImages = true, we only use newly uploaded ones.
-        if (isReplacingImages) {
-          finalProductGallery = uploadedImageUrls;
-          // Delete images that were in msmeData.productGallery but are not in uploadedImageUrls
-          // This is complex. For now, assume if replacing, old ones are gone.
-          // The `handleDeleteExistingImage` already deletes from storage.
-        } else {
+        if (isAddingImages) {
+          // If adding images, combine existing and new uploads
           finalProductGallery = [
             ...currentProductGallery,
             ...uploadedImageUrls,
           ];
+        } else {
+          // If replacing images, use only the new uploads
+          finalProductGallery = uploadedImageUrls;
         }
         // Remove duplicates
         finalProductGallery = Array.from(new Set(finalProductGallery));
       } else {
-        // Append new uploads to the (potentially modified by deletion) current gallery
-        finalProductGallery = Array.from(
-          new Set([...currentProductGallery, ...uploadedImageUrls]),
-        );
+        // Not replacing - use current gallery (which may have been modified by deletions)
+        finalProductGallery = currentProductGallery;
       }
 
       await handleUpdateMSME({
@@ -605,12 +633,27 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                   placeholder="Enter province"
                 />
               </div>
-              <LocationSelect
-                value={cityMunicipalityAddress}
-                onValueChange={setCityMunicipalityAddress}
-                required
-                disabled={isSubmitting}
-              />
+              <div className="flex flex-col gap-1.5">
+                {isLoadingInitialFields ? (
+                  <div className="flex h-10 items-center rounded-md border px-3 py-2">
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading...
+                    </span>
+                  </div>
+                ) : (
+                  <LocationSelect
+                    value={cityMunicipalityAddress}
+                    onValueChange={setCityMunicipalityAddress}
+                    disabled={isSubmitting}
+                  />
+                )}
+                {errors.cityMunicipalityAddress && (
+                  <p className="text-sm text-destructive">
+                    {errors.cityMunicipalityAddress}
+                  </p>
+                )}
+              </div>
               <div>
                 <Label htmlFor="barangayAddress">
                   Barangay <span className="ml-1 text-red-500">*</span>
@@ -626,57 +669,45 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
             </div>
             <div className="space-y-6">
               <div>
-                <Label htmlFor="yearEstablished" className="flex items-center">
-                  <Calendar className="mr-2 h-6 w-4 text-muted-foreground" />{" "}
+                <Label
+                  htmlFor="yearEstablished"
+                  className="mb-1.5 flex items-center"
+                >
+                  <Calendar className="mr-2 h-6 w-4 text-muted-foreground" />
                   Year Established <span className="ml-1 text-red-500">*</span>
                 </Label>
-                <Select
-                  value={yearEstablished}
-                  onValueChange={setYearEstablished}
-                >
-                  <SelectTrigger
-                    id="yearEstablished"
-                    className={cn(
-                      "mt-1.5",
-                      errors.yearEstablished && "border-destructive",
-                    )}
+                {isLoadingInitialFields ? (
+                  <div className="flex h-10 items-center rounded-md border px-3 py-2">
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading...
+                    </span>
+                  </div>
+                ) : (
+                  <Select
+                    value={yearEstablished}
+                    onValueChange={setYearEstablished}
                   >
-                    <SelectValue placeholder="Select year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.yearEstablished && (
-                  <p className="mt-1 text-xs text-destructive">
-                    {errors.yearEstablished}
-                  </p>
+                    <SelectTrigger
+                      id="yearEstablished"
+                      className={cn(
+                        errors.yearEstablished && "border-destructive",
+                      )}
+                    >
+                      <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
-              </div>
-              <div>
-                <Label htmlFor="dtiNumber" className="flex items-center">
-                  <Hash className="mr-2 h-6 w-4 text-muted-foreground" />
-                  DTI Number <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Input
-                  id="dtiNumber"
-                  value={dtiNumber}
-                  onChange={(e) =>
-                    setDTINumber(e.target.value.replace(/\D/g, ""))
-                  }
-                  className={cn(
-                    "mt-1.5",
-                    errors.dtiNumber && "border-destructive",
-                  )}
-                  placeholder="DTI Number"
-                />
-                {errors.dtiNumber && (
-                  <p className="mt-1 text-xs text-destructive">
-                    {errors.dtiNumber}
+                {errors.yearEstablished && (
+                  <p className="text-sm text-destructive">
+                    {errors.yearEstablished}
                   </p>
                 )}
               </div>
@@ -770,7 +801,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
             </div>
             <div className="space-y-6">
               <div>
-                <Label className="flex items-center">
+                <Label className="mb-1.5 flex items-center">
                   <UploadCloud className="mr-2 h-6 w-4 text-muted-foreground" />
                   Product Images
                 </Label>
@@ -803,7 +834,17 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                         </div>
                       ))}
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          handleAddImages();
+                        }}
+                        className="text-sm"
+                      >
+                        Add Images
+                      </Button>
                       <Button
                         type="button"
                         variant="outline"
@@ -816,6 +857,41 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    {/* Show existing images when adding new ones */}
+                    {isAddingImages && currentProductGallery.length > 0 && (
+                      <div className="mb-4 space-y-2">
+                        <p className="text-sm font-medium">Current Images:</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {currentProductGallery.map((url, index) => (
+                            <div
+                              key={`existing-add-${index}-${url}`}
+                              className="group relative"
+                            >
+                              <Image
+                                src={url}
+                                alt={`Product image ${index + 1}`}
+                                width={200}
+                                height={96}
+                                className="h-24 w-full rounded-md object-cover"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute right-1 top-1 h-6 w-6 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                                onClick={() =>
+                                  handleDeleteExistingImage(url, index)
+                                }
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="my-3 border-b"></div>
+                        <p className="text-sm font-medium">Add New Images:</p>
+                      </div>
+                    )}
                     <Dropzone className="mt-2" {...productImagesUpload}>
                       <DropzoneEmptyState />
                       <DropzoneContent />
@@ -833,7 +909,9 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                             onClick={handleCancelReplacement}
                             className="text-sm"
                           >
-                            Cancel Replacement
+                            {isAddingImages
+                              ? "Cancel Add Images"
+                              : "Cancel Replacement"}
                           </Button>
                         </div>
                       )}

@@ -5,6 +5,7 @@ import { prisma } from "@/utils/prisma/client";
 type MsmeInitialData = {
   cityMunicipalityAddress: string | null;
   yearEstablished: number | null;
+  sectorid: number | null;
 };
 
 export async function fetchMsmeInitialData(
@@ -18,6 +19,7 @@ export async function fetchMsmeInitialData(
       select: {
         cityMunicipalityAddress: true,
         yearEstablished: true,
+        sectorId: true, // Include sectorId for superadmin use
       },
     });
 
@@ -26,6 +28,7 @@ export async function fetchMsmeInitialData(
     return {
       cityMunicipalityAddress: data.cityMunicipalityAddress || null,
       yearEstablished: data.yearEstablished || null,
+      sectorid: data.sectorId || null,
     };
   } catch (error) {
     console.error("Error fetching MSME initial data:", error);
