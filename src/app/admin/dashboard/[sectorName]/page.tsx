@@ -157,7 +157,7 @@ export default function MSMEPage({
   }
 
   return (
-    <div className="overflow-auto bg-gray-50 p-4 md:p-6">
+    <div className="bg-gray-50 p-4 md:p-6">
       <div className="mb-6 rounded-xl border border-[#996439]/20 bg-white p-4 shadow-sm">
         <h2 className="text-center text-2xl font-bold text-[#996439]">
           {sector?.name || sectorName.toUpperCase()} SECTOR DASHBOARD
@@ -351,23 +351,19 @@ export default function MSMEPage({
                 </SelectContent>
               </Select>
             </CardTitle>
-            <CardDescription>Data export trends</CardDescription>
+            <CardDescription>Monthly data export trends</CardDescription>
           </CardHeader>
           {!isLoadingExportData ? (
             <div>
               {lineChartData.length === 0 && totalExports === 0 ? (
-                <CardContent className="items-center justify-center pb-4">
+                <CardContent className="pb-4">
                   <p className="text-center text-gray-500">
                     No export data available for this sector.
                   </p>
                 </CardContent>
               ) : (
                 <CardContent className="pb-4">
-                  <ExportsLineChart
-                    data={lineChartData}
-                    option={option}
-                    color={"#996439"}
-                  />
+                  <ExportsLineChart data={lineChartData} option={option} />
                 </CardContent>
               )}
             </div>

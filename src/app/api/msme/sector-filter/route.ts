@@ -2,65 +2,79 @@ import { prisma } from "@/utils/prisma/client";
 
 export async function GET(
   req: Request,
-  { params }: { params: { sectorName: string; page: number } },
+  { params }: { params: { page: string } },
 ) {
   try {
-    const sector = params.sectorName;
-    const page = parseInt(params.page as unknown as string, 10);
-
-    if (!sector) {
-      return Response.json({ error: "Sector is required" }, { status: 400 });
-    }
+    const url = new URL(req.url);
+    const page = Number(url.searchParams.get("page"));
 
     if (isNaN(page) || page < 1) {
       return Response.json({ error: "Invalid page number" }, { status: 400 });
     }
-
     const pageSize = 15;
     const offset = (page - 1) * pageSize;
 
-    const url = new URL(req.url);
     const isDescending = url.searchParams.get("desc") === "true";
     const municipalitiesParams = url.searchParams.get("municipalities");
     const municipalitiesSelected = municipalitiesParams
       ?.split(",")
       .filter(Boolean);
 
-    const getSector = await prisma.sector.findFirst({
-      where: {
-        name: {
-          equals: sector,
-          mode: "insensitive",
-        },
-      },
-    });
+    // NEW: Get sectors param as comma-separated string
+    const sectorsParam = url.searchParams.get("sectors");
+    const selectedSectors = sectorsParam
+      ? sectorsParam.split(",").filter(Boolean)
+      : [];
 
-    if (!getSector) {
-      return Response.json({ error: "Sector not found" }, { status: 404 });
+    // Find all matching sector IDs
+    let sectorIds: number[] = [];
+    if (selectedSectors.length > 0) {
+      const sectorRecords = await prisma.sector.findMany({
+        where: {
+          name: { in: selectedSectors, mode: "insensitive" },
+        },
+        select: { id: true },
+      });
+      sectorIds = sectorRecords.map((s) => s.id);
+
+      if (sectorIds.length === 0) {
+        return Response.json({
+          msmes: [],
+          meta: {
+            totalItems: 0,
+            currentPage: page,
+            totalPages: 0,
+            itemsPerPage: pageSize,
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        });
+      }
+    }
+
+    // Build where clause
+    const where: {
+      sectorId?: { in: number[] };
+      cityMunicipalityAddress?: { in: string[]; mode: "insensitive" };
+    } = {};
+    if (sectorIds.length > 0) where.sectorId = { in: sectorIds };
+    if (municipalitiesSelected && municipalitiesSelected.length > 0) {
+      where.cityMunicipalityAddress = {
+        in: municipalitiesSelected,
+        mode: "insensitive",
+      };
     }
 
     const [result, totalMSMEs] = await Promise.all([
       prisma.mSME.findMany({
         where: {
-          sectorId: { equals: getSector.id },
-          cityMunicipalityAddress: {
-            in: municipalitiesSelected,
-            mode: "insensitive",
-          },
+          ...where,
         },
         orderBy: { companyName: isDescending ? "desc" : "asc" },
         take: pageSize,
         skip: offset,
       }),
-      prisma.mSME.count({
-        where: {
-          sectorId: { equals: getSector.id },
-          cityMunicipalityAddress: {
-            in: municipalitiesSelected,
-            mode: "insensitive",
-          },
-        },
-      }),
+      prisma.mSME.count({ where }),
     ]);
 
     const totalPages = Math.ceil(totalMSMEs / pageSize);

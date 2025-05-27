@@ -7,28 +7,10 @@ export async function GET(
   try {
     const { sectorName } = params;
 
-    const sectors = [
-      "Bamboo",
-      "Coffee",
-      "Cacao",
-      "Coconut",
-      "Processed Foods",
-      "IT - BPM",
-      "Wearables and Homestyles",
-    ];
-
-    // Normalize function: remove spaces and lowercase
-    const normalize = (str: string) => str.replace(/\s+/g, "").toLowerCase();
-
-    // Find the valid sector name from the list
-    const validSectorName = sectors.find(
-      (s) => normalize(s) === normalize(sectorName),
-    );
-
     const sector = await prisma.sector.findFirst({
       where: {
         name: {
-          equals: validSectorName,
+          equals: sectorName,
           mode: "insensitive",
         },
       },
