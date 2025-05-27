@@ -6,37 +6,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { type MSMEWithSectorName } from "@/types/MSME";
-import { SECTOR_COLORS, type SectorColorKey } from "@/lib/sector-colors";
 
 interface MSMEListProps {
   msmes: MSMEWithSectorName[];
 }
 
 export default function MSMEList({ msmes }: MSMEListProps) {
-  const getSectorBadgeStyle = (sectorName: string) => {
-    const sectorColor = SECTOR_COLORS[sectorName as SectorColorKey];
-    if (!sectorColor) {
-      // Default style for uncategorized or unknown sectors
-      return {
-        backgroundColor: "rgb(217 119 6 / 0.9)", // amber-600/90
-        color: "white",
-      };
-    }
-
-    const isDarkColor = [
-      "#000000",
-      "#8B4513",
-      "#6B8E23",
-      "#0077BE",
-      "#8A2BE2",
-    ].includes(sectorColor);
-
-    return {
-      backgroundColor: sectorColor,
-      color: isDarkColor ? "white" : "black",
-    };
-  };
-
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:px-10 lg:grid-cols-5 lg:px-20">
       {msmes.length > 0 ? (
@@ -44,7 +19,7 @@ export default function MSMEList({ msmes }: MSMEListProps) {
           <Dialog key={msme.id}>
             <Link href={`/msme/${msme.id}`} passHref>
               <DialogTrigger asChild>
-                <Card className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border-2 border-amber-300 shadow-sm transition-all hover:border-amber-200 hover:shadow-md hover:shadow-amber-100/50">
+                <Card className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md hover:shadow-amber-100/50">
                   <CardHeader className="relative p-0">
                     <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent" />
                     <Image
@@ -63,10 +38,7 @@ export default function MSMEList({ msmes }: MSMEListProps) {
                         className="absolute bottom-4 right-4 z-20 h-14 w-14 rounded-full border-2 border-white object-cover shadow-md"
                       />
                     )}
-                    <Badge
-                      className="absolute bottom-4 left-4 z-20 bg-amber-600/90 hover:bg-amber-600"
-                      style={getSectorBadgeStyle(msme.sectorName)}
-                    >
+                    <Badge className="absolute bottom-4 left-4 z-20 bg-amber-600/90 hover:bg-amber-600">
                       {msme.sectorName}
                     </Badge>
                   </CardHeader>

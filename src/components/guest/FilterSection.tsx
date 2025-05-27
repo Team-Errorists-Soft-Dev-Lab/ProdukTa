@@ -10,6 +10,8 @@ import { Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { municipalities } from "@/lib/municipalities";
 import { type Sector } from "@/types/sector";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getSectorIcon } from "@/lib/utils";
 
 interface FilterSectionProps {
   setSort: (value: string) => void;
@@ -27,8 +29,8 @@ interface MunicipalityFilterProps {
 
 interface SectorFilterProps {
   sectors: Sector[];
-  selectedSector: string | null;
-  handleSectorChange: (sector: string) => void;
+  selectedSector: string[]; // always an array
+  handleSectorChange: (sectors: string[]) => void;
 }
 
 export function FilterSection({
@@ -141,32 +143,152 @@ export function MunicipalityFilter({
   );
 }
 
+interface SectorFilterProps {
+  sectors: Sector[];
+  selectedSector: string[];
+  handleSectorChange: (sectors: string[]) => void;
+}
+
 export function SectorFilter({
   sectors,
   selectedSector,
   handleSectorChange,
 }: SectorFilterProps) {
+  const toggleSector = (sectorName: string) => {
+    if (sectorName === "All") {
+      handleSectorChange([]);
+      return;
+    }
+    if (selectedSector.includes(sectorName)) {
+      handleSectorChange(selectedSector.filter((s) => s !== sectorName));
+    } else {
+      handleSectorChange([...selectedSector, sectorName]);
+    }
+  };
+
   return (
-    <div className="mx-auto w-full overflow-x-auto px-6 py-4">
-      <div className="flex w-full justify-between gap-4 pb-2">
-        <Button
-          variant={selectedSector === null ? "secondary" : "outline"}
-          className="min-w-fit flex-grow bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
-          onClick={() => handleSectorChange("All")}
-        >
-          All
-        </Button>
-        {sectors.slice(0).map((sector) => (
-          <Button
-            key={sector.id}
-            variant={selectedSector === sector.name ? "secondary" : "outline"}
-            className="min-w-fit flex-grow whitespace-nowrap bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]"
-            onClick={() => handleSectorChange(sector.name)}
-          >
-            {sector.name}
-          </Button>
-        ))}
-      </div>
+    <div>
+      {sectors && (
+        <div className="mx-auto w-full overflow-x-auto px-2 py-4 sm:px-6">
+          {/* Dropdown for small screens */}
+          <div className="block md:hidden">
+            <Select
+              value=""
+              onValueChange={(value) => {
+                if (value === "All") {
+                  handleSectorChange([]);
+                } else {
+                  toggleSector(value);
+                }
+              }}
+            >
+              <SelectTrigger className="w-full bg-[#bb987a] text-[#ffffff] outline-[#bb987a] hover:bg-[#8B4513] focus:bg-[#8B4513]">
+                <SelectValue>
+                  {selectedSector.length === 0
+                    ? "All"
+                    : selectedSector.join(", ")}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <div
+                  className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-[#8B4513] hover:text-white"
+                  onClick={() => handleSectorChange([])}
+                >
+                  <Checkbox
+                    checked={selectedSector.length === 0}
+                    className="mr-2"
+                  />
+                  All
+                </div>
+                {sectors.map((sector) => {
+                  const Icon = getSectorIcon(
+                    sector.name,
+                  ) as React.ComponentType;
+                  const isSelected = selectedSector.includes(sector.name);
+                  return (
+                    <div
+                      key={sector.id}
+                      className={`flex cursor-pointer items-center gap-2 px-2 py-1 ${
+                        isSelected
+                          ? "bg-[#8B4513] text-white"
+                          : "hover:bg-[#8B4513] hover:text-white"
+                      }`}
+                      onClick={() => toggleSector(sector.name)}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        className="mr-2 border-white"
+                      />
+                      {Icon && <Icon />}
+                      {sector.name}
+                    </div>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Button grid for medium screens */}
+          <div className="hidden w-full grid-cols-2 gap-2 md:grid lg:hidden xl:grid-cols-3">
+            <Button
+              variant={selectedSector.length === 0 ? "secondary" : "outline"}
+              className={`flex w-full items-center justify-start gap-2 text-sm outline-[#bb987a] ${selectedSector.length === 0 ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+              onClick={() => handleSectorChange([])}
+            >
+              All
+            </Button>
+            {sectors.map((sector) => {
+              const Icon = getSectorIcon(sector.name) as React.ComponentType;
+              const isSelected = selectedSector.includes(sector.name);
+              return (
+                <Button
+                  key={sector.id}
+                  variant={isSelected ? "secondary" : "outline"}
+                  className={`flex w-full items-center justify-start gap-2 text-sm outline-[#bb987a] ${isSelected ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+                  onClick={() => toggleSector(sector.name)}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    className="mr-1 border-white"
+                  />
+                  <Icon />
+                  <span className="truncate">{sector.name}</span>
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* Button row for large screens */}
+          <div className="hidden w-full flex-wrap gap-2 pb-2 lg:flex xl:flex-nowrap xl:gap-4">
+            <Button
+              variant={selectedSector.length === 0 ? "secondary" : "outline"}
+              className={`min-w-fit flex-grow outline-[#bb987a] ${selectedSector.length === 0 ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+              onClick={() => handleSectorChange([])}
+            >
+              All
+            </Button>
+            {sectors.map((sector) => {
+              const Icon = getSectorIcon(sector.name) as React.ComponentType;
+              const isSelected = selectedSector.includes(sector.name);
+              return (
+                <Button
+                  key={sector.id}
+                  variant={isSelected ? "secondary" : "outline"}
+                  className={`flex min-w-fit flex-grow items-center gap-2 whitespace-nowrap outline-[#bb987a] ${isSelected ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+                  onClick={() => toggleSector(sector.name)}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    className="mr-2 border-white"
+                  />
+                  <Icon />
+                  {sector.name}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

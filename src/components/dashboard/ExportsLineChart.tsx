@@ -25,16 +25,12 @@ import type { ChartConfig } from "@/components/ui/chart";
 import type { ExportsLineChartProps } from "@/types/export";
 import { useMemo } from "react";
 
-export function ExportsLineChart({
-  data,
-  option,
-  color,
-}: ExportsLineChartProps) {
+export function ExportsLineChart({ data, option }: ExportsLineChartProps) {
   // Chart configuration for exports
   const exportChartConfig = {
     exports: {
       label: "Exports",
-      color: color,
+      color: "#10B981", // Emerald green
     },
     month: {
       label: "Month",
@@ -54,7 +50,7 @@ export function ExportsLineChart({
   }, [data]);
 
   return (
-    <Card className={`border-[${color}]`}>
+    <Card className="border-emerald-600">
       <CardHeader>
         <CardTitle>Export Analytics</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
@@ -96,10 +92,10 @@ export function ExportsLineChart({
             <Line
               dataKey="exports"
               type="natural"
-              stroke={color}
+              stroke="#10B981"
               strokeWidth={2}
               dot={{
-                fill: color,
+                fill: "#10B981",
               }}
               activeDot={{
                 r: 6,
