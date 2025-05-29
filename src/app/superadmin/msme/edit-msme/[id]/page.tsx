@@ -67,7 +67,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const [cityMunicipalityAddress, setCityMunicipalityAddress] = useState("");
   const [barangayAddress, setBarangayAddress] = useState("");
   const [yearEstablished, setYearEstablished] = useState<string>("");
-  const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
   const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
   const [facebookPage, setFacebookPage] = useState("");
@@ -150,7 +149,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         setCityMunicipalityAddress(singleMSME.cityMunicipalityAddress);
         setBarangayAddress(singleMSME.barangayAddress);
         setYearEstablished(singleMSME.yearEstablished?.toString() || "");
-        setDTINumber(singleMSME.dti_number?.toString() || "");
         setSectorId(singleMSME.sectorId);
         setMajorProductLines(singleMSME.majorProductLines || []);
         setFacebookPage(singleMSME.facebookPage || "");
@@ -210,7 +208,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     if (!contactPerson.trim())
       newErrors.contactPerson = "Contact person is required";
     if (!yearEstablished) newErrors.yearEstablished = "Year is required";
-    if (!dtiNumber.trim()) newErrors.dtiNumber = "DTI number is required";
     if (!sectorId) newErrors.sectorId = "Sector is required";
     if (!latitude || !longitude)
       newErrors.location = "Location on map is required";
@@ -348,7 +345,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         cityMunicipalityAddress,
         barangayAddress,
         yearEstablished: parseInt(yearEstablished),
-        dti_number: parseInt(dtiNumber),
         sectorId,
         majorProductLines,
         facebookPage,
@@ -654,29 +650,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
                 {errors.yearEstablished && (
                   <p className="mt-1 text-xs text-destructive">
                     {errors.yearEstablished}
-                  </p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="dtiNumber" className="flex items-center">
-                  <Hash className="mr-2 h-6 w-4 text-muted-foreground" /> DTI
-                  Number <span className="ml-1 text-red-500">*</span>
-                </Label>
-                <Input
-                  id="dtiNumber"
-                  value={dtiNumber}
-                  onChange={(e) =>
-                    setDTINumber(e.target.value.replace(/\D/g, ""))
-                  }
-                  className={cn(
-                    "mt-1.5",
-                    errors.dtiNumber && "border-destructive",
-                  )}
-                  placeholder="DTI Number"
-                />
-                {errors.dtiNumber && (
-                  <p className="mt-1 text-xs text-destructive">
-                    {errors.dtiNumber}
                   </p>
                 )}
               </div>

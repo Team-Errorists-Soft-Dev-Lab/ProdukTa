@@ -41,7 +41,6 @@ export async function GET(request: Request) {
       cityMunicipalityAddress: msme.cityMunicipalityAddress,
       barangayAddress: msme.barangayAddress,
       yearEstablished: msme.yearEstablished,
-      dti_number: msme.dti_number,
       sectorId: msme.sectorId,
       createdAt: msme.createdAt,
     }));

@@ -28,7 +28,6 @@ const csvHeaders = [
   { label: "Contact Number", key: "contactNumber" },
   { label: "Email", key: "email" },
   { label: "City/Municipality", key: "cityMunicipalityAddress" },
-  { label: "DTI Number", key: "dti_number" },
 ];
 
 export default function CSVExportPage() {
@@ -143,7 +142,6 @@ export default function CSVExportPage() {
                     <TableHead>Contact Number</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Location</TableHead>
-                    <TableHead>DTI Number</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -159,7 +157,6 @@ export default function CSVExportPage() {
                       <TableCell>{msme.contactNumber}</TableCell>
                       <TableCell>{msme.email}</TableCell>
                       <TableCell>{msme.cityMunicipalityAddress}</TableCell>
-                      <TableCell>{msme.dti_number}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
