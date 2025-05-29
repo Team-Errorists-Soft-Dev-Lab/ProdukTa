@@ -322,7 +322,7 @@ export default function AddMSMEPage({
       router.push(`/admin/msme/${sectorName}`);
     } catch (error) {
       console.error("Error adding MSME:", error);
-      toast.error(`Failed to add MSME"`);
+      toast.error("Failed to add MSME");
     } finally {
       setIsSubmitting(false);
     }
