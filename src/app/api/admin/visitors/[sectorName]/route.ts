@@ -7,10 +7,35 @@ export async function GET(
   try {
     const { sectorName } = params;
 
+    const sectors = [
+      "Bamboo",
+      "Coffee",
+      "Cacao",
+      "Coconut",
+      "Processed Foods",
+      "IT - BPM",
+      "Wearables and Homestyles",
+    ];
+
+    let normalizedSector = "";
+
+    if (sectorName) {
+      for (const sector of sectors) {
+        const normalizedInput = sectorName.toLowerCase().replace(/[\s-_]/g, "");
+        const normalizedSectorName = sector
+          .toLowerCase()
+          .replace(/[\s-_]/g, "");
+        if (normalizedInput === normalizedSectorName) {
+          normalizedSector = sector;
+          break;
+        }
+      }
+    }
+
     const sector = await prisma.sector.findFirst({
       where: {
         name: {
-          equals: sectorName,
+          equals: normalizedSector,
           mode: "insensitive",
         },
       },
