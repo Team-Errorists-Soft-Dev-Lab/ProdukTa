@@ -59,7 +59,10 @@ export async function POST(request: Request) {
   const body = (await request.json()) as MSMECreateInput;
   try {
     const newMSME = await prisma.mSME.create({
-      data: body,
+      data: {
+        ...body,
+        dti_number: 0, // Default value until schema is updated
+      },
     });
 
     return NextResponse.json(newMSME, { status: 201 });
