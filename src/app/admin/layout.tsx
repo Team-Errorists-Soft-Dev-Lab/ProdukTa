@@ -8,6 +8,7 @@ import Navbar from "@/components/AdminNavbar";
 import { MSMEProvider } from "@/contexts/MSMEContext";
 import { ExportDetailsProvider } from "@/contexts/ExportDetailsContext";
 import { VisitorProvider } from "@/contexts/VisitorContext";
+import { SectorGuard } from "@/components/admin/SectorGuard";
 
 export default function AdminLayout({
   children,
@@ -30,7 +31,9 @@ export default function AdminLayout({
               <Sidebar />
               <div className="flex flex-1 flex-col overflow-y-auto">
                 <Navbar />
-                <main className="bg-gray-100 p-2">{children}</main>
+                <main className="bg-gray-100 p-2">
+                  <SectorGuard>{children}</SectorGuard>
+                </main>
               </div>
             </div>
           </VisitorProvider>
