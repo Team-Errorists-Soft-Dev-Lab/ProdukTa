@@ -49,7 +49,6 @@ const libraries: ("places" | "maps")[] = ["places", "maps"];
 
 interface DuplicateCheckResponse {
   isDuplicateCompanyName: boolean;
-  isDuplicateDTINumber: boolean;
 }
 
 export default function AddMSMEPage({
@@ -86,7 +85,6 @@ export default function AddMSMEPage({
   const [cityMunicipalityAddress, setCityMunicipalityAddress] = useState("");
   const [barangayAddress, setBarangayAddress] = useState("");
   const [yearEstablished, setYearEstablished] = useState<string>("");
-  const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
   const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
   const [facebookPage, setFacebookPage] = useState("");
@@ -147,7 +145,6 @@ export default function AddMSMEPage({
     setCityMunicipalityAddress("");
     setBarangayAddress("");
     setYearEstablished("");
-    setDTINumber("");
     setSectorId(null);
     setMajorProductLines([]);
     setFacebookPage("");
@@ -176,7 +173,6 @@ export default function AddMSMEPage({
     if (!contactPerson.trim())
       newErrors.contactPerson = "Contact person is required";
     if (!yearEstablished) newErrors.yearEstablished = "Year is required";
-    if (!dtiNumber.trim()) newErrors.dtiNumber = "DTI number is required";
     if (!sectorId) newErrors.sectorId = "Sector is required";
 
     setErrors(newErrors);
@@ -192,7 +188,6 @@ export default function AddMSMEPage({
         },
         body: JSON.stringify({
           companyName: companyName.trim(),
-          dtiNumber: dtiNumber.trim(),
         }),
       });
 
@@ -207,13 +202,9 @@ export default function AddMSMEPage({
         newErrors.companyName = "This company name already exists";
         toast.error("A company with this name already exists");
       }
-      if (data.isDuplicateDTINumber) {
-        newErrors.dtiNumber = "This DTI number is already registered";
-        toast.error("This DTI number is already registered");
-      }
 
       setErrors(newErrors);
-      return !data.isDuplicateCompanyName && !data.isDuplicateDTINumber;
+      return !data.isDuplicateCompanyName;
     } catch (error) {
       console.error("Error checking duplicates:", error);
       toast.error("Failed to check for duplicates");
@@ -319,7 +310,6 @@ export default function AddMSMEPage({
         cityMunicipalityAddress,
         barangayAddress,
         yearEstablished: parseInt(yearEstablished),
-        dti_number: parseInt(dtiNumber),
         sectorId: sectorId!,
         createdAt: new Date(),
         majorProductLines: [],
@@ -332,7 +322,7 @@ export default function AddMSMEPage({
       router.push(`/admin/msme/${sectorName}`);
     } catch (error) {
       console.error("Error adding MSME:", error);
-      toast.error(`Failed to add MSME"}`);
+      toast.error("Failed to add MSME");
     } finally {
       setIsSubmitting(false);
     }
@@ -625,24 +615,6 @@ export default function AddMSMEPage({
               </div>
             </div>
             <div className="space-y-6">
-              <div>
-                <Label htmlFor="dtiNumber" className="flex items-center">
-                  <Hash className="mr-2 h-4 w-4 text-muted-foreground" />
-                  DTI Number
-                </Label>
-                <Input
-                  id="dtiNumber"
-                  value={dtiNumber}
-                  onChange={(e) => setDTINumber(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="DTI Registration Number"
-                />
-                {errors.dtiNumber && (
-                  <p className="mt-1 text-xs text-destructive">
-                    {errors.dtiNumber}
-                  </p>
-                )}
-              </div>
               <div>
                 <Label htmlFor="sectorId" className="flex items-center">
                   <Tag className="mr-2 h-4 w-4 text-muted-foreground" />

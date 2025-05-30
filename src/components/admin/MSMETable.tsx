@@ -71,7 +71,6 @@ export function MSMETableView({
     sector: "w-[150px]",
     contact: "w-[200px]",
     location: "w-[200px]",
-    dti: "w-[150px]",
     actions: "w-[100px]",
   };
 
@@ -174,7 +173,6 @@ export function MSMETableView({
             <SortableHeader column="sector">Sector</SortableHeader>
             <SortableHeader column="contact">Contact</SortableHeader>
             <SortableHeader column="location">Location</SortableHeader>
-            <SortableHeader column="dti">DTI Number</SortableHeader>
             {!isExportMode && (
               <TableHead className={columnWidths.actions + " text-right"}>
                 Actions
@@ -234,7 +232,6 @@ export function MSMETableView({
                   {msme.cityMunicipalityAddress}
                   {msme.provinceAddress && `, ${msme.provinceAddress}`}
                 </TableCell>
-                <TableCell>{msme.dti_number}</TableCell>
                 {!isExportMode && (
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">

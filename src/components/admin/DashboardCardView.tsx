@@ -123,11 +123,6 @@ export function MSMECardView({
                       {msme.cityMunicipalityAddress}, {msme.provinceAddress}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Badge variant="outline">
-                      DTI Number: {msme.dti_number}
-                    </Badge>
-                  </div>
                 </div>
               </div>
             </CardContent>

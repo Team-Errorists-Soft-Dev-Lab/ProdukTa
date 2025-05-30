@@ -161,8 +161,6 @@ export default function MSMEPage({
               b.cityMunicipalityAddress || "",
             )
           );
-        case "dti":
-          return direction * ((a.dti_number || 0) - (b.dti_number || 0));
         default:
           return 0;
       }

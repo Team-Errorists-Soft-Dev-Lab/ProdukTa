@@ -19,7 +19,6 @@ export type MSME = {
   longitude: number;
   latitude: number;
   yearEstablished: number;
-  dti_number: number;
   sectorId: number;
   createdAt: Date;
 };
@@ -33,7 +32,6 @@ export interface ExportMSME {
   companyName: string;
   products: string[];
   sectorId?: number;
-  dti_number?: string;
 }
 
 export interface MSMEWithSectorName extends MSME {

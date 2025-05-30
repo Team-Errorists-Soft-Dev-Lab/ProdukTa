@@ -66,7 +66,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
   const [cityMunicipalityAddress, setCityMunicipalityAddress] = useState("");
   const [barangayAddress, setBarangayAddress] = useState("");
   const [yearEstablished, setYearEstablished] = useState("");
-  const [dtiNumber, setDTINumber] = useState("");
   const [sectorId, setSectorId] = useState<number | null>(null);
   const [majorProductLines, setMajorProductLines] = useState<string[]>([]);
   const [facebookPage, setFacebookPage] = useState("");
@@ -177,7 +176,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         setCityMunicipalityAddress(singleMSME.cityMunicipalityAddress);
         setBarangayAddress(singleMSME.barangayAddress);
         setYearEstablished(singleMSME.yearEstablished?.toString() || "");
-        setDTINumber(singleMSME.dti_number?.toString() || "");
         setSectorId(singleMSME.sectorId);
         setMajorProductLines(singleMSME.majorProductLines || []);
         setFacebookPage(singleMSME.facebookPage || "");
@@ -237,7 +235,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     if (!contactPerson.trim())
       newErrors.contactPerson = "Contact person is required";
     if (!yearEstablished) newErrors.yearEstablished = "Year is required";
-    if (!dtiNumber.trim()) newErrors.dtiNumber = "DTI number is required";
     if (!sectorId) newErrors.sectorId = "Sector is required";
     if (!latitude || !longitude)
       newErrors.location = "Location on map is required";
@@ -376,7 +373,6 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
         cityMunicipalityAddress,
         barangayAddress,
         yearEstablished: parseInt(yearEstablished),
-        dti_number: parseInt(dtiNumber),
         sectorId,
         majorProductLines,
         facebookPage,
