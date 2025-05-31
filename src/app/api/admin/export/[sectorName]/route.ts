@@ -1,5 +1,13 @@
 import { prisma } from "@/utils/prisma/client";
 import { NextResponse } from "next/server";
+
+interface ISector {
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export async function GET(
   req: Request,
   { params }: { params: { sectorName: string } },
@@ -7,26 +15,18 @@ export async function GET(
   try {
     const { sectorName } = params;
 
-    const sectors = [
-      "Bamboo",
-      "Coffee",
-      "Cacao",
-      "Coconut",
-      "Processed Foods",
-      "IT - BPM",
-      "Wearables and Homestyles",
-    ];
+    const sectors: ISector[] = await prisma.sector.findMany();
 
     let normalizedSector = "";
 
     if (sectorName) {
       for (const sector of sectors) {
         const normalizedInput = sectorName.toLowerCase().replace(/[\s-_]/g, "");
-        const normalizedSectorName = sector
+        const normalizedSectorName = sector.name
           .toLowerCase()
           .replace(/[\s-_]/g, "");
         if (normalizedInput === normalizedSectorName) {
-          normalizedSector = sector;
+          normalizedSector = sector.name;
           break;
         }
       }
