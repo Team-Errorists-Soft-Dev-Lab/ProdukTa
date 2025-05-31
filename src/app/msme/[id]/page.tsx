@@ -382,7 +382,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
                         <p className="text-xs font-semibold text-gray-800">
                           Phone
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-gray-600">
                           {MSME.contactNumber
                             ? `+63 ${MSME.contactNumber}`
                             : "Phone not available"}
