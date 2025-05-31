@@ -32,7 +32,6 @@ export async function POST(request: Request) {
         ...dataWithoutId,
         longitude: body.longitude ?? 0,
         latitude: body.latitude ?? 0,
-        dti_number: 0, // Default value until schema is updated
       },
     });
 
