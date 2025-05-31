@@ -61,7 +61,6 @@ export async function POST(request: Request) {
     const newMSME = await prisma.mSME.create({
       data: {
         ...body,
-        dti_number: 0, // Default value until schema is updated
       },
     });
 
