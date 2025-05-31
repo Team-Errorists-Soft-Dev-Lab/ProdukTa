@@ -34,7 +34,7 @@ const generatePDFContent = (
   contentDiv.innerHTML = `
     <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">${msme.companyName}</h2>
     <p style="font-size: 14px; margin: 6px 0;"><strong>Contact Person:</strong> ${msme.contactPerson}</p>
-    <p style="font-size: 14px; margin: 6px 0;">📞 ${msme.contactNumber}</p>
+    <p style="font-size: 14px; margin: 6px 0;">📞 +63 ${msme.contactNumber}</p>
     <p style="font-size: 14px; margin: 6px 0;">✉️ ${msme.email}</p>
     <p style="font-size: 14px; margin: 6px 0;">📍 ${msme.cityMunicipalityAddress}</p>
   `;

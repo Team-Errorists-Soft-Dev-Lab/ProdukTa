@@ -24,7 +24,7 @@ export const exportToCSV = (msmeDataToExport: ExportMSME[]) => {
     const row = [
       `"${msme.companyName.replace(/"/g, '""')}"`,
       `"${msme.contactPerson.replace(/"/g, '""')}"`,
-      `"${msme.contactNumber.replace(/"/g, '""')}"`,
+      `"+63 ${msme.contactNumber.replace(/"/g, '""')}"`,
       `"${msme.email.replace(/"/g, '""')}"`,
       `"${msme.cityMunicipalityAddress.replace(/"/g, '""')}"`,
       `"${msme.sectorName?.replace(/"/g, '""') || "Unknown"}"`,

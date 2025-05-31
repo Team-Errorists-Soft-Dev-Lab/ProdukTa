@@ -268,7 +268,7 @@ export default function AllMSMEs() {
                           {msme.address}
                         </p>
                         <p>
-                          <span className="font-semibold">Phone:</span>{" "}
+                          <span className="font-semibold">Phone:</span> +63{" "}
                           {msme.contactNumber}
                         </p>
                         <p>
