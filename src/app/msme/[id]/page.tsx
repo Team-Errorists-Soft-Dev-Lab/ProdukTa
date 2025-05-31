@@ -363,7 +363,9 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
                           Phone
                         </p>
                         <p className="text-sm text-gray-600">
-                          {MSME.contactNumber || "Phone not available"}
+                          {MSME.contactNumber
+                            ? `+63 ${MSME.contactNumber}`
+                            : "Phone not available"}
                         </p>
                       </div>
                     </div>
@@ -464,32 +466,6 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
                       No social media links available
                     </p>
                   )}
-                </div>
-
-                {/* is this needed? */}
-                <div className="rounded-xl border border-amber-100 bg-white p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-[#8B4513]">
-                      Business Hours
-                    </h3>
-                    <Badge className="bg-green-100 text-green-800">
-                      Open Now
-                    </Badge>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Monday - Friday</span>
-                      <span>8:00 AM - 5:00 PM</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Saturday</span>
-                      <span>9:00 AM - 3:00 PM</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Sunday</span>
-                      <span className="text-gray-500">Closed</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

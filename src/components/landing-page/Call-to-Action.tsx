@@ -136,7 +136,7 @@ export default function CallToAction() {
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            Ready to Explore Iloilo&apos;s MSMEs?
+            Ready to Explore Ilonggo MSMEs?
           </motion.h2>
 
           <motion.p
@@ -146,9 +146,7 @@ export default function CallToAction() {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            Discover the businesses driving our economy and connect with local
-            entrepreneurs today! Join thousands who have already found their
-            perfect business partners.
+            Discover the businesses driving our economy and connect with them.
           </motion.p>
 
           {/* Stats - Mobile optimized */}

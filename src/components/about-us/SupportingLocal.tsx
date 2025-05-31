@@ -127,7 +127,7 @@ const AboutProdukta = () => {
 
             {/* Main Heading */}
             <motion.h1
-              className="bg-gradient-to-r from-[#8B4513] via-[#8B4513] to-[#6d3610] bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl md:text-5xl lg:text-6xl"
+              className="text-3xl font-bold leading-tight text-[#8B4513] sm:text-4xl md:text-5xl lg:text-6xl"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
