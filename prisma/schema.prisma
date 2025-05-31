@@ -33,7 +33,7 @@ model Sector {
 }
 
 model AdminSectors {
-    admin       Admin @relation(fields: [adminId], references: [id])
+    admin       Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
     adminId     Int
     sector      Sector @relation(fields: [sectorId], references: [id])
     sectorId    Int
@@ -55,7 +55,6 @@ model MSME {
     longitude               Float
     latitude                Float
     yearEstablished         Int
-    dti_number              Int
     productGallery          String[]
     majorProductLines       String[]
     facebookPage            String?
