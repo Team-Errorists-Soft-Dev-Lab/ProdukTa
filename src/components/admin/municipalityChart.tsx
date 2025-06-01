@@ -83,11 +83,13 @@ export function TopMunicipalitiesChart({ sectorName }: { sectorName: string }) {
 
   const totalMSMEs = chartData.reduce((sum, { count }) => sum + count, 0);
 
+  const topMSMEs = totalMSMEs <= 5 ? totalMSMEs : 5;
+
   return (
     <Card className="flex w-[350px] flex-col border-[#996439]">
       <CardHeader className="items-center pb-0">
         <CardTitle className="text-lg text-[#996439]">
-          Top 5 Municipalities
+          Top {topMSMEs} Municipalities
         </CardTitle>
         <CardDescription className="text-sm text-[#996439]">
           {sectorName} Sector Distribution
@@ -146,7 +148,7 @@ export function TopMunicipalitiesChart({ sectorName }: { sectorName: string }) {
                 dominantBaseline="middle"
                 className="fill-[#996439] text-3xl font-bold"
               >
-                5
+                {topMSMEs}
               </text>
             </PieChart>
           </ResponsiveContainer>

@@ -313,7 +313,7 @@ export default function MSMEPage({
         <Card className="border-[#996439]/20 shadow-sm transition-all hover:shadow-md">
           <CardHeader className="py-3">
             <CardTitle className="flex items-center justify-between text-lg text-[#996439]">
-              <span>Top 5 Municipalities</span>
+              <span>Top {topMunicipalities.length} Municipalities</span>
               <div className="h-8 w-8"></div> {/* Spacer for alignment */}
             </CardTitle>
             <CardDescription>Geographic distribution</CardDescription>
