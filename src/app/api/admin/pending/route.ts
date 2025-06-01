@@ -20,6 +20,14 @@ export async function GET() {
       },
     });
 
+    if (pendingAdmins.length === 0) {
+      console.error("No pending admins found");
+      return NextResponse.json(
+        { error: "No pending admins found" },
+        { status: 204 },
+      );
+    }
+
     const formattedAdmins = pendingAdmins.map((admin) => ({
       id: admin.id,
       name: admin.name,

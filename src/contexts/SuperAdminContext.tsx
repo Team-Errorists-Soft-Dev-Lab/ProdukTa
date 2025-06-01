@@ -61,6 +61,14 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
       if (!pendingResponse.ok)
         throw new Error("Failed to fetch pending admins");
 
+      if (activeResponse.status === 204) {
+        toast.error("No active admins found");
+      }
+
+      if (pendingResponse.status === 204) {
+        toast.error("No pending admins found");
+      }
+
       const [activeData, pendingData]: [AdminsResponse, PendingAdminsResponse] =
         (await Promise.all([
           activeResponse.json(),

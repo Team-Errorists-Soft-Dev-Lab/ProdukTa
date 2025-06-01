@@ -21,7 +21,7 @@ export async function GET() {
       console.error("No active admins found");
       return NextResponse.json(
         { error: "No active admins found" },
-        { status: 404 },
+        { status: 204 },
       );
     }
 
