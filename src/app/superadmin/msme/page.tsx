@@ -117,6 +117,22 @@ export default function ManageMSME() {
     router.push(`/superadmin/msme/edit-msme/${msme.id}`);
   };
 
+  const recordExport = async () => {
+    try {
+      for (const id of selectedMSMEs) {
+        await fetch("/api/admin/export", {
+          method: "POST",
+          body: JSON.stringify({ msmeId: id }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error recording export:", error);
+    }
+  };
+
   const filteredMSMEs = sortMSMEs(
     filterMSMEs(msmes, searchTerm, filters),
     sortState,
@@ -211,7 +227,7 @@ export default function ManageMSME() {
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden p-4 md:p-6">
+    <div className="h-screen max-h-screen p-4 md:p-6">
       <div className="flex h-full flex-col">
         <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
           <div className="flex items-center gap-2">
@@ -301,6 +317,8 @@ export default function ManageMSME() {
                                     ".csv-download-link",
                                   )
                                   ?.click();
+
+                                await recordExport();
                               } finally {
                                 setIsExporting(false);
                               }

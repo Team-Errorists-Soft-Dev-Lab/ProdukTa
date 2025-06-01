@@ -213,6 +213,7 @@ export default function GuestPage() {
     setSelectedSector([]);
     setSelectedMunicipalities([]);
     setMunicipalitySearchQuery("");
+    setSearchQuery("");
     setSearchActive(false);
     setCurrentPage(1);
     await fetchPagedMSMEs(1);

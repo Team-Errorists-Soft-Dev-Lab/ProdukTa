@@ -39,6 +39,22 @@ export default function CSVExportPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const hasFetchedRef = useRef(false);
 
+  const recordExport = async () => {
+    try {
+      for (const id of selectedId) {
+        await fetch("/api/admin/export", {
+          method: "POST",
+          body: JSON.stringify({ msmeId: parseInt(id) }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error recording export:", error);
+    }
+  };
+
   useEffect(() => {
     try {
       const selectedIdParam = searchParams.get("selectedId");
@@ -95,6 +111,7 @@ export default function CSVExportPage() {
           <div className="flex items-center gap-4">
             {!isLoading && msmeData.length > 0 ? (
               <CSVLink
+                onClick={recordExport}
                 data={msmeData}
                 headers={csvHeaders}
                 filename="msme_data.csv"

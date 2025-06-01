@@ -187,6 +187,22 @@ export function GuestExport() {
   const [exportError, setExportError] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  const recordExport = async () => {
+    try {
+      for (const id of selectedMSMEs) {
+        await fetch("/api/admin/export", {
+          method: "POST",
+          body: JSON.stringify({ msmeId: id }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error recording export:", error);
+    }
+  };
+
   const msmesWithSectorNames = useMemo(() => {
     return msmes.map((msme) => ({
       ...msme,
@@ -381,6 +397,7 @@ export function GuestExport() {
 
     try {
       await exportToPDF(exportData, contentRef.current);
+      await recordExport();
     } catch (error) {
       console.error("Error generating PDF:", error);
       setExportError("Failed to generate PDF");
@@ -389,7 +406,7 @@ export function GuestExport() {
     }
   };
 
-  const handleExportToCSV = () => {
+  const handleExportToCSV = async () => {
     // Determine which MSMEs to export
     const msmeIdsToExport =
       selectedMSMEs.length > 0
@@ -416,6 +433,7 @@ export function GuestExport() {
     }
 
     exportToCSV(msmeDataToExport);
+    await recordExport();
   };
 
   const renderPaginationItems = () => {

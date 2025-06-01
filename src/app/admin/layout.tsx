@@ -31,7 +31,7 @@ export default function AdminLayout({
               <Sidebar />
               <div className="flex flex-1 flex-col overflow-y-auto">
                 <Navbar />
-                <main className="bg-gray-100 p-2">
+                <main className="relative bg-gray-100 p-2">
                   <SectorGuard>{children}</SectorGuard>
                 </main>
               </div>

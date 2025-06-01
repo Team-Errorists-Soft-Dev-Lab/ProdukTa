@@ -72,7 +72,7 @@ model Visitor {
   ip          String
   lastVisited DateTime
   msmeId      Int
-  MSME        MSME     @relation(fields: [msmeId], references: [id])
+  MSME        MSME     @relation(fields: [msmeId], references: [id], onDelete: Cascade)
 
   @@unique([ip, msmeId])
 }
@@ -81,5 +81,5 @@ model ExportLog {
   id          Int      @id @default(autoincrement())
   msmeId      Int
   exportedAt  DateTime @default(now())
-  MSME        MSME     @relation(fields: [msmeId], references: [id])
+  MSME        MSME     @relation(fields: [msmeId], references: [id], onDelete: Cascade)
 }
