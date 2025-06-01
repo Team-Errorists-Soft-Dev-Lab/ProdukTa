@@ -207,15 +207,17 @@ export default function Hero() {
 
           {/* Main Heading */}
           <motion.h1
-            className="bg-gradient-to-r from-[#8B4513] via-[#8B4513] to-[#6d3610] bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl md:text-5xl lg:text-6xl"
+            className="text-3xl font-bold leading-tight text-[#8B4513] sm:text-4xl md:text-5xl lg:text-6xl"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            Discover, Connect, and Support{" "}
+            Discover and Support{" "}
             <span className="relative">
-              Iloilo&apos;s MSMEs
+              <span className="bg-gradient-to-r from-[#8B4513] via-[#A0522D] to-[#6d3610] bg-clip-text text-transparent">
+                Iloilo&apos;s MSMEs
+              </span>
               <motion.div
                 className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#8B4513] to-transparent sm:-bottom-2 sm:h-1"
                 initial={{ width: 0 }}
@@ -236,7 +238,7 @@ export default function Hero() {
           >
             Discover and support local enterprises that drive Iloilo&apos;s
             economy. Explore the MSME directory to find businesses, learn their
-            stories, and see their impact on our community.
+            stories, and see their products.
           </motion.p>
 
           {/* Action Buttons */}

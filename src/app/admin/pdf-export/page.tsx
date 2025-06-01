@@ -105,7 +105,7 @@ export default function ExportData() {
     contentDiv.innerHTML = `
       <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">${msme.companyName}</h2>
       <p style="font-size: 14px; margin: 6px 0;"><strong>Contact Person:</strong> ${msme.contactPerson}</p>
-      <p style="font-size: 14px; margin: 6px 0;">📞 ${msme.contactNumber}</p>
+      <p style="font-size: 14px; margin: 6px 0;">📞 +63 ${msme.contactNumber}</p>
       <p style="font-size: 14px; margin: 6px 0;">✉️ ${msme.email}</p>
       <p style="font-size: 14px; margin: 6px 0;">📍 ${msme.cityMunicipalityAddress}</p>
     `;
@@ -293,7 +293,11 @@ export default function ExportData() {
                         {msme.companyName}
                       </TableCell>
                       <TableCell>{msme.contactPerson}</TableCell>
-                      <TableCell>{msme.contactNumber}</TableCell>
+                      <TableCell>
+                        {msme.contactNumber
+                          ? `+63 ${msme.contactNumber}`
+                          : "N/A"}
+                      </TableCell>
                       <TableCell>{msme.email}</TableCell>
                       <TableCell>{msme.cityMunicipalityAddress}</TableCell>
                     </TableRow>

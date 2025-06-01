@@ -154,7 +154,11 @@ export default function CSVExportPage() {
                         {msme.companyName}
                       </TableCell>
                       <TableCell>{msme.contactPerson}</TableCell>
-                      <TableCell>{msme.contactNumber}</TableCell>
+                      <TableCell>
+                        {msme.contactNumber
+                          ? `+63 ${msme.contactNumber}`
+                          : "N/A"}
+                      </TableCell>
                       <TableCell>{msme.email}</TableCell>
                       <TableCell>{msme.cityMunicipalityAddress}</TableCell>
                     </TableRow>

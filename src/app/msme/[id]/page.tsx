@@ -383,7 +383,9 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
                           Phone
                         </p>
                         <p className="text-xs text-gray-600">
-                          {MSME.contactNumber || "Phone not available"}
+                          {MSME.contactNumber
+                            ? `+63 ${MSME.contactNumber}`
+                            : "Phone not available"}
                         </p>
                       </div>
                     </div>

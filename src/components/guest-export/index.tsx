@@ -351,8 +351,6 @@ export function GuestExport() {
           ? selectedMSMEs
           : displayedMSME.map((msme) => msme.id);
 
-      // In a real implementation, you would fetch the data from an API
-      // For now, we'll just use the data we already have
       const msmeDataToExport = msmesWithSectorNames
         .filter((msme) =>
           (msmeIdsToExport as string[]).includes(msme.id.toString()),
@@ -891,7 +889,9 @@ export function GuestExport() {
                         {msme.contactPerson || "N/A"}
                       </TableCell>
                       <TableCell className="text-gray-600">
-                        {msme.contactNumber || "N/A"}
+                        {msme.contactNumber
+                          ? `+63 ${msme.contactNumber}`
+                          : "N/A"}
                       </TableCell>
                     </TableRow>
                   ))
@@ -993,7 +993,11 @@ export function GuestExport() {
                         {msme.companyName}
                       </TableCell>
                       <TableCell>{msme.contactPerson}</TableCell>
-                      <TableCell>{msme.contactNumber}</TableCell>
+                      <TableCell>
+                        {msme.contactNumber
+                          ? `+63 ${msme.contactNumber}`
+                          : "N/A"}
+                      </TableCell>
                       <TableCell>{msme.email}</TableCell>
                       <TableCell>{msme.cityMunicipalityAddress}</TableCell>
                     </TableRow>
