@@ -1,10 +1,10 @@
 # Produkta
 
-Welcome to the Produkta app, a DTI MSME Directory App built using Next.js. This application serves as a directory for Micro, Small, and Medium Enterprises (MSMEs) in the region, providing users with easy access to information about various businesses.
+Welcome to the ProdukTa app, a DTI MSME Directory App built using Next.js. This application serves as a directory for Micro, Small, and Medium Enterprises (MSMEs) in the region, providing users with easy access to information about various businesses.
 
 ## Getting Started
 
-To get started with Produkta, follow these steps to set up your development environment:
+To get started with ProdukTa, follow these steps to set up your development environment:
 
 ### Features
 
