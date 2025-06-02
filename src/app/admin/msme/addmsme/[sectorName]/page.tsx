@@ -312,7 +312,9 @@ export default function AddMSMEPage({
         yearEstablished: parseInt(yearEstablished),
         sectorId: sectorId!,
         createdAt: new Date(),
-        majorProductLines: [],
+        majorProductLines: majorProductLines,
+        facebookPage: facebookPage,
+        instagramPage: instagramPage,
         longitude: longitude === null ? 0 : longitude,
         latitude: latitude === null ? 0 : latitude,
       });
