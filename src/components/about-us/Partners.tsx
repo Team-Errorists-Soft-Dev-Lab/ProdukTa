@@ -109,7 +109,7 @@ const Partners = () => {
                 transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
                 viewport={{ once: true }}
               >
-                Produkta is a collaboration between DTI Iloilo and the Software
+                ProdukTa is a collaboration between DTI Iloilo and the Software
                 Engineering Department of Central Philippine University College
                 of Engineering, reflecting a shared commitment to empowering
                 local businesses through digital transformation.
