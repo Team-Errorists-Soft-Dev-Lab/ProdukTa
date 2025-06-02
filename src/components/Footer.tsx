@@ -1,41 +1,13 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-
 export default function Footer() {
   return (
-    <footer className="flex items-center justify-center border-t bg-white p-4">
-      <div className="text-sm text-gray-500">
-        © 2025 ProdukTa.
-        <Button variant="link" className="text-[#8B4513]">
-          Privacy
-        </Button>
-        <Button variant="link" className="text-[#8B4513]">
-          Terms
-        </Button>
-        <Button variant="link" className="text-[#8B4513]">
-          Sitemap
-        </Button>
-      </div>
-      <div
-        className="flex space-x-4"
-        onClick={() =>
-          window.open("https://www.facebook.com/DTI.Iloilo", "_blank")
-        }
-      >
-        {["Facebook"].map((social) => (
-          <a key={social} href="#" className="text-[#8B4513]">
-            <span className="sr-only">{social}</span>
-            <div className="h-6 w-6">
-              {/* <img src={`${social}.svg`} alt={social} className="h-full w-full" /> */}
-              <Image
-                src={`/${social}.svg`}
-                alt={social}
-                width={24}
-                height={24}
-              />
-            </div>
-          </a>
-        ))}
+    <footer className="bg-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col items-center justify-center space-y-2 border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
+          <span>© 2025 ProdukTa. All rights reserved.</span>
+          <span className="text-xs text-gray-400">
+            Powered by CPU Software Engineering Students & DTI Iloilo
+          </span>
+        </div>
       </div>
     </footer>
   );
