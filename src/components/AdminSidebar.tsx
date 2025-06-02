@@ -168,10 +168,11 @@ export default function Sidebar() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
-                href="/guest"
+                href="/admin/guest-view"
                 className={cn(
                   "flex items-center px-4 py-2 text-gray-700 hover:bg-[#996439] hover:text-[#FCFBFA]",
-                  isLinkActive("/guest") && "bg-[#996439] text-[#FCFBFA]",
+                  isLinkActive("/admin/guest-view") &&
+                    "bg-[#996439] text-[#FCFBFA]",
                 )}
               >
                 <UserCircle2 className="mr-3" size={18} />
