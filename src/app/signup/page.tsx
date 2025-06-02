@@ -207,19 +207,36 @@ export default function Signup() {
                     <div className="flex w-full space-x-1">
                       {Array.from({ length: 4 }).map((_, i) => {
                         const strength = getPasswordStrength(password);
+                        let colorClass = "bg-gray-200";
+
+                        if (i < strength.score) {
+                          switch (strength.score) {
+                            case 1:
+                              colorClass = "bg-red-500";
+                              break;
+                            case 2:
+                              colorClass = "bg-orange-500";
+                              break;
+                            case 3:
+                              colorClass = "bg-yellow-500";
+                              break;
+                            case 4:
+                              colorClass = "bg-green-500";
+                              break;
+                            default:
+                              colorClass = "bg-gray-200";
+                          }
+                        }
+
                         return (
                           <div
                             key={i}
-                            className={`h-1 w-1/4 rounded-full ${
-                              i < strength.score
-                                ? strength.color
-                                : "bg-gray-200"
-                            }`}
+                            className={`h-1 w-1/4 rounded-full transition-colors duration-200 ${colorClass}`}
                           />
                         );
                       })}
                     </div>
-                    <span className="ml-2 min-w-16 text-right text-xs">
+                    <span className="ml-2 min-w-16 text-right text-xs font-medium">
                       {getPasswordStrength(password).message}
                     </span>
                   </div>
@@ -235,7 +252,13 @@ export default function Signup() {
                             <AlertCircle size={12} />
                           )}
                         </span>
-                        {rule.message}
+                        <span
+                          className={
+                            rule.isValid ? "text-green-600" : "text-gray-500"
+                          }
+                        >
+                          {rule.message}
+                        </span>
                       </li>
                     ))}
                   </ul>
