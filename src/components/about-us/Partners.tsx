@@ -109,7 +109,7 @@ const Partners = () => {
                 transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
                 viewport={{ once: true }}
               >
-                Produkta is a collaboration between DTI Iloilo and the Software
+                ProdukTa is a collaboration between DTI Iloilo and the Software
                 Engineering Department of Central Philippine University College
                 of Engineering, reflecting a shared commitment to empowering
                 local businesses through digital transformation.
@@ -156,13 +156,25 @@ const Partners = () => {
                 </h4>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {[
-                    "DTI_logo.png",
-                    "cpu-logo.png",
-                    "eng-logo.png",
-                    "se-logo.png",
-                  ].map((logo, index) => (
-                    <motion.div
+                    {
+                      logo: "DTI_logo.png",
+                      url: "https://www.facebook.com/DTI.Iloilo",
+                    },
+                    { logo: "cpu-logo.png", url: "https://cpu.edu.ph/" },
+                    {
+                      logo: "eng-logo.png",
+                      url: "https://www.facebook.com/cpucoengg/",
+                    },
+                    {
+                      logo: "se-logo.png",
+                      url: "https://www.facebook.com/people/CPU-Software-Engineering/61556019514302/",
+                    },
+                  ].map((partner, index) => (
+                    <motion.a
                       key={index}
+                      href={partner.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center justify-center rounded-xl bg-white/50 p-3 shadow-md backdrop-blur-sm transition-all duration-300 hover:bg-white/80 hover:shadow-lg"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       transition={{ duration: 0.3 }}
@@ -172,13 +184,13 @@ const Partners = () => {
                       style={{ transitionDelay: `${index * 0.1}s` }}
                     >
                       <Image
-                        src={`/${logo}`}
+                        src={`/${partner.logo}`}
                         width={60}
                         height={60}
                         alt="Partner Logo"
                         className="h-auto w-full max-w-[60px] object-contain"
                       />
-                    </motion.div>
+                    </motion.a>
                   ))}
                 </div>
               </motion.div>

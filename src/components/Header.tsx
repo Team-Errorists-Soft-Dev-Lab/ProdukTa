@@ -93,12 +93,7 @@ export default function Header() {
           >
             <div
               className="relative cursor-pointer"
-              onClick={() =>
-                window.open(
-                  "https://www.dti.gov.ph/regions/region-6/",
-                  "_blank",
-                )
-              }
+              onClick={() => window.open("https://www.dti.gov.ph/", "_blank")}
             >
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#8B4513]/10 to-transparent blur-md" />
               <Image
@@ -198,10 +193,7 @@ export default function Header() {
                 <div
                   className="relative cursor-pointer"
                   onClick={() =>
-                    window.open(
-                      "https://www.dti.gov.ph/regions/region-6/",
-                      "_blank",
-                    )
+                    window.open("https://www.dti.gov.ph/", "_blank")
                   }
                 >
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#8B4513]/10 to-transparent blur-md" />

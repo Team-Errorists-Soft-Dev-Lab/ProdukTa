@@ -20,21 +20,21 @@ export default function OurStory() {
       image: "/map.png",
       color: "#f9f8f4",
       subheading: "Our Story",
-      text: "Produkta was created to support and promote Iloilo's local businesses. It serves as a digital bridge between buyers and Micro, Small, and Medium Enterprises (MSMEs), offering a centralized platform to explore, connect with, and support homegrown businesses.",
+      text: "ProdukTa was created to support and promote Iloilo's local businesses. It serves as a digital bridge between buyers and Micro, Small, and Medium Enterprises (MSMEs), offering a centralized platform to explore, connect with, and support homegrown businesses.",
     },
     {
       image: "/name2.png",
       color: "#e8e1ce",
       subheading: "What's in the Name?",
-      text: `Produkta comes from the Hiligaynon phrase "Produkto Ta," meaning "Our Products." 
+      text: `ProdukTa comes from the Hiligaynon phrase "Produkto Ta," meaning "Our Products." 
              This name reflects the app's mission to showcase Iloilo's locally made goods and empower MSMEs. 
-             As a digital directory, Produkta connects businesses with buyers, fostering local pride and economic growth.`,
+             As a digital directory, ProdukTa connects businesses with buyers, fostering local pride and economic growth.`,
     },
     {
       image: "/words.png",
       color: "#f9f8f4",
       subheading: "More Than Just Words",
-      text: `"Everything Local, in One Place." — this tagline embodies Produkta's commitment to uniting Iloilo's local businesses 
+      text: `"Everything Local, in One Place." — this tagline embodies ProdukTa's commitment to uniting Iloilo's local businesses 
              within a single, accessible platform. It highlights our dedication to supporting MSMEs and making it easier for customers 
              to discover and connect with homegrown enterprises.`,
     },
@@ -42,7 +42,7 @@ export default function OurStory() {
       image: "/logo-produkta.png",
       color: "#e5ddcd",
       subheading: "Every Detail Matters",
-      text: `The Produkta logo captures Iloilo's rich culture and thriving local economy. The bamboo frame symbolizes strength and sustainability, 
+      text: `The ProdukTa logo captures Iloilo's rich culture and thriving local economy. The bamboo frame symbolizes strength and sustainability, 
              while the woven basket represents craftsmanship and tradition. At its center, a collection of local products showcases the diversity 
              of MSMEs, reinforcing the app's mission to support and promote homegrown businesses.`,
     },
