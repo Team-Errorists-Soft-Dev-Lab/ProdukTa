@@ -19,10 +19,7 @@ export default function Footer() {
       <div
         className="flex space-x-4"
         onClick={() =>
-          window.open(
-            "https://web.facebook.com/DTI.RegionVI/?_rdc=1&_rdr#",
-            "_blank",
-          )
+          window.open("https://www.facebook.com/DTI.Iloilo", "_blank")
         }
       >
         {["Facebook"].map((social) => (
