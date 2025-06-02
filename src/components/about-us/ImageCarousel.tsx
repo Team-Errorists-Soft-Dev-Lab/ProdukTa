@@ -18,7 +18,7 @@ export default function ImageCarousel() {
       >
         <SwiperSlide>
           <Image
-            src="/image-1.jpg"
+            src="/team.jpg"
             width={800}
             height={400}
             alt="Slide 1"
@@ -27,7 +27,7 @@ export default function ImageCarousel() {
         </SwiperSlide>
         <SwiperSlide>
           <Image
-            src="/image-2.jpg"
+            src="/team-1.jpg"
             width={800}
             height={400}
             alt="Slide 2"
@@ -36,19 +36,28 @@ export default function ImageCarousel() {
         </SwiperSlide>
         <SwiperSlide>
           <Image
-            src="/image-3.jpg"
+            src="/team-2.jpg"
             width={800}
             height={400}
-            alt="Slide 2"
+            alt="Slide 3"
             className="w-full rounded-lg object-cover"
           />
         </SwiperSlide>
         <SwiperSlide>
           <Image
-            src="/image-4.jpg"
+            src="/team-3.jpg"
             width={800}
             height={400}
-            alt="Slide 2"
+            alt="Slide 4"
+            className="w-full rounded-lg object-cover"
+          />
+        </SwiperSlide>
+        <SwiperSlide>
+          <Image
+            src="/team-4.jpg"
+            width={800}
+            height={400}
+            alt="Slide 5"
             className="w-full rounded-lg object-cover"
           />
         </SwiperSlide>
