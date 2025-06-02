@@ -49,7 +49,7 @@ const sidebarNavItems = [
   },
   {
     title: "Guest",
-    href: "/guest",
+    href: "/superadmin/guest-view",
     icon: UserCircle2,
   },
 ];
