@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Reference() {
   return (
     <div className="container mx-auto text-center">
-      <p className="mb-4 text-lg text-gray-700">Other DTI Apps</p>
+      <p className="mb-4 text-lg font-bold text-gray-700">Other DTI Apps</p>
       <div className="flex items-center justify-center gap-8">
         <a
           href="https://www.rawmats.store/"
