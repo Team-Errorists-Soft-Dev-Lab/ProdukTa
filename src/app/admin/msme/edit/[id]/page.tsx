@@ -22,7 +22,6 @@ import {
   User,
   Phone,
   Mail,
-  Hash,
   Tag,
   Facebook,
   Instagram as InstagramIcon,
@@ -197,6 +196,49 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
       }
     }
   }, [singleMSME]);
+
+  const input = document.getElementById(
+    "places-autocomplete",
+  ) as HTMLInputElement;
+
+  useEffect(() => {
+    if (!isLoaded || !window.google) {
+      return;
+    }
+
+    if (!input) {
+      return;
+    }
+
+    const autocomplete = new window.google.maps.places.Autocomplete(input, {
+      fields: ["geometry", "name", "formatted_address"],
+      componentRestrictions: { country: "ph" },
+    });
+
+    autocomplete.addListener("place_changed", () => {
+      try {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+          return;
+        }
+        if (place.geometry.location) {
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          setLatitude(lat);
+          setLongitude(lng);
+          setMarker({ lat, lng });
+          setMapZoom(15);
+        }
+      } catch (error) {
+        console.error("Error getting place details:", error);
+        toast.error("Failed to get place details. Please try again.");
+      }
+    });
+
+    return () => {
+      window.google.maps.event.clearInstanceListeners(autocomplete);
+    };
+  }, [isLoaded, input]);
 
   const defaultMapCenter = useMemo(
     () => ({
@@ -914,6 +956,94 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
           <p className="mb-4 text-sm text-muted-foreground">
             Click on the map to set/update the MSME&apos;s location.
           </p>
+
+          {/* Google Maps Places Autocomplete Search */}
+          <div className="mb-4">
+            <Input
+              id="places-autocomplete"
+              type="text"
+              placeholder="Search for a location..."
+              className="w-full"
+              autoComplete="off"
+            />
+          </div>
+
+          <div>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Or enter the coordinates of the MSME location manually:
+            </p>
+          </div>
+
+          <div className="mb-4 flex gap-4">
+            <div className="flex-1">
+              <Label htmlFor="latitude">Latitude</Label>
+              <Input
+                id="latitude"
+                type="number"
+                step="any"
+                value={latitude ?? ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) {
+                    setLatitude(val);
+                  } else {
+                    setLatitude(null);
+                  }
+                }}
+                placeholder="e.g. 10.7202"
+              />
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="longitude">Longitude</Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="any"
+                value={longitude ?? ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) {
+                    setLongitude(val);
+                  } else {
+                    setLongitude(null);
+                  }
+                }}
+                placeholder="e.g. 122.5621"
+              />
+            </div>
+            <div className="flex items-end pt-5">
+              <Button
+                onClick={() => {
+                  setMarker({
+                    lat: latitude ?? 10.7202,
+                    lng: longitude ?? 122.5621,
+                  });
+                }}
+                disabled={!latitude || !longitude}
+                className="h-10 rounded-md bg-blue-600 px-4 font-semibold text-white shadow transition-colors duration-150 hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500"
+                type="button"
+              >
+                <span className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6l4 2"
+                    />
+                  </svg>
+                  Set Values
+                </span>
+              </Button>
+            </div>
+          </div>
+
           {isLoaded ? (
             <div className="h-[400px] w-full overflow-hidden rounded-md">
               <GoogleMap
