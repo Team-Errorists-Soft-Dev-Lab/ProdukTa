@@ -24,7 +24,6 @@ import {
   Phone,
   Mail,
   Calendar,
-  Hash,
   Tag,
   Facebook,
   Instagram as InstagramIcon,
@@ -118,6 +117,12 @@ export default function AddMSMEPage({
   );
   const [mapZoom, setMapZoom] = useState(10);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
+
+  // Google Maps Places Autocomplete
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  const autocompleteRef = React.useRef<google.maps.places.Autocomplete | null>(
+    null,
+  );
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -336,6 +341,63 @@ export default function AddMSMEPage({
       setLongitude(marker.lng);
     }
   }, [marker]);
+
+  // Google Maps Places Autocomplete setup
+  useEffect(() => {
+    if (
+      isLoaded &&
+      searchInputRef.current &&
+      !autocompleteRef.current &&
+      window.google
+    ) {
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        searchInputRef.current,
+        {
+          fields: ["geometry", "formatted_address"],
+          types: ["geocode", "establishment"],
+        },
+      );
+      autocompleteRef.current.addListener("place_changed", () => {
+        const place = autocompleteRef.current!.getPlace();
+        if (place.geometry?.location) {
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          setLatitude(lat);
+          setLongitude(lng);
+          setMarker({ lat, lng });
+          setMapZoom(15);
+        }
+      });
+    }
+  }, [isLoaded]);
+
+  // Google Maps Places Autocomplete logic
+  useEffect(() => {
+    if (!isLoaded) return;
+    const input = document.getElementById(
+      "places-autocomplete",
+    ) as HTMLInputElement | null;
+    if (!input || !window.google) return;
+    const autocomplete = new window.google.maps.places.Autocomplete(input, {
+      fields: ["geometry", "name", "formatted_address"],
+      componentRestrictions: { country: "ph" },
+    });
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (place.geometry?.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setLatitude(lat);
+        setLongitude(lng);
+        setMarker({ lat, lng });
+        setMapZoom(15);
+      }
+    });
+    // Clean up
+    return () => {
+      window.google.maps.event.clearInstanceListeners(autocomplete);
+    };
+  }, [isLoaded]);
 
   return (
     <div className="container mx-auto max-w-4xl p-4 py-6 md:py-10">
@@ -726,6 +788,94 @@ export default function AddMSMEPage({
           <p className="mb-4 text-sm text-muted-foreground">
             Click on the map to set the exact location of the MSME.
           </p>
+
+          {/* Google Maps Places Autocomplete Search */}
+          <div className="mb-4">
+            <Input
+              id="places-autocomplete"
+              type="text"
+              placeholder="Search for a location..."
+              className="w-full"
+              autoComplete="off"
+            />
+          </div>
+
+          <div>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Or enter the coordinates of the MSME location manually:
+            </p>
+          </div>
+
+          <div className="mb-4 flex gap-4">
+            <div className="flex-1">
+              <Label htmlFor="latitude">Latitude</Label>
+              <Input
+                id="latitude"
+                type="number"
+                step="any"
+                value={latitude ?? ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) {
+                    setLatitude(val);
+                  } else {
+                    setLatitude(null);
+                  }
+                }}
+                placeholder="e.g. 10.7202"
+              />
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="longitude">Longitude</Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="any"
+                value={longitude ?? ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) {
+                    setLongitude(val);
+                  } else {
+                    setLongitude(null);
+                  }
+                }}
+                placeholder="e.g. 122.5621"
+              />
+            </div>
+            <div className="flex items-end pt-5">
+              <Button
+                onClick={() => {
+                  setMarker({
+                    lat: latitude ?? 10.7202,
+                    lng: longitude ?? 122.5621,
+                  });
+                }}
+                disabled={!latitude || !longitude}
+                className="h-10 rounded-md bg-blue-600 px-4 font-semibold text-white shadow transition-colors duration-150 hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500"
+                type="button"
+              >
+                <span className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6l4 2"
+                    />
+                  </svg>
+                  Set Values
+                </span>
+              </Button>
+            </div>
+          </div>
+
           {isLoaded ? (
             <div className="h-[400px] w-full overflow-hidden rounded-md">
               <GoogleMap
