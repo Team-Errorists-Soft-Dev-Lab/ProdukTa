@@ -227,18 +227,18 @@ export default function ManageMSME() {
   };
 
   return (
-    <div className="h-screen max-h-screen p-4 md:p-6">
+    <div className="h-screen max-h-screen p-2 md:p-4 lg:p-6">
       <div className="flex h-full flex-col">
-        <CardHeader className="flex-none flex-row items-center justify-between space-y-0 px-0 pb-4">
+        <CardHeader className="flex-none flex-col space-y-2 px-0 pb-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div className="flex items-center gap-2">
             <div className="rounded-lg bg-emerald-50 p-2">
-              <Building2 className="h-6 w-6 text-emerald-600" />
+              <Building2 className="h-5 w-5 text-emerald-600 sm:h-6 sm:w-6" />
             </div>
             <div>
-              <CardTitle className="text-3xl font-bold text-gray-800">
+              <CardTitle className="text-xl font-bold text-gray-800 sm:text-2xl lg:text-3xl">
                 Manage MSMEs
               </CardTitle>
-              <CardDescription className="mt-1 text-lg font-bold text-gray-600">
+              <CardDescription className="mt-1 text-sm font-bold text-gray-600 sm:text-base lg:text-lg">
                 Total: {msmes?.length ?? 0} MSMEs
               </CardDescription>
             </div>
@@ -247,9 +247,9 @@ export default function ManageMSME() {
 
         <CardContent className="flex-1 overflow-visible px-0">
           <div className="mb-4 flex-none">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="relative w-64">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="relative w-full sm:w-64">
                   <Input
                     type="text"
                     placeholder="Search MSMEs..."
@@ -271,16 +271,16 @@ export default function ManageMSME() {
                   onFilterChange={setFilters}
                 />
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 {isExportMode ? (
                   <>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                       <Badge
                         variant="outline"
                         className="h-8 border-2 border-emerald-600 bg-emerald-50 px-3 py-1.5"
                       >
-                        <Check className="mr-1 h-4 w-4 text-emerald-600" />
-                        <span className="text-sm font-medium text-emerald-700">
+                        <Check className="mr-1 h-4 w-4 flex-shrink-0 text-emerald-600" />
+                        <span className="max-w-[120px] truncate text-sm font-medium text-emerald-700 sm:max-w-none">
                           {selectedMSMEs.length} MSMEs selected
                         </span>
                       </Badge>
@@ -296,7 +296,10 @@ export default function ManageMSME() {
                             disabled={selectedMSMEs.length === 0}
                           >
                             <FileDown className="mr-2 h-4 w-4" />
-                            Export Selected
+                            <span className="hidden sm:inline">
+                              Export Selected
+                            </span>
+                            <span className="sm:hidden">Export</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
@@ -376,7 +379,10 @@ export default function ManageMSME() {
                         className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
                       >
                         <X className="mr-2 h-4 w-4" />
-                        Cancel Selection
+                        <span className="hidden sm:inline">
+                          Cancel Selection
+                        </span>
+                        <span className="sm:hidden">Cancel</span>
                       </Button>
                     </div>
                   </>
@@ -388,14 +394,16 @@ export default function ManageMSME() {
                       className="border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Select & Export
+                      <span className="hidden sm:inline">Select & Export</span>
+                      <span className="sm:hidden">Export</span>
                     </Button>
                     <Button
                       onClick={() => router.push("/superadmin/msme/add-msme")}
                       className="bg-emerald-600 hover:bg-emerald-700"
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Add MSME
+                      <span className="hidden sm:inline">Add MSME</span>
+                      <span className="sm:hidden">Add</span>
                     </Button>
                   </>
                 )}
@@ -422,20 +430,20 @@ export default function ManageMSME() {
 
             {totalPages > 1 && (
               <div className="flex-none border-t bg-white py-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-center text-sm text-gray-500 sm:text-left">
                     Showing {startIndex} to {endIndex} of {filteredMSMEs.length}{" "}
                     entries
                   </div>
                   <Pagination>
-                    <PaginationContent className="gap-2">
+                    <PaginationContent className="gap-1 sm:gap-2">
                       <PaginationItem>
                         <PaginationPrevious
                           onClick={() =>
                             setCurrentPage((prev) => Math.max(prev - 1, 1))
                           }
                           className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                            "h-8 w-8 rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white sm:h-auto sm:w-auto sm:px-4",
                             currentPage === 1 &&
                               "pointer-events-none opacity-50",
                           )}
@@ -450,7 +458,7 @@ export default function ManageMSME() {
                             )
                           }
                           className={cn(
-                            "rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white",
+                            "h-8 w-8 rounded-md border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white sm:h-auto sm:w-auto sm:px-4",
                             currentPage === totalPages &&
                               "pointer-events-none opacity-50",
                           )}
