@@ -24,6 +24,7 @@ import {
   ExternalLink,
   ArrowRight,
   Calendar,
+  Share2,
 } from "lucide-react";
 
 import type { CarouselApi } from "@/components/ui/carousel";
@@ -40,6 +41,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   useEffect(() => {
     if (MSME?.latitude && MSME?.longitude) {
@@ -93,6 +95,19 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showShareMenu && !(event.target as Element).closest(".relative")) {
+        setShowShareMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showShareMenu]);
+
+  useEffect(() => {
     if (!api) return;
 
     setCount(api.scrollSnapList().length);
@@ -128,6 +143,40 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
       color: isDarkColor ? "white" : "black",
       borderColor: sectorColor,
     };
+  };
+
+  const handleShare = async (
+    method: "copy" | "facebook" | "twitter" | "email",
+  ) => {
+    const currentUrl = window.location.href;
+    const shareText = `Check out ${MSME?.companyName} - ${MSME?.sectorName || "Business"} in ${MSME?.cityMunicipalityAddress}`;
+
+    switch (method) {
+      case "copy":
+        try {
+          await navigator.clipboard.writeText(currentUrl);
+          // You could add a toast notification here
+          alert("Link copied to clipboard!");
+        } catch (err) {
+          console.error("Failed to copy link:", err);
+        }
+        break;
+      // case "facebook":
+      //   window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`, "_blank")
+      //   break
+      case "twitter":
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(shareText)}`,
+          "_blank",
+        );
+        break;
+      case "email":
+        window.open(
+          `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(`${shareText}\n\n${currentUrl}`)}`,
+        );
+        break;
+    }
+    setShowShareMenu(false);
   };
 
   const fullAddress = MSME
@@ -190,6 +239,45 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
               <ArrowLeft className="h-4 w-4" />
               Back to MSMEs
             </Link>
+
+            <div className="relative">
+              <Button
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-amber-800 shadow-lg backdrop-blur-sm transition-all hover:bg-amber-600 hover:text-white hover:shadow-xl md:px-6 md:py-3"
+                variant="ghost"
+              >
+                <Share2 className="h-4 w-4" />
+                Share
+              </Button>
+
+              {showShareMenu && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-amber-200/50 bg-white/95 p-2 shadow-xl backdrop-blur-sm">
+                  <button
+                    onClick={() => handleShare("copy")}
+                    className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Copy Link
+                  </button>
+                  {/* <button
+                    onClick={() => handleShare("twitter")}
+                    className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                    Share on X
+                  </button> */}
+                  <button
+                    onClick={() => handleShare("email")}
+                    className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-amber-50"
+                  >
+                    <Mail className="h-4 w-4" />
+                    Share via Email
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="overflow-hidden rounded-xl bg-white/90 shadow-2xl backdrop-blur-sm md:rounded-2xl">
