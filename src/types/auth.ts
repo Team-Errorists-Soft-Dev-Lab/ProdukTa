@@ -1,4 +1,4 @@
-import { type Admin } from "@prisma/client";
+import { type Admin } from "@prismagenerated/client";
 import { z } from "zod";
 import type { AuthError } from "@supabase/supabase-js";
 
