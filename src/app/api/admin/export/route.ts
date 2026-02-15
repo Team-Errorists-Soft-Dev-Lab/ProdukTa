@@ -1,8 +1,7 @@
-import type { NextApiResponse } from "next";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/utils/prisma/client";
 
-export async function POST(req: NextRequest, _: NextApiResponse) {
+export async function POST(req: NextRequest) {
   // record each export from the admin dashboard
   const { msmeId } = (await req.json()) as { msmeId: string };
   const msmeIdToInt: number = parseInt(msmeId);

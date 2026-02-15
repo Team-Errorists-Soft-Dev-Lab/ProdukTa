@@ -6,7 +6,9 @@ import { type CustomAuthError } from "@/types/auth";
 // Define an interface for Admin with included relations
 interface AdminWithSectors extends Admin {
   sectors: AdminSectors[];
+  isSuperadmin?: boolean;
   isActive?: boolean;
+  isPending?: boolean;
   emailVerified?: boolean;
 }
 
