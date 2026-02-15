@@ -57,9 +57,8 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
         fetch("/api/admin/pending"),
       ]);
 
-      if (!activeResponse.ok) throw new Error("Failed to fetch active admins");
-      if (!pendingResponse.ok)
-        throw new Error("Failed to fetch pending admins");
+      if (!activeResponse.ok) toast.error("Failed to fetch admins");
+      if (!pendingResponse.ok) toast.error("Failed to fetch pending admins");
 
       const [activeData, pendingData]: [AdminsResponse, PendingAdminsResponse] =
         (await Promise.all([

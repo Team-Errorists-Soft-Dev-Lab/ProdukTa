@@ -3,15 +3,17 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { page: string } },
+  { params }: { params: Promise<{ page: string }> },
 ) {
   try {
+    const { page: pageParam } = await params;
+
     // Validate the page parameter
-    if (!params?.page || isNaN(parseInt(params.page))) {
+    if (!pageParam || isNaN(parseInt(pageParam))) {
       return NextResponse.json({ error: "Invalid page ID" }, { status: 400 });
     }
 
-    const page = parseInt(params.page);
+    const page = parseInt(pageParam);
     const pageSize = 15;
     const offset = (page - 1) * pageSize;
 

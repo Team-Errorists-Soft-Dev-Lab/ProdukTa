@@ -190,13 +190,11 @@ export function SectorFilter({
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <div
-                  className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-[#8B4513] hover:text-white"
-                  onClick={() => handleSectorChange([])}
-                >
+                <div className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-[#8B4513] hover:text-white">
                   <Checkbox
                     checked={selectedSector.length === 0}
                     className="mr-2"
+                    onClick={() => handleSectorChange([])}
                   />
                   All
                 </div>
@@ -213,11 +211,11 @@ export function SectorFilter({
                           ? "bg-[#8B4513] text-white"
                           : "hover:bg-[#8B4513] hover:text-white"
                       }`}
-                      onClick={() => toggleSector(sector.name)}
                     >
                       <Checkbox
                         checked={isSelected}
                         className="mr-2 border-white"
+                        onClick={() => toggleSector(sector.name)}
                       />
                       {Icon && <Icon />}
                       {sector.name}
@@ -230,60 +228,154 @@ export function SectorFilter({
 
           {/* Button grid for medium screens */}
           <div className="hidden w-full grid-cols-2 gap-2 md:grid lg:hidden xl:grid-cols-3">
-            <Button
-              variant={selectedSector.length === 0 ? "secondary" : "outline"}
-              className={`flex w-full items-center justify-start gap-2 text-sm outline-[#bb987a] ${selectedSector.length === 0 ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+            <div
+              className={`flex w-full cursor-pointer items-center justify-start gap-2 rounded-md border border-[#bb987a] px-3 py-2 text-sm ${
+                selectedSector.length === 0
+                  ? "bg-[#8B4513] text-white"
+                  : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513]"
+              }`}
               onClick={() => handleSectorChange([])}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleSectorChange([]);
+                }
+              }}
             >
+              <span
+                className={`mr-1 flex h-4 w-4 items-center justify-center rounded border ${
+                  selectedSector.length === 0
+                    ? "border-white bg-white"
+                    : "border-[#bb987a]"
+                }`}
+              >
+                {selectedSector.length === 0 && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-3 w-3 text-[#8B4513]"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </span>
               All
-            </Button>
+            </div>
             {sectors.map((sector) => {
               const Icon = getSectorIcon(sector.name) as React.ComponentType;
               const isSelected = selectedSector.includes(sector.name);
               return (
-                <Button
+                <div
                   key={sector.id}
-                  variant={isSelected ? "secondary" : "outline"}
-                  className={`flex w-full items-center justify-start gap-2 text-sm outline-[#bb987a] ${isSelected ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+                  className={`flex w-full cursor-pointer items-center justify-start gap-2 rounded-md border border-[#bb987a] px-3 py-2 text-sm ${
+                    isSelected
+                      ? "bg-[#8B4513] text-white"
+                      : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513]"
+                  }`}
                   onClick={() => toggleSector(sector.name)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      toggleSector(sector.name);
+                    }
+                  }}
                 >
-                  <Checkbox
-                    checked={isSelected}
-                    className="mr-1 border-white"
-                  />
+                  <span
+                    className={`mr-1 flex h-4 w-4 items-center justify-center rounded border ${
+                      isSelected ? "border-white bg-white" : "border-[#bb987a]"
+                    }`}
+                  >
+                    {isSelected && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 text-[#8B4513]"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </span>
                   <Icon />
                   <span className="truncate">{sector.name}</span>
-                </Button>
+                </div>
               );
             })}
           </div>
 
           {/* Button row for large screens */}
           <div className="hidden w-full flex-wrap gap-2 pb-2 lg:flex xl:flex-nowrap xl:gap-4">
-            <Button
-              variant={selectedSector.length === 0 ? "secondary" : "outline"}
-              className={`min-w-fit flex-grow outline-[#bb987a] ${selectedSector.length === 0 ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+            <div
+              className={`min-w-fit flex-grow cursor-pointer rounded-md border border-[#bb987a] px-3 py-2 ${
+                selectedSector.length === 0
+                  ? "bg-[#8B4513] text-white"
+                  : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513]"
+              }`}
               onClick={() => handleSectorChange([])}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleSectorChange([]);
+                }
+              }}
             >
               All
-            </Button>
+            </div>
             {sectors.map((sector) => {
               const Icon = getSectorIcon(sector.name) as React.ComponentType;
               const isSelected = selectedSector.includes(sector.name);
               return (
-                <Button
+                <div
                   key={sector.id}
-                  variant={isSelected ? "secondary" : "outline"}
-                  className={`flex min-w-fit flex-grow items-center gap-2 whitespace-nowrap outline-[#bb987a] ${isSelected ? "bg-[#8B4513] text-white" : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513] focus:bg-[#8B4513]"}`}
+                  className={`flex min-w-fit flex-grow cursor-pointer items-center gap-2 whitespace-nowrap rounded-md border border-[#bb987a] px-3 py-2 ${
+                    isSelected
+                      ? "bg-[#8B4513] text-white"
+                      : "bg-[#bb987a] text-[#ffffff] hover:bg-[#8B4513]"
+                  }`}
                   onClick={() => toggleSector(sector.name)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      toggleSector(sector.name);
+                    }
+                  }}
                 >
-                  <Checkbox
-                    checked={isSelected}
-                    className="mr-2 border-white"
-                  />
+                  <span
+                    className={`mr-2 flex h-4 w-4 items-center justify-center rounded border ${
+                      isSelected ? "border-white bg-white" : "border-[#bb987a]"
+                    }`}
+                  >
+                    {isSelected && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 text-[#8B4513]"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </span>
                   <Icon />
                   {sector.name}
-                </Button>
+                </div>
               );
             })}
           </div>

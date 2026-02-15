@@ -223,6 +223,7 @@ export const MSMEProvider = ({ children }: { children: ReactNode }) => {
             ? `/api/msme/sector-filter/?page=${page}&${params.toString()}`
             : `/api/msme/sector-filter/${page}`;
 
+        console.log("url: ", url);
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch MSMEs by sector");
         const data = (await response.json()) as PagedMSMEsResponse;

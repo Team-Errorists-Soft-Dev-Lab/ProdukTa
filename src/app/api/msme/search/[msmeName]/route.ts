@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { msmeName: string } },
+  { params }: { params: Promise<{ msmeName: string }> },
 ) {
   try {
-    const { msmeName } = params;
+    const { msmeName } = await params;
 
     // Input validation
     if (!msmeName || typeof msmeName !== "string") {

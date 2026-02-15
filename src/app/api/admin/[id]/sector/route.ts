@@ -3,17 +3,19 @@ import { prisma } from "@/utils/prisma/client";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    if (!params?.id || isNaN(parseInt(params.id))) {
+    const { id: idParam } = await params;
+
+    if (!idParam || isNaN(parseInt(idParam))) {
       return NextResponse.json(
         { error: "Invalid or missing admin ID" },
         { status: 400 },
       );
     }
 
-    const adminId = parseInt(params.id);
+    const adminId = parseInt(idParam);
 
     const adminSector = await prisma.adminSectors.findFirst({
       where: {
@@ -23,6 +25,8 @@ export async function GET(
         sector: true,
       },
     });
+
+    console.log("admin sector: ", adminSector);
 
     if (!adminSector) {
       return NextResponse.json(

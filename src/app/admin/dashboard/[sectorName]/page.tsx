@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, use } from "react";
 import { Download, Store, FileText, MapPin } from "lucide-react";
 import {
   Card,
@@ -29,10 +29,10 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 export default function MSMEPage({
   params,
 }: {
-  params: { sectorName: string };
+  params: Promise<{ sectorName: string }>;
 }) {
+  const { sectorName } = use(params);
   const { msmes, sectors, isLoading } = useMSMEContext();
-  const { sectorName } = params;
   const { exportDetails, fetchExportDetails, isLoadingExportData } =
     useExportDetailsContext();
   const { visitors, fetchVisitors, isLoadingVisitors } = useVisitorContext();
@@ -247,11 +247,9 @@ export default function MSMEPage({
               <CardTitle className="text-lg text-[#996439]">
                 Most Exported MSME
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-md font-bold text-[#996439]">
                 By the top exported MSME: <br />
-                <p className="text-md font-bold text-[#996439]">
-                  {exportDetails?.msmeDetails?.companyName || "N/A"}
-                </p>
+                {exportDetails?.msmeDetails?.companyName || "N/A"}
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -8,6 +8,7 @@ export interface LocationSelectProps {
 export interface MapComponentProps {
   latitude: number;
   longitude: number;
+  style?: React.CSSProperties;
 }
 
 export interface Location {

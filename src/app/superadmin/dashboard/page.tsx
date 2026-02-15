@@ -221,7 +221,9 @@ export default function Dashboard() {
           <CardContent>
             <div className="flex items-end justify-between">
               <p className="text-3xl font-bold text-emerald-600">
-                {loadingTotalExports ? <Spinner /> : totalExports}
+                {loadingTotalExports
+                  ? "Loading total exports..."
+                  : totalExports}
               </p>
               <div className="rounded-full bg-amber-100 p-2 text-amber-600">
                 <Download size={25} />
