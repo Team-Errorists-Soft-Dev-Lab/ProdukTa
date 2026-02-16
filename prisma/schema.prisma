@@ -2,17 +2,16 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "./generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 model Admin {
-    id              Int      @id @default(autoincrement())
+    id              String      @id @default(uuid())
     name            String
     email           String   @unique
     password        String
@@ -34,7 +33,7 @@ model Sector {
 
 model AdminSectors {
     admin       Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
-    adminId     Int
+    adminId     String
     sector      Sector @relation(fields: [sectorId], references: [id])
     sectorId    Int
 

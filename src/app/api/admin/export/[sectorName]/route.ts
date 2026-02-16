@@ -10,10 +10,10 @@ interface ISector {
 
 export async function GET(
   req: Request,
-  { params }: { params: { sectorName: string } },
+  { params }: { params: Promise<{ sectorName: string }> },
 ) {
   try {
-    const { sectorName } = params;
+    const { sectorName } = await params;
 
     const sectors: ISector[] = await prisma.sector.findMany();
 

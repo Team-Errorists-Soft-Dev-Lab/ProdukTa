@@ -222,6 +222,7 @@ export default function GuestPage() {
 
   const handleSectorChange = useCallback(
     async (sectors: string[]) => {
+      console.log("sectors: ", sectors); // has values
       setSelectedSector(sectors);
       setCurrentPage(1);
       if (sectors.length === 0) {

@@ -38,8 +38,7 @@ export const VisitorProvider = ({ children }: { children: ReactNode }) => {
       try {
         const response = await fetch(`/api/admin/visitors/${sectorName}`);
         if (!response.ok) {
-          const errorMessage = `Failed to fetch visitors: ${response.statusText}`;
-          throw new Error(errorMessage);
+          toast.error("Failed to fetch visitors");
         }
 
         const data = (await response.json()) as VisitorResponse;

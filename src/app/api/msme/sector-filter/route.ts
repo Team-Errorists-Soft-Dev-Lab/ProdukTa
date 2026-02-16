@@ -1,9 +1,6 @@
 import { prisma } from "@/utils/prisma/client";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { page: string } },
-) {
+export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const page = Number(url.searchParams.get("page"));
@@ -26,15 +23,18 @@ export async function GET(
       ? sectorsParam.split(",").filter(Boolean)
       : [];
 
-    // Find all matching sector IDs
+    // Find all matching sector IDs (case-insensitive)
     let sectorIds: number[] = [];
     if (selectedSectors.length > 0) {
-      const sectorRecords = await prisma.sector.findMany({
-        where: {
-          name: { in: selectedSectors, mode: "insensitive" },
-        },
-        select: { id: true },
+      // Fetch all sectors and do case-insensitive matching
+      const allSectors = await prisma.sector.findMany({
+        select: { id: true, name: true },
       });
+
+      const selectedSectorsLower = selectedSectors.map((s) => s.toLowerCase());
+      const sectorRecords = allSectors.filter((s) =>
+        selectedSectorsLower.includes(s.name.toLowerCase()),
+      );
       sectorIds = sectorRecords.map((s) => s.id);
 
       if (sectorIds.length === 0) {

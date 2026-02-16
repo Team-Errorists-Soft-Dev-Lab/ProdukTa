@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, use } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -46,7 +46,12 @@ import { fetchMsmeInitialData } from "@/lib/msmeYearCity";
 
 const libraries: ("places" | "maps")[] = ["places", "maps"];
 
-export default function EditMSMEPage({ params }: { params: { id: string } }) {
+export default function EditMSMEPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const router = useRouter();
   const { sectors, singleMSME, handleUpdateMSME, fetchSingleMSME } =
     useMSMEContext();
@@ -120,9 +125,9 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     async function loadInitialFields() {
-      if (params.id) {
+      if (id) {
         try {
-          const initialData = await fetchMsmeInitialData(params.id);
+          const initialData = await fetchMsmeInitialData(id);
           if (initialData) {
             if (initialData.cityMunicipalityAddress) {
               setCityMunicipalityAddress(initialData.cityMunicipalityAddress);
@@ -140,13 +145,13 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
     }
 
     void loadInitialFields();
-  }, [params.id]);
+  }, [id]);
   useEffect(() => {
-    if (params.id) {
+    if (id) {
       setIsLoadingMSME(true);
       const fetchData = async () => {
         try {
-          await fetchSingleMSME(parseInt(params.id));
+          await fetchSingleMSME(parseInt(id));
         } catch (err) {
           console.error("Failed to fetch MSME", err);
         } finally {
@@ -156,7 +161,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
       void fetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     if (singleMSME) {
@@ -400,7 +405,7 @@ export default function EditMSMEPage({ params }: { params: { id: string } }) {
 
       await handleUpdateMSME({
         ...singleMSME, // Spread existing data to preserve other fields
-        id: Number(params.id),
+        id: Number(id),
         companyName,
         companyDescription,
         companyLogo: finalLogoUrl,

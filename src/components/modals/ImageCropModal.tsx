@@ -76,11 +76,7 @@ export default function ImageCropModal({
     [handleDropzoneFile],
   );
 
-  const {
-    getRootProps: getRootPropsHook,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({
+  const { getRootProps: getRootPropsHook, getInputProps } = useDropzone({
     onDrop,
     accept: {
       "image/*": [],

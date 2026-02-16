@@ -11,7 +11,7 @@ export interface MSME {
 }
 
 export interface Admin {
-  id: number;
+  id: string;
   name: string;
   email: string;
   sector: string;

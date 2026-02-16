@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { type Admin } from "@prisma/client";
+import { type Admin } from "@prismagenerated/client";
 import { handleLogin, handleSignup, handleLogout } from "@/lib/auth-handlers";
 import { toast } from "sonner";
 import LoadingPage from "@/components/loading/Loading";

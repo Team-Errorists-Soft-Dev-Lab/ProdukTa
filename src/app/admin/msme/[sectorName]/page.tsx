@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +48,7 @@ import { Badge } from "@/components/ui/badge";
 export default function MSMEPage({
   params,
 }: {
-  params: { sectorName: string };
+  params: Promise<{ sectorName: string }>;
 }) {
   const { msmes, sectors, handleDeleteMSME, isLoading } = useMSMEContext();
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,7 +66,7 @@ export default function MSMEPage({
   const [selectedMSMEs, setSelectedMSMEs] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const { sectorName } = params;
+  const { sectorName } = use(params);
   const router = useRouter();
 
   const Sector = sectors.find(

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { MSME } from "@/types/MSME";
+import { toast } from "sonner";
 
 interface ExportDetails {
   msmeDetails: MSME;
@@ -42,8 +43,7 @@ export const ExportDetailsProvider = ({
       try {
         const response = await fetch(`/api/admin/export/${sectorName}`);
         if (!response.ok) {
-          const errorMessage = `Failed to fetch export details: ${response.statusText}`;
-          throw new Error(errorMessage);
+          toast.error("Failed to fetch export details");
         }
 
         const data = (await response.json()) as ExportDetails;

@@ -1,5 +1,5 @@
 export interface Admin {
-  id: number;
+  id: string;
   name: string;
   email: string;
   sectors: {
@@ -12,7 +12,7 @@ export interface Admin {
 }
 
 export interface PendingAdmin {
-  id: number;
+  id: string;
   name: string;
   email: string;
   sector: string;

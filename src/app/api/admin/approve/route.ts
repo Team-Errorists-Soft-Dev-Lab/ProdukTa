@@ -6,7 +6,7 @@ import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
 const RequestSchema = z.object({
-  adminId: z.number(),
+  adminId: z.string(),
 });
 
 export async function POST(request: Request) {

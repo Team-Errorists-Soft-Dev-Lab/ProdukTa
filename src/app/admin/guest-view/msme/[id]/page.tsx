@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -30,7 +30,12 @@ import type { CarouselApi } from "@/components/ui/carousel";
 import type { MSMEWithSectorName } from "@/types/MSME";
 import { SECTOR_COLORS, type SectorColorKey } from "@/lib/sector-colors";
 
-export default function MSMEPage({ params }: { params: { id: string } }) {
+export default function MSMEPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const [MSME, setMSME] = useState<MSMEWithSectorName>();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -74,7 +79,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
     const fetchMSME = async () => {
       setIsLoading(true);
       try {
-        const msmeResponse = await fetch(`/api/msme/${params.id}`);
+        const msmeResponse = await fetch(`/api/msme/${id}`);
         if (!msmeResponse.ok) {
           throw new Error("Failed to fetch MSME");
         }
@@ -90,7 +95,7 @@ export default function MSMEPage({ params }: { params: { id: string } }) {
     fetchMSME().catch((error) => {
       console.error("Error fetching MSME:", error);
     });
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     if (!api) return;

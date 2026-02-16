@@ -1,6 +1,6 @@
 import { prisma } from "@/utils/prisma/client";
 import bcrypt from "bcryptjs";
-import { type Admin, type AdminSectors } from "@prisma/client";
+import { type Admin, type AdminSectors } from "@prismagenerated/client";
 import { type CustomAuthError } from "@/types/auth";
 
 // Define an interface for Admin with included relations

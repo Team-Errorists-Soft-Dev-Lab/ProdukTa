@@ -9,7 +9,7 @@ interface MSMEWithSector extends MSME {
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const body = (await request.json()) as MSMEWithSector;
@@ -17,7 +17,7 @@ export async function PUT(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, createdAt, sectors, sectorName, ...dataWithoutId } = body;
     const updatedMSME = await prisma.mSME.update({
-      where: { id: Number(params.id) },
+      where: { id: Number((await params).id) },
       data: dataWithoutId,
     });
 
@@ -33,11 +33,11 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await prisma.mSME.delete({
-      where: { id: Number(params.id) },
+      where: { id: Number((await params).id) },
     });
 
     return NextResponse.json(null);
@@ -52,11 +52,11 @@ export async function DELETE(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const msme = await prisma.mSME.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number((await params).id) },
       include: {
         sectors: true,
       },
