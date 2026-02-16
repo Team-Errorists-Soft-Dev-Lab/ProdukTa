@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Admin {
-    id              Int      @id @default(autoincrement())
+    id              String      @id @default(uuid())
     name            String
     email           String   @unique
     password        String
@@ -33,7 +33,7 @@ model Sector {
 
 model AdminSectors {
     admin       Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
-    adminId     Int
+    adminId     String
     sector      Sector @relation(fields: [sectorId], references: [id])
     sectorId    Int
 

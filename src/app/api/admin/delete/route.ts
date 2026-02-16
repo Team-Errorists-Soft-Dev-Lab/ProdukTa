@@ -4,7 +4,7 @@ import { z } from "zod";
 import { NextResponse } from "next/server";
 
 const RequestSchema = z.object({
-  adminId: z.number(),
+  adminId: z.string(),
 });
 
 export async function DELETE(request: Request) {

@@ -15,7 +15,7 @@ export async function GET(
       );
     }
 
-    const adminId = parseInt(idParam);
+    const adminId = idParam;
 
     const adminSector = await prisma.adminSectors.findFirst({
       where: {

@@ -1,10 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { PendingAdmin, Admin } from "@/types/superadmin";
 import { toast } from "sonner";
-import { fetchWithTimeout } from "@/lib/utils";
 
 interface Sector {
   id: number;
@@ -35,9 +34,9 @@ interface SuperAdminContextType {
   activeAdmins: Admin[];
   pendingAdmins: PendingAdmin[];
   sectors: Sector[];
-  handleAcceptAdmin: (adminId: number) => Promise<void>;
-  handleRejectAdmin: (adminId: number) => Promise<void>;
-  handleDeleteAdmin: (adminId: number) => Promise<void>;
+  handleAcceptAdmin: (adminId: string) => Promise<void>;
+  handleRejectAdmin: (adminId: string) => Promise<void>;
+  handleDeleteAdmin: (adminId: string) => Promise<void>;
   fetchAdmins: () => Promise<void>;
 }
 
@@ -92,7 +91,7 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
     void fetchSectors();
   }, []);
 
-  const handleAcceptAdmin = async (adminId: number) => {
+  const handleAcceptAdmin = async (adminId: string) => {
     try {
       // Optimistically update UI
       setPendingAdmins((prev) => prev.filter((admin) => admin.id !== adminId));
@@ -126,7 +125,7 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const handleRejectAdmin = async (adminId: number) => {
+  const handleRejectAdmin = async (adminId: string) => {
     try {
       // Optimistically update UI
       setPendingAdmins((prev) => prev.filter((admin) => admin.id !== adminId));
@@ -153,7 +152,7 @@ export const SuperAdminProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const handleDeleteAdmin = async (adminId: number) => {
+  const handleDeleteAdmin = async (adminId: string) => {
     try {
       // Optimistically update UI
       setActiveAdmins((prev) => prev.filter((admin) => admin.id !== adminId));
