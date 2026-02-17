@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, use } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ import { uploadImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { MapComponent } from "@/components/map/MapComponent";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import {
   Dropzone,
@@ -53,11 +54,11 @@ interface DuplicateCheckResponse {
 export default function AddMSMEPage({
   params,
 }: {
-  params: { sectorName: string };
+  params: Promise<{ sectorName: string }>;
 }) {
   const router = useRouter();
   const { sectors, handleAddMSME } = useMSMEContext();
-  const { sectorName } = params;
+  const { sectorName } = use(params);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -876,33 +877,19 @@ export default function AddMSMEPage({
             </div>
           </div>
 
-          {isLoaded ? (
+          {latitude && longitude ? (
             <div className="h-[400px] w-full overflow-hidden rounded-md">
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={
-                  marker || {
-                    lat: latitude || 10.7202,
-                    lng: longitude || 122.5621,
-                  }
-                }
-                zoom={marker ? 15 : mapZoom}
-                onClick={handleMapClick}
-                options={{
-                  streetViewControl: false,
-                  mapTypeControl: false,
-                  fullscreenControl: false,
-                }}
-              >
-                {marker && <Marker position={marker} />}
-              </GoogleMap>
+              <MapComponent
+                latitude={latitude}
+                longitude={longitude}
+                label={companyName || "New Location"}
+              />
             </div>
-          ) : loadError ? (
-            <p>Error loading map.</p>
           ) : (
             <div className="flex h-[400px] w-full items-center justify-center rounded-md border bg-muted">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              <p className="ml-2">Loading map...</p>
+              <p className="text-muted-foreground">
+                Click on the map or search for an address to set location.
+              </p>
             </div>
           )}
           {errors.location && (

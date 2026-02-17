@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { MapComponent } from "@/components/map/MapComponent";
 import {
   ArrowLeft,
   MapPin,
@@ -41,19 +41,6 @@ export default function MSMEPage({
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>();
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-  });
-
-  useEffect(() => {
-    if (MSME?.latitude && MSME?.longitude) {
-      setMapCenter({
-        lat: MSME.latitude,
-        lng: MSME.longitude,
-      });
-    }
-  }, [MSME]);
 
   useEffect(() => {
     const addVisitorCount = async () => {
@@ -430,31 +417,17 @@ export default function MSMEPage({
                   </div>
                 </div>
 
-                {MSME.latitude && MSME.longitude && isLoaded && (
+                {MSME.latitude && MSME.longitude && (
                   <div className="rounded-xl border border-amber-200/50 bg-gradient-to-br from-white to-amber-50/30 p-3 shadow-lg md:p-4">
                     <h3 className="mb-2 text-base font-bold text-[#8B4513] md:text-lg">
                       Location
                     </h3>
                     <div className="overflow-hidden rounded-lg shadow-lg">
-                      <GoogleMap
-                        mapContainerStyle={{
-                          width: "100%",
-                          height: "150px",
-                        }}
-                        center={mapCenter}
-                        zoom={12}
-                        options={{
-                          styles: [
-                            {
-                              featureType: "poi",
-                              elementType: "labels",
-                              stylers: [{ visibility: "off" }],
-                            },
-                          ],
-                        }}
-                      >
-                        {mapCenter && <Marker position={mapCenter} />}
-                      </GoogleMap>
+                      <MapComponent
+                        latitude={MSME.latitude}
+                        longitude={MSME.longitude}
+                        label={MSME.companyName}
+                      />
                     </div>
                     <div className="mt-2">
                       <a

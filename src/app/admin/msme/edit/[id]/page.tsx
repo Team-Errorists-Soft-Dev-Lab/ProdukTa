@@ -35,6 +35,7 @@ import { uploadImage, deleteImage } from "@/utils/supabase/storage";
 import { toast } from "sonner";
 import ImageCropModal from "@/components/modals/ImageCropModal";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { MapComponent } from "@/components/map/MapComponent";
 // import type { MSME } from "@/types/MSME";
 import { useSupabaseUpload } from "@/hooks/use-supabase-upload";
 import {
@@ -1049,28 +1050,19 @@ export default function EditMSMEPage({
             </div>
           </div>
 
-          {isLoaded ? (
+          {latitude && longitude ? (
             <div className="h-[400px] w-full overflow-hidden rounded-md">
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={marker || defaultMapCenter}
-                zoom={marker ? 15 : mapZoom}
-                onClick={handleMapClick}
-                options={{
-                  streetViewControl: false,
-                  mapTypeControl: false,
-                  fullscreenControl: false,
-                }}
-              >
-                {marker && <Marker position={marker} />}
-              </GoogleMap>
+              <MapComponent
+                latitude={latitude}
+                longitude={longitude}
+                label={companyName}
+              />
             </div>
-          ) : loadError ? (
-            <p>Error loading map.</p>
           ) : (
             <div className="flex h-[400px] w-full items-center justify-center rounded-md border bg-muted">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              <p className="ml-2">Loading map...</p>
+              <p className="text-muted-foreground">
+                No location set. Search for an address above.
+              </p>
             </div>
           )}
           {errors.location && (
